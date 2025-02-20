@@ -12,7 +12,15 @@
 #include <iostream>
 #include <cmath>
 
+particleCollection::particleCollection(std::vector<particle> particles) {
+    for (particle p : particles) {
+        this->particleList.push_back(p);
+        this->particleDeque.push_back(p);
+        this->particleVector.push_back(p);
+        // this->particleSet.insert(p);
+    }
 
+}
 
 particleCollection::particleCollection(int nbElem) {
     for (int i = 0; i < nbElem; i++) {
@@ -95,36 +103,63 @@ void particleCollection::compareInsertion() {
     std::cout << "Time to insert at the end of a vector: " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << " ns" << std::endl;
 }
 
-void particleCollection::computeForce() {
-    for (particle p : this->particleVector) {
-        double forceVector[3] = {0, 0, 0};
-        for (particle p1 : this->particleVector) {
-            if (p.get_id() != p1.get_id()) {
-                double* pos1 = p.get_position();
-                double* pos2 = p1.get_position();
-                double distance = sqrt(pow(pos1[0] - pos2[0], 2) + pow(pos1[1] - pos2[1], 2) + pow(pos1[2] - pos2[2], 2));
-                double force = 1 / pow(distance, 2);
-                forceVector[0] += force * (pos1[0] - pos2[0]) / distance;
-                forceVector[1] += force * (pos1[1] - pos2[1]) / distance;
-                forceVector[2] += force * (pos1[2] - pos2[2]) / distance;
-            }
+void particleCollection::computeForce(particle p) {
+    double forceVector[3] = {0, 0, 0};
+    for (particle p1 : this->particleVector) {
+        if (p.get_id() != p1.get_id()) {
+            double distance = sqrt(pow(p.get_position()[0] - p1.get_position()[0], 2) +
+                                   pow(p.get_position()[1] - p1.get_position()[1], 2) +
+                                   pow(p.get_position()[2] - p1.get_position()[2], 2));
+            double force = 1 / pow(distance, 2);
+            forceVector[0] += force * (p.get_mass() * p1.get_mass());
+            forceVector[1] += force * (p.get_mass() * p1.get_mass());
+            forceVector[2] += force * (p.get_mass() * p1.get_mass());
         }
-        p.set_force(forceVector);
     }
-
+    p.set_force(forceVector);
 }
 
-std::vector<double[3]> particleCollection::stromerVerlet(float dt, float tEnd) {
-    std::vector<double[3]> forces;
+void particleCollection::computeAllForces() {
+    for (particle p : this->particleVector) {
+        computeForce(p);
+    }
+}
+
+void particleCollection::stromerVerlet(float dt, float tEnd) {
     float t = 0.0;
-    computeForce();
+    computeAllForces();
     while (t < tEnd) {
+        double oldForces[3] = {0, 0, 0};
         t += dt;
         for (particle p : this->particleVector) {
-
+            double position[3] = {
+                p.get_position()[0] + dt * (p.get_velocity()[0] + 0.5 / p.get_mass() * p.get_force()[0] * dt),
+                p.get_position()[1] + dt * (p.get_velocity()[1] + 0.5 / p.get_mass() * p.get_force()[1] * dt),
+                p.get_position()[2] + dt * (p.get_velocity()[2] + 0.5 / p.get_mass() * p.get_force()[2] * dt)
+            };
+            p.set_position(position);
+            // save the old force
+            oldForces[0] = p.get_force()[0];
+            oldForces[1] = p.get_force()[1];
+            oldForces[2] = p.get_force()[2];
         }
+        computeAllForces();
+        for (particle p : this->particleVector) {
+            double velocity[3] = {
+                p.get_velocity()[0] + dt * 0.5/p.get_mass() * (oldForces[0] + p.get_force()[0]),
+                p.get_velocity()[1] + dt * 0.5/p.get_mass() * (oldForces[1] + p.get_force()[1]),
+                p.get_velocity()[2] + dt * 0.5/p.get_mass() * (oldForces[2] + p.get_force()[2])
+            };
+            p.set_velocity(velocity);
+        }
+
+        // print position of each particle for each iteration on the same line
+        for (particle p : this->particleVector) {
+            std::cout << t << p.get_position()[0] << " " << p.get_position()[1] << " " << p.get_position()[2] << " ";
+        }
+        std::cout << std::endl;
+
     }
-    return forces;
 }
 
 

@@ -50,6 +50,9 @@ public:
 
     double* get_force();
 
+    // determine the gravitational attraction force between two particles
+    double* findForce(particle p);
+
 };
 
 

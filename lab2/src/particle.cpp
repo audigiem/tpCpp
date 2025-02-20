@@ -90,3 +90,15 @@ int particle::get_category() {
 double* particle::get_force() {
     return this->force;
 }
+
+double* particle::findForce(particle p) {
+    double forceVector[3] = {0, 0, 0};
+    double distance = sqrt(pow(p.get_position()[0] - this->position[0], 2) +
+                           pow(p.get_position()[1] - this->position[1], 2) +
+                           pow(p.get_position()[2] - this->position[2], 2));
+    double force = 1 / pow(distance, 2);
+    forceVector[0] += force * (p.get_mass() * this->mass);
+    forceVector[1] += force * (p.get_mass() * this->mass);
+    forceVector[2] += force * (p.get_mass() * this->mass);
+    return forceVector;
+}

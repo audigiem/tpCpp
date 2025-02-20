@@ -19,6 +19,8 @@ private:
     std::vector<particle> particleVector;
 
 public:
+    particleCollection(std::vector<particle> particles);
+
     explicit particleCollection(int nbElem);
 
     ~particleCollection();
@@ -40,9 +42,11 @@ public:
 
     // method to determine the movement of particles
     // depending on the force applied to them
-    std::vector<double[3]> stromerVerlet(float dt, float tEnd);
+    void stromerVerlet(float dt, float tEnd);
 
-    void computeForce();
+    void computeForce(particle p);
+
+    void computeAllForces();
 
 };
 
