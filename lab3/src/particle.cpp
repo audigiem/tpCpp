@@ -2,51 +2,44 @@
 // Created by audigiem on 13/02/25.
 //
 
-#include "Particle.h"
-
+#include "../include/particle.h"
+#include "../include/vecteur.h"
 #include <random>
 
 
-Particle::Particle(double position[3], double velocity[3], double mass, int id, int category) {
-    for (int i = 0; i < 3; i++) {
-        this->position[i] = position[i];
-        this->velocity[i] = velocity[i];
-    }
+Particle::Particle(const Vecteur &position, const Vecteur &velocity, double mass, int id, int category) {
+    this->position = position;
+    this->velocity = velocity;
     this->mass = mass;
     this->id = id;
     this->category = category;
-    for (int i = 0; i < 3; i++) {
-        this->force[i] = 0;
-    }
+    this->force = Vecteur(0, 0, 0);
 }
 
 Particle::Particle() {
-    for (int i = 0; i < 3; i++) {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<> dis(0, 1);
-        this->position[i] = dis(gen);
-        this->velocity[i] = dis(gen);
-        this->force[i] = dis(gen);
-    }
+    // Random initialization
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0, 1);
+    this->position = Vecteur(dis(gen), dis(gen), dis(gen));
+    this->velocity = Vecteur(dis(gen), dis(gen), dis(gen));
+
     this->mass = 0;
     this->id = 0;
     this->category = 0;
+
+    this->force = Vecteur(0, 0, 0);
 }
 
 
 
 
-void Particle::set_position(double position[3]) {
-    for (int i = 0; i < 3; i++) {
-        this->position[i] = position[i];
-    }
+void Particle::set_position(const Vecteur &position) {
+    this->position = position;
 }
 
-void Particle::set_velocity(double velocity[3]) {
-    for (int i = 0; i < 3; i++) {
-        this->velocity[i] = velocity[i];
-    }
+void Particle::set_velocity(const Vecteur &velocity) {
+    this->velocity = velocity;
 }
 
 void Particle::set_mass(double mass) {
@@ -61,44 +54,46 @@ void Particle::set_category(int category) {
     this->category = category;
 }
 
-void Particle::set_force(double force[3]) {
-    for (int i = 0; i < 3; i++) {
-        this->force[i] = force[i];
-    }
+void Particle::set_force(const Vecteur &force) {
+    this->force = force;
 }
 
-double* Particle::get_position() {
+Vecteur Particle::get_position() const {
     return this->position;
 }
 
-double* Particle::get_velocity() {
+Vecteur Particle::get_velocity() const {
     return this->velocity;
 }
 
-double Particle::get_mass() {
+double Particle::get_mass() const {
     return this->mass;
 }
 
-int Particle::get_id() {
+int Particle::get_id() const {
     return this->id;
 }
 
-int Particle::get_category() {
+int Particle::get_category() const {
     return this->category;
 }
 
-double* Particle::get_force() {
+Vecteur Particle::get_force() const {
     return this->force;
 }
 
-double* Particle::findForce(Particle p) {
-    double forceVector[3] = {0, 0, 0};
-    double distance = sqrt(pow(p.get_position()[0] - this->position[0], 2) +
-                           pow(p.get_position()[1] - this->position[1], 2) +
-                           pow(p.get_position()[2] - this->position[2], 2));
+Vecteur Particle::findForce(const Particle &p) const {
+    double distance = this->position.distance(p.position);
     double force = 1 / pow(distance, 2);
-    forceVector[0] += force * (p.get_mass() * this->mass);
-    forceVector[1] += force * (p.get_mass() * this->mass);
-    forceVector[2] += force * (p.get_mass() * this->mass);
+    Vecteur forceVector = Vecteur(force * (p.get_mass() * this->mass), force * (p.get_mass() * this->mass), force * (p.get_mass() * this->mass));
     return forceVector;
+}
+
+std::ostream &operator<<(std::ostream &out, const Particle &p) {
+    out << "Position: " << p.get_position() << std::endl;
+    out << "Velocity: " << p.get_velocity() << std::endl;
+    out << "Mass: " << p.get_mass() << std::endl;
+    out << "Id: " << p.get_id() << std::endl;
+    out << "Category: " << p.get_category() << std::endl;
+    return out;
 }

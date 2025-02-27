@@ -1,4 +1,4 @@
-#include "../src/vecteur.cpp"
+#include "../include/vecteur.h"
 
 int main(){
     // Create two vectors

@@ -2,9 +2,9 @@
 // Created by audigiem on 20/02/25.
 //
 
-#include "vecteur.h"
+#include "../include/vecteur.h"
 
-Vecteur::Vecteur(double x, double y, double z) {
+Vecteur::Vecteur(const double x, const double y, const double z) {
     this->x = x;
     this->y = y;
     this->z = z;
@@ -76,5 +76,13 @@ Vecteur operator^(const Vecteur &v1, const Vecteur &v2) {
     return Vecteur(v1.getY() * v2.getZ() - v1.getZ() * v2.getY(),
                    v1.getZ() * v2.getX() - v1.getX() * v2.getZ(),
                    v1.getX() * v2.getY() - v1.getY() * v2.getX());
+}
+
+double Vecteur::distance(const Vecteur &v2) const {
+    return sqrt(pow(v2.getX() - this->x, 2) + pow(v2.getY() - this->y, 2) + pow(v2.getZ() - this->z, 2));
+}
+
+Vecteur operator*(double scalar, const Vecteur &v) {
+    return Vecteur(scalar * v.getX(), scalar * v.getY(), scalar * v.getZ());
 }
 
