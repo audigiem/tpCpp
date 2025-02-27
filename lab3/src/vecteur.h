@@ -6,18 +6,19 @@
 #define CPP_VECTEUR_H
 
 #include <ostream>
+#include <iostream>
 
 
 /**
  * @brief Enable to manipulate a 3D vector
  */
-class vecteur {
+class Vecteur {
 private:
     double x;
     double y;
     double z;
 public:
-    vecteur(double x, double y, double z);
+    Vecteur(double x, double y, double z);
 
     double getX() const;
 
@@ -31,9 +32,27 @@ public:
 
     void setZ(double z);
 
+    Vecteur operator*=(const Vecteur &v2);
+
+    Vecteur operator+=(const Vecteur &v2);
+
+    Vecteur operator-=(const Vecteur &v2);
+
+
+
 };
 
-std::ostream &operator<<(std::ostream &out, const vecteur &v);
+std::ostream &operator<<(std::ostream &out, const Vecteur &v);
+
+// overload * operator for scalar product of two vectors
+Vecteur operator*(const Vecteur &v1, const Vecteur &v2);
+
+// cross product of two vectors with operator ^
+Vecteur operator^(const Vecteur &v1, const Vecteur &v2);
+
+Vecteur operator+(const Vecteur &v1, const Vecteur &v2);
+Vecteur operator-(const Vecteur &v1, const Vecteur &v2);
+
 
 
 #endif //CPP_VECTEUR_H

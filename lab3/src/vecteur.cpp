@@ -4,37 +4,77 @@
 
 #include "vecteur.h"
 
-vecteur::vecteur(double x, double y, double z) {
+Vecteur::Vecteur(double x, double y, double z) {
     this->x = x;
     this->y = y;
     this->z = z;
 }
 
-double vecteur::getX() const {
+double Vecteur::getX() const {
     return x;
 }
 
-double vecteur::getY() const {
+double Vecteur::getY() const {
     return y;
 }
 
-double vecteur::getZ() const {
+double Vecteur::getZ() const {
     return z;
 }
 
-void vecteur::setX(double x) {
+void Vecteur::setX(double x) {
     this->x = x;
 }
 
-void vecteur::setY(double y) {
+void Vecteur::setY(double y) {
     this->y = y;
 }
 
-void vecteur::setZ(double z) {
+void Vecteur::setZ(double z) {
     this->z = z;
 }
 
-std::ostream &operator<<(std::ostream &out, const vecteur &v) {
+std::ostream &operator<<(std::ostream &out, const Vecteur &v) {
     out << "x: " << v.getX() << " y: " << v.getY() << " z: " << v.getZ();
     return out;
 }
+
+Vecteur operator*(const Vecteur &v1, const Vecteur &v2) {
+    return Vecteur(v1.getX() * v2.getX(), v1.getY() * v2.getY(), v1.getZ() * v2.getZ());
+}
+
+Vecteur operator+(const Vecteur &v1, const Vecteur &v2) {
+    return Vecteur(v1.getX() + v2.getX(), v1.getY() + v2.getY(), v1.getZ() + v2.getZ());
+}
+
+Vecteur operator-(const Vecteur &v1, const Vecteur &v2) {
+    return Vecteur(v1.getX() - v2.getX(), v1.getY() - v2.getY(), v1.getZ() - v2.getZ());
+}
+
+Vecteur Vecteur::operator*=(const Vecteur &v2) {
+    this->x *= v2.getX();
+    this->y *= v2.getY();
+    this->z *= v2.getZ();
+    return *this;
+}
+
+Vecteur Vecteur::operator+=(const Vecteur &v2) {
+    this->x += v2.getX();
+    this->y += v2.getY();
+    this->z += v2.getZ();
+    return *this;
+}
+
+Vecteur Vecteur::operator-=(const Vecteur &v2) {
+    this->x -= v2.getX();
+    this->y -= v2.getY();
+    this->z -= v2.getZ();
+    return *this;
+}
+
+Vecteur operator^(const Vecteur &v1, const Vecteur &v2) {
+    return Vecteur(v1.getY() * v2.getZ() - v1.getZ() * v2.getY(),
+                   v1.getZ() * v2.getX() - v1.getX() * v2.getZ(),
+                   v1.getX() * v2.getY() - v1.getY() * v2.getX());
+}
+
