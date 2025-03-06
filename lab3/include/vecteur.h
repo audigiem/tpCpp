@@ -42,6 +42,8 @@ public:
 
     double distance(const Vecteur &v2) const;
 
+    double norm() const;
+
 
 
 };

@@ -34,6 +34,10 @@ void Vecteur::setZ(double z) {
     this->z = z;
 }
 
+double Vecteur::norm() const {
+    return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+}
+
 std::ostream &operator<<(std::ostream &out, const Vecteur &v) {
     out << "x: " << v.getX() << " y: " << v.getY() << " z: " << v.getZ();
     return out;

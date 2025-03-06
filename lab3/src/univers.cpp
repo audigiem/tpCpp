@@ -1,117 +1,150 @@
-//
-// Created by audigiem on 27/02/25.
-//
+#ifndef UNIVERS_H
+#define UNIVERS_H
 
-#include "../include/univers.h"
-#include <random>
+#include <iostream>
+#include <vector>
+#include <chrono>
+#include <cmath>
+#include <cstddef> // Pour size_t
+#include "particle.cpp"
 
-Univers::Univers(int dimension, int nbParticles) {
-    this->dimension = dimension;
-    this->nbParticles = nbParticles;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0, 1);
-    Vecteur randomSpeed = Vecteur(dis(gen), dis(gen), dis(gen));
-    for (int i = 0; i < nbParticles; i++) {
-        Vecteur position = Vecteur(dis(gen), dis(gen), dis(gen));
-        Vecteur velocity = randomSpeed;
-        double mass = dis(gen);
-        int id = i;
-        int category = i;
-        Particle p = Particle(position, velocity, mass, id, category);
-        this->particles.push_back(p);
+class Univers {
+private:
+    int dimension;
+    std::vector<Particule> particules;
+    std::vector<Vecteur> forces;
+    std::vector<Vecteur> old_forces;
+
+public:
+    // Constructeur
+    Univers(int dim) : dimension(dim) {}
+
+    void appliquerConditionsLimitesReflechissantes(Particule& particule) {
+        Vecteur position = particule.getPosition();
+        Vecteur vitesse = particule.getVitesse();
+        double x = position.getX();
+        double y = position.getY();
+        double z = position.getZ();
+
+        // Rebond sur les bords du cube
+        if (x < 0 || x > 1.0) {
+            vitesse.setX(-vitesse.getX()/2); // Rebond élastique
+            x = std::max(0.0, std::min(x, 1.0)); // Maintenir la position dans le cube
+        }
+        if (y < 0 || y > 1.0) {
+            vitesse.setY(-vitesse.getY()/2);
+            y = std::max(0.0, std::min(y, 1.0));
+        }
+        if (z < 0 || z > 1.0) {
+            vitesse.setZ(-vitesse.getZ()/2);
+            z = std::max(0.0, std::min(z, 1.0));
+        }
+
+        particule.mettreAJourPosition(Vecteur(x, y, z));
+        particule.mettreAJourVitesse(vitesse);
     }
-}
 
-int Univers::get_dimension() const {
-    return dimension;
-}
-
-int Univers::get_nbParticles() const {
-    return nbParticles;
-}
-
-std::vector<Particle> Univers::get_particles() const {
-    return particles;
-}
-
-void Univers::set_dimension(int dimension) {
-    Univers::dimension = dimension;
-}
-
-void Univers::set_nbParticles(int nbParticles) {
-    Univers::nbParticles = nbParticles;
-}
-
-void Univers::set_particles(const std::vector<Particle> &particles) {
-    Univers::particles = particles;
-}
-
-void Univers::addParticle(const Particle &p) {
-    this->particles.push_back(p);
-}
-
-void Univers::removeParticle(const Particle &p) {
-    for (int i = 0; i < this->particles.size(); i++) {
-        if (this->particles[i].get_id() == p.get_id()) {
-            this->particles.erase(this->particles.begin() + i);
-        }
+    // Ajouter une particule
+    void ajouterParticule(const Particule& particule) {
+        particules.push_back(particule);
+        forces.push_back(Vecteur(0, 0, 0));
+        old_forces.push_back(Vecteur(0, 0, 0));
     }
-}
 
-void Univers::removeParticle(int id) {
-    for (int i = 0; i < this->particles.size(); i++) {
-        if (this->particles[i].get_id() == id) {
-            this->particles.erase(this->particles.begin() + i);
-        }
-    }
-}
+    // Calcul des forces gravitationnelles
+    void calculerForces() {
+        const double G = 1.0; // Constante gravitationnelle (simplifiée)
+        const double epsilon = 1e-10; // Petite valeur pour éviter les divisions par zéro
 
-void Univers::moveParticles(float dt, float tEnd) {
-    // use the Stromer Verlet method to move the particles
-    float t = 0.0;
-    computeInternalForces();
-    while (t < tEnd) {
-        Vecteur oldForces = Vecteur(0, 0, 0);
-        t += dt;
-        for (Particle p : this->particles) {
-            Vecteur position = p.get_position();
-            Vecteur velocity = p.get_velocity();
-            Vecteur force = p.get_force();
-            position += dt * (((0.5 * dt / p.get_mass()) * force ) + velocity);
-            p.set_position(position);
-            // save the old force
-            oldForces = p.get_force();
-        }
-        computeInternalForces();
-        for (Particle p : this->particles) {
-            Vecteur velocity = p.get_velocity();
-            velocity += (dt * 0.5/p.get_mass()) * (oldForces + p.get_force());
-            p.set_velocity(velocity);
-        }
+        for (size_t i = 0; i < particules.size(); ++i) {
+            forces[i] = Vecteur(0, 0, 0);
+            for (size_t j = 0; j < particules.size(); ++j) {
+                if (i != j) {
+                    Vecteur r_ij = particules[j].getPosition() - particules[i].getPosition();
+                    double distance = r_ij.norm();
+                    if (distance < epsilon) distance = epsilon; // Éviter la division par zéro
 
-        std::cout << "Time: " << t << std::endl;
-        std::cout << *this << std::endl;
-        }
-}
+                    double force_magnitude = G * particules[i].getMasse() * particules[j].getMasse() / (distance * distance * distance);
+                    forces[i] = forces[i] + force_magnitude * r_ij ;
 
-void Univers::computeInternalForces() {
-    for (Particle p : this->particles) {
-        Vecteur force = p.get_force();
-        for (Particle p1 : this->particles) {
-            if (p.get_id() != p1.get_id()) {
-                Vecteur force2 = p.findForce(p1);
-                force += force2;
+                    // Vérification des valeurs
+                    if (std::isnan(forces[i].getX()) || std::isnan(forces[i].getY()) || std::isnan(forces[i].getZ())) {
+                        std::cerr << "Erreur : force invalide détectée entre les particules " << i << " et " << j << std::endl;
+                        std::cerr << "Distance : " << distance << std::endl;
+                        std::cerr << "Force : ";
+                        std::cerr << forces[i] << std::endl;
+                        std::cerr << std::endl;
+                    }
+                }
             }
         }
-        p.set_force(force);
     }
-}
 
-std::ostream &operator<<(std::ostream &out, const Univers &u) {
-    out << "Dimension: " << u.get_dimension() << " Number of particles: " << u.get_nbParticles() << std::endl;
-    for (Particle p : u.get_particles()) {
-        out << p.get_position() << std::endl;
+    // Évolution de l'univers avec l'algorithme de Störmer-Verlet
+    void evoluer(double dt, double t_end) {
+//        auto start = std::chrono::steady_clock::now();
+
+        // Initialisation des forces
+        calculerForces();
+
+        double t = 0;
+        while (t < t_end) {
+            t += dt;
+
+            // Mise à jour des positions
+            for (size_t i = 0; i < particules.size(); ++i) {
+                Vecteur vitesse = particules[i].getVitesse();
+                Vecteur position = particules[i].getPosition();
+                Vecteur force = forces[i];
+                double masse = particules[i].getMasse();
+
+                Vecteur nouvelle_position = position + dt * (vitesse + (0.5 / masse)* dt * force );
+                particules[i].mettreAJourPosition(nouvelle_position);
+
+                // Appliquer les conditions limites
+                appliquerConditionsLimitesReflechissantes(particules[i]);
+                old_forces[i] = force;
+            }
+
+            // Calcul des nouvelles forces
+            calculerForces();
+
+            // Mise à jour des vitesses
+            for (size_t i = 0; i < particules.size(); ++i) {
+                Vecteur vitesse = particules[i].getVitesse();
+                Vecteur force = forces[i];
+                Vecteur old_force = old_forces[i];
+                double masse = particules[i].getMasse();
+
+                Vecteur nouvelle_vitesse = vitesse + dt * (0.5 / masse) * (force + old_force);
+                particules[i].mettreAJourVitesse(nouvelle_vitesse);
+            }
+
+            // Affichage des quantités (optionnel)
+//            std::cout << "Temps: " << t << std::endl;
+            afficherPython();
+            std::cout << std::endl;
+        }
+
+//        auto end = std::chrono::steady_clock::now();
+//        std::chrono::duration<double> elapsed_seconds = end - start;
+//        std::cout << "Temps écoulé: " << elapsed_seconds.count() << "s\n";
     }
-    return out;
-}
+
+    // Affichage de l'univers
+    void afficher() const {
+        for (const auto& particule : particules) {
+            particule.afficher();
+        }
+    }
+
+    // Affichage pour python
+    void afficherPython() const {
+        for (const auto& particule : particules) {
+            std::cout << particule.getPosition().getX() << " " << particule.getPosition().getY() << " " << particule.getPosition().getZ() << " ";
+            std::cout << particule.getVitesse().getX() << " " << particule.getVitesse().getY() << " " << particule.getVitesse().getZ() << std::endl;
+        }
+    }
+};
+
+#endif

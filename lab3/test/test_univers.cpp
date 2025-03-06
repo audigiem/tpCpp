@@ -3,16 +3,30 @@
 //
 
 
-#include "../include/univers.h"
+#include "../src/univers.cpp"
+#include "../src/particle.cpp"
+#include "../include/vecteur.h"
 
 int main() {
-    Univers u = Univers(3, 4);
-    std::cout << "Initial Univers: " << std::endl;
-    std::cout << u << std::endl;
+    // Création d'un univers 3D
+    Univers univers(3);
 
-    std::cout << "Starting to move particles: " << std::endl;
-    u.moveParticles(0.015, 468.5);
-    std::cout << "Final Univers: " << std::endl;
-    std::cout << u << std::endl;
+    // Ajout de particules
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            for (int k = 0; k < 5; ++k) {
+                Vecteur position(i / 5.0, j / 5.0, k / 5.0);
+                Vecteur vitesse(0, 0, 0); // Vitesse initiale nulle
+                Particule particule(position, vitesse, 1.0); // Masse de 1.0
+                univers.ajouterParticule(particule);
+            }
+        }
+    }
+
+    // Évolution de l'univers
+    double dt = 0.001; // Pas de temps
+    double t_end = 1.0; // Temps final
+    univers.evoluer(dt, t_end);
+
     return 0;
 }
