@@ -6,6 +6,8 @@
 #define PARTICLE_H
 
 #include <vector>
+#include <iostream>
+#include <ostream>
 
 class Particle {
 private:
@@ -15,7 +17,7 @@ private:
     double charge;
 public:
     Particle(std::vector<double> position, std::vector<double> velocity, double mass, double charge)
-        : position(position), velocity(velocity), mass(mass), charge(charge)) {}
+        : position(position), velocity(velocity), mass(mass), charge(charge) {}
 
 
     std::vector<double> getPosition() const { return position; }

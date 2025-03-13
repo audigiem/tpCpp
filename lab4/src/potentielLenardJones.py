@@ -17,6 +17,7 @@ def plot_potentiels():
 
     plt.figure()
     plt.plot(distances, potentiels)
+    plt.grid()
     plt.title('Potentiel de Lennard-Jones pour un système à 2 particules en fonction de leurs distance')
     plt.show()
 
