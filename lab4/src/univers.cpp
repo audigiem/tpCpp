@@ -6,35 +6,34 @@
 #include "cell.cpp"
 #include <iostream>
 #include <ostream>
+#include <cmath>
 
-Univers::Univers(int dimension, std::vector<double> caracteristicLength, double cutOffRadius) {
+Univers::Univers(int dimension, double caracteristicLength, double cutOffRadius) {
     this->dimension = dimension;
     this->caracteristicLength = caracteristicLength;
     this->cutOffRadius = cutOffRadius;
 
-    // Determine the number of cells in each direction create the cells and add them to the vector of cells
-    std::vector<int> nbCells;
-    std::vector< std::vector<Cell> > cells;
-    std::vector<Cell> cellsInDirection;
+    // Determine the number of cells in each direction create the cells
+    int nbCellPerDir = ceil(caracteristicLength / cutOffRadius);
+    this->nbCellsPerDir = nbCellPerDir;
 
-    for (int i = 0; i < dimension; ++i) {
-        nbCells.push_back(ceil(caracteristicLength[i] / cutOffRadius));
-        
-        for (int j = 0; j < nbCells[i]; ++j) {
-            Cell cell(cutOffRadius);
-            cellsInDirection.push_back(cell);
-        }
-        cells.push_back(cellsInDirection);
-    }
-    this->nbCells = nbCells;
-    this->cells = cells;
+    // Assure qu'on a toujours 3 dimensions, avec des tailles adaptées
+    int sizeX = nbCellsPerDir;
+    int sizeY = (dimension > 1) ? nbCellsPerDir : 1;
+    int sizeZ = (dimension > 2) ? nbCellsPerDir : 1;
+
+    // Allocation propre sans if
+    cells.resize(sizeX, std::vector<std::vector<Cell>>(
+        sizeY, std::vector<Cell>(sizeZ, Cell(cutOffRadius))
+    ));
+
 }
 
 int Univers::getDimension() const {
     return dimension;
 }
 
-std::vector<double> Univers::getCaracteristicLength() const {
+double Univers::getCaracteristicLength() const {
     return caracteristicLength;
 }
 
@@ -42,7 +41,7 @@ double Univers::getCutOffRadius() const {
     return cutOffRadius;
 }
 
-std::vector< std::vector<Cell> > Univers::getCells() const {
+std::vector< std::vector<std::vector<Cell>>> Univers::getCells() const {
     return cells;
 }
 
@@ -51,7 +50,7 @@ void Univers::setDimension(int dimension) {
 }
 
 
-void Univers::setCaracteristicLength(std::vector<double> caracteristicLength) {
+void Univers::setCaracteristicLength(double caracteristicLength) {
     this->caracteristicLength = caracteristicLength;
 }
 
@@ -59,59 +58,131 @@ void Univers::setCutOffRadius(double cutOffRadius) {
     this->cutOffRadius = cutOffRadius;
 }
 
-std::vector<std::vector<Cell>> Univers::getNeighbourCells(std::vector<int> cellIndex) {
-    std::vector<std::vector<Cell>> neighbourCells;
-    std::vector<Cell> neighbourCellsInDirection;
+std::vector<std::vector<int>> Univers::getCoordNeighbourCells(const std::vector<int> &cellIndex) {
+    std::vector<std::vector<int>> neighbours;
 
-    for (int i = 0; i < dimension; ++i) {
-        for (int j = -1; j < 2; ++j) {
-            if (cellIndex[i] + j >= 0 && cellIndex[i] + j < nbCells[i]) {
-                neighbourCellsInDirection.push_back(cells[i][cellIndex[i] + j]);
+    // Vérifier que cellIndex a bien la bonne dimension
+    if (cellIndex.size() != dimension) {
+        throw std::invalid_argument("cellIndex size does not match universe dimension");
+    }
+
+    // Définir les décalages en fonction de la dimension
+    std::vector<int> offsets = {-1, 0, 1};
+
+    // Génération des voisins (en respectant la dimension)
+    for (int dx : offsets) {
+        for (int dy : (dimension > 1 ? offsets : std::vector<int>{0})) {
+            for (int dz : (dimension > 2 ? offsets : std::vector<int>{0})) {
+                if (dx == 0 && dy == 0 && dz == 0) continue; // Exclure la cellule centrale
+
+                std::vector<int> neighbour = {cellIndex[0] + dx};
+                if (dimension > 1) neighbour.push_back(cellIndex[1] + dy);
+                if (dimension > 2) neighbour.push_back(cellIndex[2] + dz);
+
+                // Vérification que les voisins restent dans les bornes
+                bool isValid = true;
+                for (int d = 0; d < dimension; ++d) {
+                    if (neighbour[d] < 0 || neighbour[d] >= nbCellsPerDir) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if (isValid) {
+                    neighbours.push_back(neighbour);
+                }
             }
         }
-        neighbourCells.push_back(neighbourCellsInDirection);
     }
-    return neighbourCells;
+
+    return neighbours;
 }
 
 
-void Univers::setCells(std::vector< std::vector<Cell> > cells) {
+
+void Univers::setCells(const std::vector<std::vector<std::vector<Cell>>> &cells) {
     this->cells = cells;
 }
 
+
+
+
+void Univers::addParticle(const Particle &particle) {
+    std::vector<double> position = particle.getPosition();
+
+    // check if the particle is in the universe
+    if (position.size() != dimension) {
+        throw std::invalid_argument("Particle position does not match universe dimension");
+    }
+
+    std::vector<int> cellIndex;
+    for (int d = 0; d < dimension; ++d) {
+        int index = static_cast<int>(std::floor(position[d]/cutOffRadius));
+        if (index < 0 || index >= nbCellsPerDir) {
+            throw std::invalid_argument("Particle position is out of universe bounds");
+        }
+        cellIndex.push_back(index);
+    }
+
+    if (dimension == 1) {
+        cells[cellIndex[0]][0][0].addParticle(particle);
+    }
+    else if (dimension == 2) {
+        cells[cellIndex[0]][cellIndex[1]][0].addParticle(particle);
+    }
+    else {
+        cells[cellIndex[0]][cellIndex[1]][cellIndex[2]].addParticle(particle);
+    }
+}
+
+void Univers::fillUnivers(int nbParticles) {
+    for (int i = 0; i < nbParticles; ++i) {
+        std::vector<double> position;
+        for (int d = 0; d < dimension; ++d) {
+            position.push_back(caracteristicLength * (rand() / (double)RAND_MAX));
+        }
+        Particle particle(position, {0, 0, 0}, 1, 1);
+        addParticle(particle);
+    }
+}
+
+
+
+
+
+
 void Univers::showUnivers() const {
     std::cout << "Dimension: " << dimension << std::endl;
-    std::cout << "Caracteristic length: ";
-    for (int i = 0; i < dimension; ++i) {
-        std::cout << caracteristicLength[i] << " ";
-    }
-    std::cout << std::endl;
+    std::cout << "Caracteristic length: " << caracteristicLength << std::endl;
     std::cout << "Cut off radius: " << cutOffRadius << std::endl;
-    std::cout << "Number of cells: " << std::endl;
-    for (int i = 0; i < dimension; ++i) {
-        std::cout << "  dimension " << i << ": "<< nbCells[i] << std::endl;
-    }
+
+    std::cout << "Number of cells per direction: " << nbCellsPerDir << std::endl;
+
     std::cout << "Cells: " << std::endl;
-    for (int i = 0; i < dimension; ++i) {
-        for (int j = 0; j < nbCells[i]; ++j) {
-            std::cout << "Cell " << i << " " << j << std::endl;
-            cells[i][j].showCell();
+
+    for (int x = 0; x < nbCellsPerDir; ++x) {
+        for (int y = 0; y < (dimension > 1 ? nbCellsPerDir : 1); ++y) {
+            for (int z = 0; z < (dimension > 2 ? nbCellsPerDir : 1); ++z) {
+                std::cout << "  Cell (" << x << ", " << y << ", " << z << ")" << std::endl;
+                cells[x][y][z].showCell();
+            }
         }
     }
 }
 
-void Univers::showNeighbourCells(std::vector<int> cellIndex) const {
+
+void Univers::showNeighbourCells(const std::vector<int> &cellIndex) const {
     std::cout << "Neighbour cells of cell ";
     for (int i = 0; i < dimension; ++i) {
         std::cout << cellIndex[i] << " ";
     }
     std::cout << std::endl;
-    // correct way to do it
-    std::vector<std::vector<Cell>> neighbourCells = const_cast<Univers*>(this)->getNeighbourCells(cellIndex);
-    for (int i = 0; i < dimension; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            std::cout << "Cell " << i << " " << j << std::endl;
-            neighbourCells[i][j].showCell();
+
+    std::vector<std::vector<int>> neighbours = const_cast<Univers*>(this)->getCoordNeighbourCells(cellIndex);
+    for (const std::vector<int> &neighbour : neighbours) {
+        std::cout << "Neighbour cell: ";
+        for (int i = 0; i < dimension; ++i) {
+            std::cout << neighbour[i] << " ";
         }
+        std::cout << std::endl;
     }
 }

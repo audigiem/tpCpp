@@ -11,28 +11,28 @@
 
 class Cell {
 private:
-    int length;
+    double length;
     std::vector<Particle> particles;
 public:
-    Cell(int length) : length(length) {}
+    Cell(double length) : length(length) {}
 
-    int getLength() const { return length; }
+    double getLength() const { return length; }
     std::vector<Particle> getParticles() const { return particles; }
 
-    void setLength(int length) { this->length = length; }
+    void setLength(double length) { this->length = length; }
     void setParticles(std::vector<Particle> particles) { this->particles = particles; }
 
     void addParticle(Particle particle) { particles.push_back(particle); }
 
     void showCell() const {
-        std::cout << "Cell length: " << length << std::endl;
+        // std::cout << "Cell length: " << length << std::endl;
         for (int i = 0; i < particles.size(); ++i) {
-            std::cout << "Particle " << i << std::endl;
-            std::cout << "Position: ";
+            std::cout << "      Particle " << i;
+            std::cout << " Position: ";
             for (int j = 0; j < particles[i].getPosition().size(); ++j) {
                 std::cout << particles[i].getPosition()[j] << " ";
             }
-//            std::cout << std::endl;
+            std::cout << std::endl;
 //            std::cout << "Velocity: ";
 //            for (int j = 0; j < particles[i].getVelocity().size(); ++j) {
 //                std::cout << particles[i].getVelocity()[j] << " ";

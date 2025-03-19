@@ -9,33 +9,36 @@
 
 #include "../src/particle.cpp"
 #include "../src/cell.cpp"
-#include <cmath>
 
 class Univers {
 private:
     int dimension;
-    std::vector<double> caracteristicLength;
+    double caracteristicLength;
     double cutOffRadius;
-    std::vector< std::vector<Cell> > cells;
-    std::vector<int> nbCells;
+    std::vector< std::vector< std::vector<Cell>> > cells;
+    int nbCellsPerDir;
 public:
-    Univers(int dimension, std::vector<double> caracteristicLength, double cutOffRadius);
+    Univers(int dimension, double caracteristicLength, double cutOffRadius);
 
-    int getDimension() const;
-    std::vector<double> getCaracteristicLength() const;
-    double getCutOffRadius() const;
-    std::vector< std::vector<Cell> > getCells() const;
+    [[nodiscard]] int getDimension() const;
+    [[nodiscard]] double getCaracteristicLength() const;
+    [[nodiscard]] double getCutOffRadius() const;
+    [[nodiscard]] std::vector< std::vector< std::vector<Cell>> > getCells() const;
 
     void setDimension(int dimension);
-    void setCaracteristicLength(std::vector<double> caracteristicLength);
+    void setCaracteristicLength(double caracteristicLength);
     void setCutOffRadius(double cutOffRadius);
-    void setCells(std::vector< std::vector<Cell> > cells);
+    void setCells(const std::vector< std::vector< std::vector<Cell>> > &cells);
 
-    std::vector<std::vector<Cell>> getNeighbourCells(std::vector<int> cellIndex);
+    std::vector<std::vector<int>> getCoordNeighbourCells(const std::vector<int> &cellIndex);
+
+    void addParticle(const Particle &particle);
+
+    void fillUnivers(int nbParticles);
 
     void showUnivers() const;
 
-    void showNeighbourCells(std::vector<int> cellIndex) const;
+    void showNeighbourCells(const std::vector<int> &cellIndex) const;
 
 };
 

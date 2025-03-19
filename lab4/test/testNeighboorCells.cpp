@@ -5,32 +5,27 @@
 
 int main() {
     // Création d'un univers 3D
-    Univers univers(3, {1.0, 1.0, 1.0}, 0.1);
+    Univers univers3D(3, 1, 0.1);
 
-    univers.showUnivers();
+    Univers univers2D(2, 1, 0.1);
 
-//    // Ajout de particules
-//    for (int i = 0; i < 5; ++i) {
-//        for (int j = 0; j < 5; ++j) {
-//            for (int k = 0; k < 5; ++k) {
-//                std::vector<double> position = {i / 5.0, j / 5.0, k / 5.0};
-//                std::vector<double> velocity = {0, 0, 0}; // Vitesse initiale nulle
-//                Particle particle(position, velocity, 1.0, 1.0); // Masse de 1.0
-//                univers.addParticle(particle);
-//            }
-//        }
-//    }
-//
-//    // Évolution de l'univers
-//    double dt = 0.001; // Pas de temps
-//    double t_end = 1.0; // Temps final
-//    univers.showUnivers();
-//    univers.showNeighbourCells({0, 0, 0});
-//    univers.showNeighbourCells({1, 1, 1});
-//    univers.showNeighbourCells({2, 2, 2});
-//    univers.showNeighbourCells({3, 3, 3});
-//    univers.showNeighbourCells({4, 4, 4});
-//    univers.evoluer(dt, t_end);
+    Univers univers1D(1, 1, 0.1);
+
+    univers3D.showUnivers();
+    univers2D.showUnivers();
+    univers1D.showUnivers();
+
+    std::vector<int> cellIndex = {0, 0, 0};
+    std::vector<int> cellIndex3D = {5, 5, 5};
+
+    std::vector<int> cellIndex1D = {2};
+    std::vector<int> cellIndex2D = {2, 2};
+
+    univers3D.showNeighbourCells(cellIndex);
+    univers3D.showNeighbourCells(cellIndex3D);
+
+    univers2D.showNeighbourCells(cellIndex2D);
+    univers1D.showNeighbourCells(cellIndex1D);
 
     return 0;
 }
