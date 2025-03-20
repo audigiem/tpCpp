@@ -3,15 +3,22 @@
 //
 
 #include "../include/univers.h"
+#include "../include/cell.h"
+#include <iostream>
 
 int main() {
-
+    // Création d'un univers 1D
     Univers univers1D(1, 10, 0.1);
     univers1D.showUnivers();
 
-
-    univers1D.fillUnivers(1000);
+    // Remplir l'univers avec 100 particules
+    std::cout << "Insertion of 100 particles in the universe" << std::endl;
+    univers1D.fillUnivers(100);
     univers1D.showUnivers();
+
+    // Afficher les voisins d'une cellule
+    std::tuple<int, int, int> cellIndex1D = {2, 0, 0};
+    univers1D.showNeighbourCells(cellIndex1D);
 
     return 0;
 }

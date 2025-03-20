@@ -2,35 +2,41 @@
 // Created by matteo on 09/03/25.
 //
 
-#ifndef PARTICLE_H
-#define PARTICLE_H
+#include "../include/particle.h"
 
-#include <vector>
-#include <iostream>
-#include <ostream>
+Particle::Particle(const std::vector<double>& position, const std::vector<double>& velocity, double mass, double charge)
+    : position(position), velocity(velocity), mass(mass), charge(charge) {}
 
-class Particle {
-private:
-    std::vector<double> position;
-    std::vector<double> velocity;
-    double mass;
-    double charge;
-public:
-    Particle(std::vector<double> position, std::vector<double> velocity, double mass, double charge)
-        : position(position), velocity(velocity), mass(mass), charge(charge) {}
+// Getters
+std::vector<double> Particle::getPosition() const {
+    return position;
+}
 
+std::vector<double> Particle::getVelocity() const {
+    return velocity;
+}
 
-    std::vector<double> getPosition() const { return position; }
-    std::vector<double> getVelocity() const { return velocity; }
-    double getMass() const { return mass; }
-    double getCharge() const { return charge; }
+double Particle::getMass() const {
+    return mass;
+}
 
+double Particle::getCharge() const {
+    return charge;
+}
 
-    void setPosition(std::vector<double> position) { this->position = position; }
-    void setVelocity(std::vector<double> velocity) { this->velocity = velocity; }
-    void setMass(double mass) { this->mass = mass; }
-    void setCharge(double charge) { this->charge = charge; }
+// Setters
+void Particle::setPosition(const std::vector<double>& position) {
+    this->position = position;
+}
 
-};
+void Particle::setVelocity(const std::vector<double>& velocity) {
+    this->velocity = velocity;
+}
 
-#endif //PARTICLE_H
+void Particle::setMass(double mass) {
+    this->mass = mass;
+}
+
+void Particle::setCharge(double charge) {
+    this->charge = charge;
+}

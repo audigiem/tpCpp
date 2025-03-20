@@ -2,48 +2,65 @@
 // Created by matteo on 09/03/25.
 //
 
-#ifndef CELL_H
-#define CELL_H
+#include "../include/cell.h"
 
-#include "particle.cpp"
-#include <iostream>
-#include <ostream>
+Cell::Cell(int length) : length(length) {}
 
-class Cell {
-private:
-    double length;
-    std::vector<Particle> particles;
-public:
-    Cell(double length) : length(length) {}
+// Getters
+int Cell::getLength() const {
+    return length;
+}
 
-    double getLength() const { return length; }
-    std::vector<Particle> getParticles() const { return particles; }
+std::vector<Particle> Cell::getParticles() const {
+    return particles;
+}
 
-    void setLength(double length) { this->length = length; }
-    void setParticles(std::vector<Particle> particles) { this->particles = particles; }
+std::tuple<int, int, int> Cell::getCellCoordinates() const {
+    return cellCoordinates;
+}
 
-    void addParticle(Particle particle) { particles.push_back(particle); }
+const std::vector<std::tuple<int, int, int>>& Cell::getNeighborsCells() const {
+    return coordNeighborsCells;
+}
 
-    void showCell() const {
-        // std::cout << "Cell length: " << length << std::endl;
-        for (int i = 0; i < particles.size(); ++i) {
-            std::cout << "      Particle " << i;
-            std::cout << " Position: ";
-            for (int j = 0; j < particles[i].getPosition().size(); ++j) {
-                std::cout << particles[i].getPosition()[j] << " ";
-            }
-            std::cout << std::endl;
-//            std::cout << "Velocity: ";
-//            for (int j = 0; j < particles[i].getVelocity().size(); ++j) {
-//                std::cout << particles[i].getVelocity()[j] << " ";
-//            }
-//            std::cout << std::endl;
-//            std::cout << "Mass: " << particles[i].getMass() << std::endl;
-//            std::cout << "Charge: " << particles[i].getCharge() << std::endl;
+std::vector<std::tuple<int, int, int> >& Cell::getNeighborsCells() {
+    return coordNeighborsCells;
+}
+
+
+// Setters
+void Cell::setLength(int length) {
+    this->length = length;
+}
+
+void Cell::setParticles(const std::vector<Particle>& particles) {
+    this->particles = particles;
+}
+
+void Cell::setCellCoordinates(const std::tuple<int, int, int>& cellCoordinates) {
+    this->cellCoordinates = cellCoordinates;
+}
+
+void Cell::setNeighborsCells(const std::vector<std::tuple<int, int, int>>& neighborsCells) {
+    this->coordNeighborsCells = neighborsCells;
+}
+
+// Methods
+void Cell::addParticle(const Particle& particle) {
+    particles.push_back(particle);
+}
+
+bool Cell::isEmpty() const {
+    return particles.empty();
+}
+
+void Cell::showCell() const {
+    for (size_t i = 0; i < particles.size(); ++i) {
+        std::cout << "      Particle " << i;
+        std::cout << " Position: ";
+        for (size_t j = 0; j < particles[i].getPosition().size(); ++j) {
+            std::cout << particles[i].getPosition()[j] << " ";
         }
+        std::cout << std::endl;
     }
-
-
-};
-
-#endif //CELL_H
+}
