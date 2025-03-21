@@ -3,16 +3,17 @@
 //
 
 #include "../include/particle.h"
+#include <cmath>
 
-Particle::Particle(const std::vector<double>& position, const std::vector<double>& velocity, double mass, double charge)
+Particle::Particle(const std::array<double, 3>& position, const std::array<double, 3>& velocity, double mass, double charge)
     : position(position), velocity(velocity), mass(mass), charge(charge) {}
 
 // Getters
-std::vector<double> Particle::getPosition() const {
+std::array<double, 3> Particle::getPosition() const {
     return position;
 }
 
-std::vector<double> Particle::getVelocity() const {
+std::array<double, 3> Particle::getVelocity() const {
     return velocity;
 }
 
@@ -25,11 +26,11 @@ double Particle::getCharge() const {
 }
 
 // Setters
-void Particle::setPosition(const std::vector<double>& position) {
+void Particle::setPosition(const std::array<double, 3>& position) {
     this->position = position;
 }
 
-void Particle::setVelocity(const std::vector<double>& velocity) {
+void Particle::setVelocity(const std::array<double, 3>& velocity) {
     this->velocity = velocity;
 }
 
@@ -39,4 +40,26 @@ void Particle::setMass(double mass) {
 
 void Particle::setCharge(double charge) {
     this->charge = charge;
+}
+
+double Particle::computeLennardJonesPotential(const Particle& other, double cutOffRadius, double sigma, double epsilon) const {
+    double distance = sqrt(computeSquaredDistance(other));
+    if (distance > cutOffRadius) {
+        return 0;
+    }
+    return 4*epsilon*(std::pow(sigma/distance, 12) - std::pow(sigma/distance, 6));
+
+}
+
+double Particle::computeSquaredDistance(const Particle &other) const {
+    return std::pow(position[0] - other.position[0], 2) +
+           std::pow(position[1] - other.position[1], 2) +
+           std::pow(position[2] - other.position[2], 2);
+}
+
+std::array<double, 3> Particle::computeElementaryLennardJonesForce(const Particle &other, double cutOffRadius, double sigma, double epsilon) const {
+    double distance2 = computeSquaredDistance(other);
+    double lennardJonesPotential = computeLennardJonesPotential(other, cutOffRadius, sigma, epsilon);
+    std::array<double, 3> direction = {other.position[0] - position[0], other.position[1] - position[1], other.position[2] - position[2]};
+    return { (1/distance2 * lennardJonesPotential) * direction[0], (1/distance2 * lennardJonesPotential) * direction[1],(1/distance2 * lennardJonesPotential) * direction[2] };
 }

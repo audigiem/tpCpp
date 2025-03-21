@@ -5,29 +5,34 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
-#include <vector>
+#include <array>
 
 class Particle {
 private:
-    std::vector<double> position;
-    std::vector<double> velocity;
+    std::array<double, 3> position;
+    std::array<double, 3> velocity;
     double mass;
     double charge;
 
 public:
-    Particle(const std::vector<double>& position, const std::vector<double>& velocity, double mass, double charge);
+    Particle(const std::array<double, 3>& position, const std::array<double, 3>& velocity, double mass, double charge);
 
     // Getters
-    std::vector<double> getPosition() const;
-    std::vector<double> getVelocity() const;
-    double getMass() const;
-    double getCharge() const;
+    [[nodiscard]] std::array<double, 3> getPosition() const;
+    [[nodiscard]] std::array<double, 3> getVelocity() const;
+    [[nodiscard]] double getMass() const;
+    [[nodiscard]] double getCharge() const;
 
     // Setters
-    void setPosition(const std::vector<double>& position);
-    void setVelocity(const std::vector<double>& velocity);
+    void setPosition(const std::array<double, 3>& position);
+    void setVelocity(const std::array<double, 3>& velocity);
     void setMass(double mass);
     void setCharge(double charge);
+
+    // Methods
+    [[nodiscard]] double computeLennardJonesPotential(const Particle& other, double cutOffRadius, double sigma, double epsilon) const;
+    [[nodiscard]] double computeSquaredDistance(const Particle& other) const;
+    [[nodiscard]] std::array<double, 3> computeElementaryLennardJonesForce(const Particle& other, double cutOffRadius, double sigma, double epsilon) const;
 };
 
 #endif //PARTICLE_H

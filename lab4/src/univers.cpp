@@ -1,4 +1,3 @@
-//
 // Created by matteo on 09/03/25.
 //
 
@@ -35,7 +34,7 @@ double Univers::getCutOffRadius() const {
     return cutOffRadius;
 }
 
-const std::unordered_map<std::tuple<int, int, int>, std::shared_ptr<Cell>>& Univers::getCells() const {
+const std::unordered_map<std::array<int, 3>, std::shared_ptr<Cell>>& Univers::getCells() const {
     return cells;
 }
 
@@ -57,7 +56,7 @@ void Univers::setCutOffRadius(double cutOffRadius) {
 }
 
 // Methods
-std::shared_ptr<Cell> Univers::getCell(const std::tuple<int, int, int>& cellIndex) const {
+std::shared_ptr<Cell> Univers::getCell(const std::array<int, 3>& cellIndex) const {
     auto it = cells.find(cellIndex);
     if (it != cells.end()) {
         return it->second;
@@ -65,43 +64,27 @@ std::shared_ptr<Cell> Univers::getCell(const std::tuple<int, int, int>& cellInde
     return nullptr;
 }
 
-std::vector<std::tuple<int, int, int>> Univers::getCoordNeighbourCells(const std::tuple<int, int, int>& cellIndex) const {
-    std::vector<std::tuple<int, int, int>> neighbours;
+std::vector<std::array<int, 3>> Univers::getCoordNeighbourCells(const std::array<int, 3>& cellIndex) const {
+    std::vector<std::array<int, 3>> neighbours;
 
-    // Définir les déplacements pour chaque dimension
-    std::array<int, 3> dx = {-1, 0, 1};
-    std::array<int, 3> dy = (dimension > 1) ? std::array<int, 3>{-1, 0, 1} : std::array<int, 3>{0, 0, 0};
-    std::array<int, 3> dz = (dimension > 2) ? std::array<int, 3>{-1, 0, 1} : std::array<int, 3>{0, 0, 0};
-
-    // Générer les voisins
-    for (int i : dx) {
-        for (int j : dy) {
-            for (int k : dz) {
-                if (i == 0 && j == 0 && k == 0) continue; // Ignorer la cellule elle-même
-                neighbours.emplace_back(
-                    std::get<0>(cellIndex) + i,
-                    std::get<1>(cellIndex) + j,
-                    std::get<2>(cellIndex) + k
-                );
+    for (int i = -1; i <= 1; ++i) {
+        for (int j = (dimension > 1 ? -1 : 0); j <= (dimension > 1 ? 1 : 0); ++j) {
+            for (int k = (dimension > 2 ? -1 : 0); k <= (dimension > 2 ? 1 : 0); ++k) {
+                if (i == 0 && j == 0 && k == 0) continue;
+                neighbours.push_back({cellIndex[0] + i, cellIndex[1] + j, cellIndex[2] + k});
             }
         }
     }
-
-    // Supprimer les doublons (nécessaire pour les dimensions inférieures à 3)
-    std::sort(neighbours.begin(), neighbours.end());
-    auto last = std::unique(neighbours.begin(), neighbours.end());
-    neighbours.erase(last, neighbours.end());
-
     return neighbours;
 }
 
 void Univers::addParticle(const Particle& p) {
-    std::vector<double> pos = p.getPosition();
+    std::array<double,3> pos = p.getPosition();
     int i = static_cast<int>(pos[0] / cutOffRadius);
     int j = (dimension >= 2) ? static_cast<int>(pos[1] / cutOffRadius) : 0;
     int k = (dimension == 3) ? static_cast<int>(pos[2] / cutOffRadius) : 0;
 
-    std::tuple<int, int, int> cellIndex = {i, j, k};
+    std::array<int, 3> cellIndex = {i, j, k};
 
     auto cell = getCell(cellIndex);
     if (!cell) {
@@ -118,32 +101,23 @@ void Univers::addParticle(const Particle& p) {
             }
         }
     }
-
     cell->addParticle(p);
 }
 
 void Univers::removeEmptyCells() {
     for (auto it = cells.begin(); it != cells.end();) {
         if (it->second->isEmpty()) {
-            // Récupérer les voisins de la cellule courante
-            auto neighbors = it->second->getNeighborsCells(); // Copie des voisins
-
-            // Parcourir chaque voisin
+            auto neighbors = it->second->getNeighborsCells();
             for (const auto& n : neighbors) {
                 auto neighbourCell = getCell(n);
                 if (neighbourCell) {
-                    // Récupérer les voisins du voisin
                     auto& neighbourNeighbors = neighbourCell->getNeighborsCells();
-
-                    // Supprimer la cellule courante de la liste des voisins du voisin
                     neighbourNeighbors.erase(
                         std::remove(neighbourNeighbors.begin(), neighbourNeighbors.end(), it->first),
                         neighbourNeighbors.end()
                     );
                 }
             }
-
-            // Supprimer la cellule courante
             it = cells.erase(it);
         } else {
             ++it;
@@ -153,9 +127,9 @@ void Univers::removeEmptyCells() {
 
 void Univers::fillUnivers(int nbParticles) {
     for (int i = 0; i < nbParticles; ++i) {
-        std::vector<double> position;
+        std::array<double,3> position{};
         for (int d = 0; d < dimension; ++d) {
-            position.push_back(caracteristicLength * (rand() / (double)RAND_MAX));
+            position[d] = caracteristicLength * (rand() / (double)RAND_MAX);
         }
         Particle particle(position, {0, 0, 0}, 1, 1);
         addParticle(particle);
@@ -168,52 +142,30 @@ void Univers::showUnivers() const {
     std::cout << "Caracteristic length: " << caracteristicLength << std::endl;
     std::cout << "Cut off radius: " << cutOffRadius << std::endl;
     std::cout << "Cell length: " << cellLength << std::endl;
-    std::cout << "Number of cells: " << nbCells_x * nbCells_y * nbCells_z << std::endl;
     std::cout << "Number of not empty cells: " << cells.size() << std::endl;
+    std::cout << "================================" << std::endl;
 
-    // Afficher le nombre de particules dans l'univers
-    size_t totalParticles = 0;
-    for (const auto& cell : cells) {
-        totalParticles += cell.second->getParticles().size();
-    }
-    std::cout << "Total particles: " << totalParticles << std::endl;
-
-    // Afficher les coordonnées des cellules non vides
-    std::cout << "Non-empty cells and their particle counts:" << std::endl;
-    for (const auto& cell : cells) {
-        if (!cell.second->isEmpty()) {
-            std::cout << "  Cell (" << std::get<0>(cell.first) << ", "
-                      << std::get<1>(cell.first) << ", "
-                      << std::get<2>(cell.first) << "): "
-                      << cell.second->getParticles().size() << " particles" << std::endl;
-        }
-    }
-    std::cout << "=========================" << std::endl;
 }
 
-void Univers::showNeighbourCells(const std::tuple<int, int, int>& cellIndex) const {
+void Univers::showNeighbourCells(const std::array<int, 3>& cellIndex) const {
     std::cout << "=== Neighbour Cells of Cell ("
-              << std::get<0>(cellIndex) << ", "
-              << std::get<1>(cellIndex) << ", "
-              << std::get<2>(cellIndex) << ") ===" << std::endl;
-
-    // Obtenir les coordonnées des cellules voisines
+              << cellIndex[0] << ", "
+              << cellIndex[1] << ", "
+              << cellIndex[2] << ") ===" << std::endl;
     auto neighbours = getCoordNeighbourCells(cellIndex);
-
-    // Afficher les informations sur chaque cellule voisine
     for (const auto& neighbour : neighbours) {
         auto cell = getCell(neighbour);
         if (cell) {
             std::cout << "  Neighbour Cell ("
-                      << std::get<0>(neighbour) << ", "
-                      << std::get<1>(neighbour) << ", "
-                      << std::get<2>(neighbour) << "): "
+                      << neighbour[0] << ", "
+                      << neighbour[1] << ", "
+                      << neighbour[2] << "): "
                       << cell->getParticles().size() << " particles" << std::endl;
         } else {
             std::cout << "  Neighbour Cell ("
-                      << std::get<0>(neighbour) << ", "
-                      << std::get<1>(neighbour) << ", "
-                      << std::get<2>(neighbour) << "): empty" << std::endl;
+                      << neighbour[0] << ", "
+                      << neighbour[1] << ", "
+                      << neighbour[2] << "): empty" << std::endl;
         }
     }
     std::cout << "================================" << std::endl;

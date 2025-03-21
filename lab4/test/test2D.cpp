@@ -17,7 +17,7 @@ int main() {
 
 
     // Afficher les voisins d'une cellule
-    std::tuple<int, int, int> cellIndex2D = {2, 2, 0};
+    std::array<int, 3> cellIndex2D = {2, 2, 0};
     univers2D.showNeighbourCells(cellIndex2D);
 
     return 0;

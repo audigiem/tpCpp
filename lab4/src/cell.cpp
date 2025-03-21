@@ -3,6 +3,7 @@
 //
 
 #include "../include/cell.h"
+#include <iostream>
 
 Cell::Cell(int length) : length(length) {}
 
@@ -15,15 +16,15 @@ std::vector<Particle> Cell::getParticles() const {
     return particles;
 }
 
-std::tuple<int, int, int> Cell::getCellCoordinates() const {
+std::array<int, 3> Cell::getCellCoordinates() const {
     return cellCoordinates;
 }
 
-const std::vector<std::tuple<int, int, int>>& Cell::getNeighborsCells() const {
+const std::vector<std::array<int, 3>>& Cell::getNeighborsCells() const {
     return coordNeighborsCells;
 }
 
-std::vector<std::tuple<int, int, int> >& Cell::getNeighborsCells() {
+std::vector<std::array<int, 3> >& Cell::getNeighborsCells() {
     return coordNeighborsCells;
 }
 
@@ -37,11 +38,11 @@ void Cell::setParticles(const std::vector<Particle>& particles) {
     this->particles = particles;
 }
 
-void Cell::setCellCoordinates(const std::tuple<int, int, int>& cellCoordinates) {
+void Cell::setCellCoordinates(const std::array<int, 3>& cellCoordinates) {
     this->cellCoordinates = cellCoordinates;
 }
 
-void Cell::setNeighborsCells(const std::vector<std::tuple<int, int, int>>& neighborsCells) {
+void Cell::setNeighborsCells(const std::vector<std::array<int, 3>>& neighborsCells) {
     this->coordNeighborsCells = neighborsCells;
 }
 
@@ -49,6 +50,13 @@ void Cell::setNeighborsCells(const std::vector<std::tuple<int, int, int>>& neigh
 void Cell::addParticle(const Particle& particle) {
     particles.push_back(particle);
 }
+
+std::array<int, 3> Cell::computeBarycenter() const {
+    std::array<int, 3> coordCell = getCellCoordinates();
+    std::array<int, 3> barycenter = {coordCell[0] + getLength()/2, coordCell[1]+getLength()/2, coordCell[2] + getLength()/2};
+    return barycenter;
+}
+
 
 bool Cell::isEmpty() const {
     return particles.empty();

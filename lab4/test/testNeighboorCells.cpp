@@ -15,11 +15,11 @@ int main() {
     univers2D.showUnivers();
     univers1D.showUnivers();
 
-    std::tuple<int, int, int> cellIndex = {0, 0, 0};
-    std::tuple<int, int, int> cellIndex3D = {5, 5, 5};
+    std::array<int, 3> cellIndex = {0, 0, 0};
+    std::array<int, 3> cellIndex3D = {5, 5, 5};
 
-    std::tuple<int, int, int > cellIndex1D = {2, 0, 0};
-    std::tuple<int, int, int> cellIndex2D = {2, 2, 0};
+    std::array<int, 3> cellIndex1D = {2, 0, 0};
+    std::array<int, 3> cellIndex2D = {2, 2, 0};
 
     univers3D.showNeighbourCells(cellIndex);
     univers3D.showNeighbourCells(cellIndex3D);

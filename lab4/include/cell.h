@@ -8,34 +8,34 @@
 #include "particle.h"
 #include <vector>
 #include <tuple>
-#include <iostream>
 
 class Cell {
 private:
     int length;
     std::vector<Particle> particles;
-    std::tuple<int, int, int> cellCoordinates;
-    std::vector<std::tuple<int, int, int>> coordNeighborsCells;
+    std::array<int, 3> cellCoordinates;
+    std::vector<std::array<int, 3>> coordNeighborsCells;
 
 public:
-    Cell(int length);
+    explicit Cell(int length);
 
     // Getters
-    int getLength() const;
-    std::vector<Particle> getParticles() const;
-    std::tuple<int, int, int> getCellCoordinates() const;
-    const std::vector<std::tuple<int, int, int>>& getNeighborsCells() const;
-    std::vector<std::tuple<int, int, int>>& getNeighborsCells();
+    [[nodiscard]] int getLength() const;
+    [[nodiscard]] std::vector<Particle> getParticles() const;
+    [[nodiscard]] std::array<int, 3> getCellCoordinates() const;
+    [[nodiscard]] const std::vector<std::array<int, 3>>& getNeighborsCells() const;
+    std::vector<std::array<int, 3>>& getNeighborsCells();
 
     // Setters
     void setLength(int length);
     void setParticles(const std::vector<Particle>& particles);
-    void setCellCoordinates(const std::tuple<int, int, int>& cellCoordinates);
-    void setNeighborsCells(const std::vector<std::tuple<int, int, int>>& neighborsCells);
+    void setCellCoordinates(const std::array<int, 3>& cellCoordinates);
+    void setNeighborsCells(const std::vector<std::array<int, 3>>& neighborsCells);
 
     // Methods
     void addParticle(const Particle& particle);
-    bool isEmpty() const;
+    [[nodiscard]] std::array<int, 3> computeBarycenter() const;
+    [[nodiscard]] bool isEmpty() const;
     void showCell() const;
 };
 
