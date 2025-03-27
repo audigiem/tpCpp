@@ -47,9 +47,10 @@ public:
 
     // Methods
     std::shared_ptr<Cell<N>> getCell(const std::array<int, N>& cellIndex) const;
-
+    std::vector<std::shared_ptr<Cell<N>>> getCoordNeighbourCells(const std::array<int, N>& cellIndex) const;
     void addParticle(const Particle<N>& particle);
     void removeEmptyCells();
+    void updateParticlePositionInCell(const Particle<N>& particle, const Vecteur<N>& newPosition, const Vecteur<N>& newVelocity);
     void fillUnivers(int nbParticles);
 
     void showUnivers() const;

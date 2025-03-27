@@ -46,7 +46,7 @@ void Particle<N>::setVelocity(const Vecteur<N>& newVel) {
 
 template <std::size_t N>
 void Particle<N>::applyForce(const Vecteur<N>& newForce) {
-    force = force + newForce;
+    force = newForce;
 }
 
 template <std::size_t N>

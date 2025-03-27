@@ -2,20 +2,23 @@
 #define PARTICLE_H
 
 #include <array>
-#include <vector>
+#include <list>
 #include <particle.hpp>
 
 
 template <std::size_t N>
 class Cell {
 private:
-    std::vector<Particle<N>> particles;
+    std::list<Particle<N>> particles;
 
 public:
     void addParticle(const Particle<N>& particle);
     bool isEmpty() const;
     void showParticles() const;
-    std::vector<Particle<N>> getParticles() const;
+    std::list<Particle<N>> getParticles() const;
+    void removeParticle(const Particle<N>& particle);
+
+
 };
 
 #include "cell.tpp"
