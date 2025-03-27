@@ -16,8 +16,14 @@ public:
     Vecteur(const Vecteur& other);
     ~Vecteur();
 
-    double get(std::size_t index) const;
-    void set(std::size_t index, double value);
+    inline double get(std::size_t index) const {
+        return data[index];
+    }
+
+    inline void set(std::size_t index, double value) {
+        data[index] = value;
+    }
+
     double norm() const;
 
     friend std::ostream& operator<<(std::ostream& os, const Vecteur<N>& v) {
@@ -37,7 +43,14 @@ public:
         for (std::size_t i = 0; i < N; ++i) {
             result.data[i] = v1.data[i] + v2.data[i];
         }
-        return result;
+        return result; // Rely on RVO
+    }
+
+    friend Vecteur<N>& operator+=(Vecteur<N>& v1, const Vecteur<N>& v2) {
+        for (std::size_t i = 0; i < N; ++i) {
+            v1.data[i] += v2.data[i];
+        }
+        return v1;
     }
 
     friend Vecteur<N> operator-(const Vecteur<N>& v1, const Vecteur<N>& v2) {
