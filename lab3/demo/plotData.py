@@ -102,7 +102,7 @@ def plot_particle_positions(positions_per_time, speed_per_time):
     plt.show()
 
 # Exemple d'utilisation
-file_path = '/home/matteo/Bureau/ENSIMAG/2A/S8/cpp/tpCpp/lab3/demo/dataSimulation.txt'
+file_path = '/user/8/audigiem/2A/S8/cpp/lab3/demo/dataSimulation.txt'
 positions_per_time, speed_per_time = read_particle_positions(file_path)
 
 # Afficher l'animation des positions des particules

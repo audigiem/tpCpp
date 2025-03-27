@@ -10,7 +10,6 @@
 #include <memory>
 #include <array>
 
-// Constructeur
 Univers::Univers(int dimension, double caracteristicLength, double cutOffRadius)
     : dimension(dimension), caracteristicLength(caracteristicLength), cutOffRadius(cutOffRadius),
       cellLength(0), nbCells_x(0), nbCells_y(0), nbCells_z(0), cells() {
