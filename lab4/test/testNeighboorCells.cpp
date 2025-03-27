@@ -1,7 +1,7 @@
 //
 // Created by audigiem on 13/03/25.
 //
-#include "../include/univers.h"
+#include "../include/univers.hpp"
 
 int main() {
     // Création d'un univers 3D

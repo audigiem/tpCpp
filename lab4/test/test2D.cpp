@@ -2,8 +2,8 @@
 // Created by matteo on 19/03/25.
 //
 
-#include "../include/univers.h"
-#include "../include/cell.h"
+#include "../include/univers.hpp"
+#include "../include/cell.hpp"
 #include <iostream>
 
 int main() {
