@@ -6,7 +6,7 @@
 
 add_executable(test_univers1 test_univers1.cpp)
 add_executable(test_univers2 test_univers2.cpp)
-add_executable(test_vectuer test_vecteur.cpp)
+add_executable(test_vecteur test_vecteur.cpp)
 
 # Fait le lien avec la bibliothèque créée précedemment
 # Les entêtes sont automatiquement détectés.
@@ -17,4 +17,4 @@ add_executable(test_vectuer test_vecteur.cpp)
 
 target_link_libraries(test_univers1 univers)
 target_link_libraries(test_univers2 univers)
-target_link_libraries(test_vectuer vecteur)
+target_link_libraries(test_vecteur vecteur)
