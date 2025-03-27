@@ -98,7 +98,7 @@ void Univers<N>::update(double dt) {
             for (const auto& otherCell : cells) {
                 for (const auto& otherParticle : otherCell.second->getParticles()) {
                     if (particle.getId() != otherParticle.getId()) {
-                        force = force + particle.getAllForces(otherParticle, 1.0, 1.0);
+                        force = force + particle.optimizedGetAllForces(otherParticle, 24.0, 1.0);
                     }
                 }
             }
