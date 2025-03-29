@@ -26,6 +26,8 @@ int main() {
     Particle<3> particle = univers.getCells().begin()->second->getParticles().front();
     std::cout << "Before moving the particle: " << particle.getId() << particle.getPosition() << std::endl;
     univers.updateParticlePositionInCell(particle, newPosition, newVelocity);
+    particle.setVelocity(newVelocity);
+    particle.setPosition(newPosition);
     std::cout << "After moving the particle: " << particle.getPosition() << std::endl;
     univers.showUnivers();
 
