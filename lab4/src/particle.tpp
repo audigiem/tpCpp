@@ -71,3 +71,8 @@ Vecteur<N> Particle<N>::getAllForces(const Particle<N>& p, float epsilon, float 
     // Combine all forces
     return getGravityForce(p) + getLennardJonesForce(p, epsilon, sigma);
 }
+
+template <std::size_t N>
+bool Particle<N>::operator==(const Particle<N>& other) const {
+    return id == other.id && position == other.position && velocity == other.velocity && mass == other.mass;
+}

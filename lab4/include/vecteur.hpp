@@ -75,6 +75,15 @@ public:
         }
         return result;
     }
+
+    friend bool operator==(const Vecteur<N>& v1, const Vecteur<N>& v2) {
+        for (std::size_t i = 0; i < N; ++i) {
+            if (v1.data[i] != v2.data[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 };
 
 #include "vecteur.tpp"

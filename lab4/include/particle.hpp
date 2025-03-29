@@ -32,6 +32,8 @@ public:
     Vecteur<N> getGravityForce(const Particle<N>& p) const;
     Vecteur<N> getLennardJonesForce(const Particle<N>& p, float epsilon, float sigma) const;
     Vecteur<N> getAllForces(const Particle<N>& p, float epsilon, float sigma) const;
+
+    bool operator==(const Particle<N>& other) const;
 };
 
 #include "particle.tpp"

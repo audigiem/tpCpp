@@ -76,6 +76,13 @@ void Univers<N>::addParticle(const Particle<N>& particle) {
     cell->addParticle(particle);
 }
 
+
+/** * @brief Update the cells configuration according to the new position of the particle
+ * IMPORTANT: This function does not update the particle position in the cell, it only updates the cells configuration
+ * @param particle The particle to update
+ * @param newPosition The new position of the particle
+ * @param newVelocity The new velocity of the particle
+ */
 template <std::size_t N>
 void Univers<N>::updateParticlePositionInCell(const Particle<N> &particle, const Vecteur<N> &newPosition,
                                               const Vecteur<N> &newVelocity) {
@@ -90,11 +97,15 @@ void Univers<N>::updateParticlePositionInCell(const Particle<N> &particle, const
     if (oldCellIndex != newCellIndex) {
         auto oldCell = getCell(oldCellIndex);
         auto newCell = getCell(newCellIndex);
-        if (oldCell and newCell) {
-            // remove particle from old cell and add it to the new cell
+        // remove the particle from the old cell and add it to the new cell
+        if (oldCell) {
             oldCell->removeParticle(particle);
-            newCell->addParticle(particle);
         }
+        if (!newCell) {
+            newCell = std::make_shared<Cell<N>>();
+            cells[newCellIndex] = newCell;
+        }
+        newCell->addParticle(particle);
     }
 }
 
@@ -113,13 +124,21 @@ void Univers<N>::removeEmptyCells() {
 template <std::size_t N>
 void Univers<N>::fillUnivers(int nbParticles) {
     for (int i = 0; i < nbParticles; ++i) {
-        Particle<N> particle;
+        // create a random position and velocity for the particle
+        Vecteur<N> position;
+        Vecteur<N> velocity;
+        for (std::size_t j = 0; j < N; ++j) {
+            position.set(j, static_cast<double>(rand()) / RAND_MAX * caracteristicLength);
+            velocity.set(j, static_cast<double>(rand()) / RAND_MAX * caracteristicLength);
+        }
+        Particle<N> particle(i, position, velocity, 1.0, "default");
         addParticle(particle);
     }
 }
 
 template <std::size_t N>
 void Univers<N>::showUnivers() const {
+    std::cout << "========== Univers ==========" << std::endl;
     for (const auto& cell : cells) {
         std::cout << "Cell at index: ";
         for (const auto& index : cell.first) {
@@ -128,11 +147,12 @@ void Univers<N>::showUnivers() const {
         std::cout << std::endl;
         cell.second->showParticles();
     }
+    std::cout << "=============================" << std::endl;
 }
 
 template <std::size_t N>
 void Univers<N>::update(double dt) {
-    for (auto& cell : cells) {
+    for (const auto& cell : cells) {
         // we look up for each particle in the neighbouring cells that are at a distance less than cutOffRadius
         for (const auto& neighbourCell : getCoordNeighbourCells(cell.first)) {
             for (const auto& particle : neighbourCell->getParticles()) {
