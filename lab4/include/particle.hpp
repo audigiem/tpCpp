@@ -34,6 +34,7 @@ public:
     Vecteur<N> getAllForces(const Particle<N>& p, float epsilon, float sigma) const;
 
     bool operator==(const Particle<N>& other) const;
+    Vecteur<N> optimizedGetAllForces(const Particle<N>& p, float epsilon_times_24, float sigma) const;
 };
 
 #include "particle.tpp"
