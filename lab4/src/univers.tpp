@@ -4,6 +4,7 @@ template <std::size_t N>
 Univers<N>::Univers(double caracteristicLength, double cutOffRadius)
     : caracteristicLength(caracteristicLength), cutOffRadius(cutOffRadius) {
     cellLength = static_cast<int>(std::ceil(caracteristicLength / cutOffRadius));
+    nbParticles = 0;
 }
 
 template <std::size_t N>
@@ -25,6 +26,22 @@ template <std::size_t N>
 int Univers<N>::getCellLength() const {
     return cellLength;
 }
+
+template <std::size_t N>
+int Univers<N>::getNbParticles() const {
+    return nbParticles;
+}
+
+template <std::size_t N>
+std::list<Particle<N>> Univers<N>::getParticles() const {
+    std::list<Particle<N>> particles;
+    for (const auto& cell : cells) {
+        const auto& cellParticles = cell.second->getParticles();
+        particles.insert(particles.end(), cellParticles.begin(), cellParticles.end());
+    }
+    return particles;
+}
+
 
 template <std::size_t N>
 void Univers<N>::setCaracteristicLength(double caracteristicLength) {
@@ -74,6 +91,7 @@ void Univers<N>::addParticle(const Particle<N>& particle) {
         cells[cellIndex] = cell;
     }
     cell->addParticle(particle);
+    ++nbParticles;
 }
 
 

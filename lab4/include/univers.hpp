@@ -32,6 +32,7 @@ private:
     double cutOffRadius;
     int cellLength;
     std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>> cells;
+    int nbParticles;
 
 public:
     Univers(double caracteristicLength, double cutOffRadius);
@@ -41,6 +42,8 @@ public:
     [[nodiscard]] double getCutOffRadius() const;
     [[nodiscard]] const std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>>& getCells() const;
     [[nodiscard]] int getCellLength() const;
+    [[nodiscard]] int getNbParticles() const;
+    [[nodiscard]] std::list<Particle<N>> getParticles() const;
 
     void setCaracteristicLength(double caracteristicLength);
     void setCutOffRadius(double cutOffRadius);

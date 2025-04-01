@@ -3,6 +3,8 @@
 #include "../include/univers.hpp"
 #include "../include/particle.hpp"
 #include "../include/vecteur.hpp"
+#include "../include/VTKconverter.hpp"
+#include <fstream>
 
 void runSimulation(int numParticles) {
     // Create the universe and show the time to create it
@@ -40,15 +42,21 @@ void runSimulation(int numParticles) {
     std::chrono::duration<double> durationSim = endSim - startSim;
     std::cout << "Simulation with " << numParticles << " particles took " << durationSim.count() << " seconds." << std::endl;
     std::cout << std::endl;
+
+    // Create a VTK converter and write the data to a file in ../demo
+    std::string outputFileName = "../demo/univers.vtk";
+    VTKconverter<3> vtkConverter = VTKconverter<3>(outputFileName);
+    vtkConverter.convertToVTK(univers);
 }
 
 int main() {
     std::cout << "Simulation parameters: 100 time steps, 0.01 time step size" << std::endl;
-    for (int k = 3; k < 20; ++k) {
+    for (int k = 3; k < 15; ++k) {
         int numParticles = std::pow(2, k);
         runSimulation(numParticles);
 
     }
+
 
     return 0;
 }

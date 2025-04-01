@@ -17,6 +17,6 @@ add_executable(test_mouv test_particleMovement.cpp)
 #target_link_libraries(test3D univers)
 
 target_link_libraries(test_univers1 univers)
-target_link_libraries(test_univers2 univers)
+target_link_libraries(test_univers2 univers vtkconverter)
 target_link_libraries(test_vecteur vecteur)
 target_link_libraries(test_mouv univers)
