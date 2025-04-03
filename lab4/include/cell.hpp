@@ -3,7 +3,7 @@
 
 #include <array>
 #include <vector>
-#include <particle.hpp>
+#include "particle.hpp"
 
 
 template <std::size_t N>
@@ -18,6 +18,6 @@ public:
     std::vector<Particle<N>> getParticles() const;
 };
 
-#include "cell.tpp"
+#include "../src/cell.tpp"
 
 #endif // PARTICLE_H

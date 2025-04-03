@@ -1,0 +1,29 @@
+enable_testing()
+
+# Add test files
+add_executable(test_constructor test_constructor.cpp)
+add_executable(test_operator_plus test_operator_plus.cpp)
+add_executable(test_operator_minus test_operator_minus.cpp)
+add_executable(test_operator_multiply test_operator_multiply.cpp)
+add_executable(test_operator_divide test_operator_divide.cpp)
+add_executable(test_norm test_norm.cpp)
+add_executable(test_operator_equal test_operator_equal.cpp)
+
+# Link with GTest
+target_link_libraries(test_constructor gtest gtest_main pthread)  
+target_link_libraries(test_operator_plus gtest gtest_main pthread)
+target_link_libraries(test_operator_minus gtest gtest_main pthread)
+target_link_libraries(test_operator_multiply gtest gtest_main pthread)
+target_link_libraries(test_operator_divide gtest gtest_main pthread)
+target_link_libraries(test_norm gtest gtest_main pthread)
+target_link_libraries(test_operator_equal gtest gtest_main pthread)
+
+# Register tests with CTest
+include(GoogleTest)
+gtest_discover_tests(test_constructor)
+gtest_discover_tests(test_operator_plus)
+gtest_discover_tests(test_operator_minus)
+gtest_discover_tests(test_operator_multiply)
+gtest_discover_tests(test_operator_divide)
+gtest_discover_tests(test_norm)
+gtest_discover_tests(test_operator_equal)

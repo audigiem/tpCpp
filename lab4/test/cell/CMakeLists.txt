@@ -1,0 +1,21 @@
+enable_testing()
+
+# Add test files
+add_executable(test_cell_add_particle test_cell_add_particle.cpp)
+add_executable(test_cell_is_empty test_cell_is_empty.cpp)
+add_executable(test_cell_get_particles test_cell_get_particles.cpp)
+add_executable(test_cell_show_particles test_cell_show_particles.cpp)
+
+# Link with GTest
+target_link_libraries(test_cell_add_particle gtest gtest_main pthread)
+target_link_libraries(test_cell_is_empty gtest gtest_main pthread)
+target_link_libraries(test_cell_get_particles gtest gtest_main pthread)
+target_link_libraries(test_cell_show_particles gtest gtest_main pthread)
+
+# Register tests with CTest
+include(GoogleTest)
+gtest_discover_tests(test_cell_add_particle)
+gtest_discover_tests(test_cell_is_empty)
+gtest_discover_tests(test_cell_get_particles)
+gtest_discover_tests(test_cell_show_particles)
+

@@ -88,8 +88,23 @@ public:
         }
         return result;
     }
+
+    friend bool operator==(const Vecteur<N>& v1, const Vecteur<N>& v2) {
+        bool equal = true;
+        for (std::size_t i = 0; i < N; ++i) {
+            if (v1.data[i] != v2.data[i]) {
+                equal = false;
+                break;
+            }
+        }
+        return equal;
+    }
+
+    friend bool operator!=(const Vecteur<N>& v1, const Vecteur<N>& v2) {
+        return !(v1 == v2);
+    }
 };
 
-#include "vecteur.tpp"
+#include "../src/vecteur.tpp"
 
 #endif // VECTEUR_HPP

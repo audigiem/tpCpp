@@ -93,6 +93,6 @@ Vecteur<N> Particle<N>::optimizedGetAllForces(const Particle<N>& p, float epsilo
     double pow_6 = tmp * tmp * tmp;
     pow_6 *= pow_6;
     double lennard_jones = epsilon_times_24 / (distance_squared) * pow_6 * (1 - 2 * pow_6);
-    double gravity = mass / (distance_squared * distance);
+    double gravity = mass * p.getMass() / (distance_squared * distance);
     return (lennard_jones + gravity) * distance_vect;
 }

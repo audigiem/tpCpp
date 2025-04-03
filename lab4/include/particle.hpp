@@ -35,6 +35,6 @@ public:
     Vecteur<N> optimizedGetAllForces(const Particle<N>& p, float epsilon_times_24, float sigma) const;
 };
 
-#include "particle.tpp"
+#include "../src/particle.tpp"
 
 #endif // PARTICLE_HPP

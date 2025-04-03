@@ -57,6 +57,6 @@ public:
     void update(double dt);
 };
 
-#include "univers.tpp"
+#include "../src/univers.tpp"
 
 #endif // UNIVERS_HPP

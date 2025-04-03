@@ -1,0 +1,21 @@
+# Add test files
+add_executable(test_particle_getters test_particle_getters.cpp)
+add_executable(test_particle_setters test_particle_setters.cpp)
+add_executable(test_particle_gravity_force test_particle_gravity_force.cpp)
+add_executable(test_particle_lennard_jones_force test_particle_lennard_jones_force.cpp)
+add_executable(test_particle_combined_forces test_particle_combined_forces.cpp)
+
+# Link with GTest
+target_link_libraries(test_particle_getters gtest gtest_main pthread)
+target_link_libraries(test_particle_setters gtest gtest_main pthread)
+target_link_libraries(test_particle_gravity_force gtest gtest_main pthread)
+target_link_libraries(test_particle_lennard_jones_force gtest gtest_main pthread)
+target_link_libraries(test_particle_combined_forces gtest gtest_main pthread)
+
+# Register tests with CTest
+include(GoogleTest)
+gtest_discover_tests(test_particle_getters)
+gtest_discover_tests(test_particle_setters)
+gtest_discover_tests(test_particle_gravity_force)
+gtest_discover_tests(test_particle_lennard_jones_force)
+gtest_discover_tests(test_particle_combined_forces)
