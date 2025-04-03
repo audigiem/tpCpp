@@ -23,6 +23,22 @@ template <std::size_t N>
 Vecteur<N>::~Vecteur() {}
 
 template <std::size_t N>
+inline double Vecteur<N>::get(std::size_t index) const {
+    if (index >= N) {
+        throw std::out_of_range("Index out of range");
+    }
+    return data[index];
+}
+
+template <std::size_t N>
+inline void Vecteur<N>::set(std::size_t index, double value) {
+    if (index >= N) {
+        throw std::out_of_range("Index out of range");
+    }
+    data[index] = value;
+}
+
+template <std::size_t N>
 double Vecteur<N>::norm() const {
     double sum = 0.0;
     for (double value : data) {

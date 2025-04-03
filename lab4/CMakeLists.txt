@@ -10,7 +10,15 @@ set(CMAKE_CXX_STANDARD 17)
 ## Indique les options de compilations pour le projet
 ## -pg : donne la possibilité de faire du profiling
 ## -Wall : affiche les warnings
-set(CMAKE_CXX_FLAGS "-Wall")
+## -03 : optimisation
+## -march=native : optimisation pour la machine locale
+## -ffast-math : optimisation pour les calculs mathématiques
+## -funroll-loops : optimisation pour le déroulement des boucles
+## -ftree-vectorize : enable vectorization
+## -fopenmp : enable OpenMP
+## -finline-functions : enable inline functions
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -Wall -O3 -march=native -ffast-math -funroll-loops -ftree-vectorize -fopenmp -finline-functions")
 
 ## Définir la localisation des entêtes.
 ## include_directories sera propager à l'ensemble du projet

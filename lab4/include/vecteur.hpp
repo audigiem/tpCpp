@@ -12,17 +12,12 @@ private:
 
 public:
     Vecteur();
-    Vecteur(const std::array<double, N>& values);
+    explicit Vecteur(const std::array<double, N>& values);
     Vecteur(const Vecteur& other);
     ~Vecteur();
 
-    inline double get(std::size_t index) const {
-        return data[index];
-    }
-
-    inline void set(std::size_t index, double value) {
-        data[index] = value;
-    }
+    inline double get(std::size_t index) const;
+    inline void set(std::size_t index, double value);
 
     double norm() const;
 
@@ -43,14 +38,14 @@ public:
         for (std::size_t i = 0; i < N; ++i) {
             result.data[i] = v1.data[i] + v2.data[i];
         }
-        return result; // Rely on RVO
+        return std::move(result);
     }
 
     friend Vecteur<N>& operator+=(Vecteur<N>& v1, const Vecteur<N>& v2) {
         for (std::size_t i = 0; i < N; ++i) {
             v1.data[i] += v2.data[i];
         }
-        return v1;
+        return std::move(v1);
     }
 
     friend Vecteur<N> operator-(const Vecteur<N>& v1, const Vecteur<N>& v2) {
@@ -58,7 +53,7 @@ public:
         for (std::size_t i = 0; i < N; ++i) {
             result.data[i] = v1.data[i] - v2.data[i];
         }
-        return result;
+        return std::move(result);
     }
 
     friend Vecteur<N> operator*(const Vecteur<N>& v1, const Vecteur<N>& v2) {
@@ -66,7 +61,7 @@ public:
         for (std::size_t i = 0; i < N; ++i) {
             result.data[i] = v1.data[i] * v2.data[i];
         }
-        return result;
+        return std::move(result);
     }
 
     friend Vecteur<N> operator*(const Vecteur<N>& v, float f) {
@@ -74,7 +69,7 @@ public:
         for (std::size_t i = 0; i < N; ++i) {
             result.data[i] = v.data[i] * f;
         }
-        return result;
+        return std::move(result);
     }
 
     friend Vecteur<N> operator*(float f, const Vecteur<N>& v) {
@@ -86,7 +81,7 @@ public:
         for (std::size_t i = 0; i < N; ++i) {
             result.data[i] = v.data[i] / d;
         }
-        return result;
+        return std::move(result);
     }
 
     friend bool operator==(const Vecteur<N>& v1, const Vecteur<N>& v2) {
