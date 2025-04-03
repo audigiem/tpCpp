@@ -33,6 +33,15 @@ public:
     Vecteur<N> getLennardJonesForce(const Particle<N>& p, float epsilon, float sigma) const;
     Vecteur<N> getAllForces(const Particle<N>& p, float epsilon, float sigma) const;
     Vecteur<N> optimizedGetAllForces(const Particle<N>& p, float epsilon_times_24, float sigma) const;
+
+    friend bool operator==(const Particle<N>& p1, const Particle<N>& p2) {
+        return p1.id == p2.id &&
+               p1.position == p2.position &&
+               p1.velocity == p2.velocity &&
+               p1.mass == p2.mass &&
+               p1.category == p2.category &&
+               p1.force == p2.force;
+    }
 };
 
 #include "../src/particle.tpp"

@@ -46,6 +46,23 @@ std::shared_ptr<Cell<N>> Univers<N>::getCell(const std::array<int, N>& cellIndex
 }
 
 template <std::size_t N>
+std::vector<std::shared_ptr<Cell<N>>> Univers<N>::getCoordNeighbourCells(const std::array<int, N>& cellIndex) const {
+    std::vector<std::shared_ptr<Cell<N>>> neighbourCells;
+    std::array<int, N> neighbourIndex;
+    for (std::size_t i = 0; i < N; ++i) {
+        for (int j = -1; j <= 1; ++j) {
+            neighbourIndex[i] = cellIndex[i] + j;
+            auto cell = getCell(neighbourIndex);
+            if (cell) {
+                neighbourCells.push_back(cell);
+            }
+        }
+    }
+    return neighbourCells;
+}
+
+
+template <std::size_t N>
 void Univers<N>::addParticle(const Particle<N>& particle) {
     std::array<int, N> cellIndex;
     for (std::size_t i = 0; i < N; ++i) {
@@ -58,6 +75,29 @@ void Univers<N>::addParticle(const Particle<N>& particle) {
     }
     cell->addParticle(particle);
 }
+
+template <std::size_t N>
+void Univers<N>::updateParticlePositionInCell(const Particle<N> &particle, const Vecteur<N> &newPosition,
+                                              const Vecteur<N> &newVelocity) {
+    std::array<int, N> oldCellIndex;
+    for (std::size_t i = 0; i < N; ++i) {
+        oldCellIndex[i] = static_cast<int>(std::floor(particle.getPosition().get(i) / cutOffRadius));
+    }
+    std::array<int, N> newCellIndex;
+    for (std::size_t i = 0; i < N; ++i) {
+        newCellIndex[i] = static_cast<int>(std::floor(newPosition.get(i) / cutOffRadius));
+    }
+    if (oldCellIndex != newCellIndex) {
+        auto oldCell = getCell(oldCellIndex);
+        auto newCell = getCell(newCellIndex);
+        if (oldCell and newCell) {
+            // remove particle from old cell and add it to the new cell
+            oldCell->removeParticle(particle);
+            newCell->addParticle(particle);
+        }
+    }
+}
+
 
 template <std::size_t N>
 void Univers<N>::removeEmptyCells() {
@@ -104,16 +144,18 @@ void Univers<N>::update(double dt) {
             }
             particle.applyForce(force);
         }
+
     }
 
-    for (auto& cell : cells) {
+    for (const auto& cell : cells) {
         for (auto& particle : cell.second->getParticles()) {
             Vecteur<N> acceleration = particle.getForce() / particle.getMass();
             Vecteur<N> newVelocity = particle.getVelocity() + acceleration * dt;
             Vecteur<N> newPosition = particle.getPosition() + newVelocity * dt;
+            // update particle position and velocity and modify the hashmap cells
+            updateParticlePositionInCell(particle, newPosition, newVelocity);
             particle.setPosition(newPosition);
             particle.setVelocity(newVelocity);
-            particle.resetForce();
         }
     }
 

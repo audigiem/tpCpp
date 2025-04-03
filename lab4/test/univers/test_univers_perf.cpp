@@ -5,6 +5,8 @@
 #include "../include/vecteur.hpp"
 
 void runSimulation(int numParticles) {
+    // Create the universe and show the time to create it
+    auto start = std::chrono::high_resolution_clock::now();
     const double spacing = 1.0 / (std::cbrt(numParticles) - 1);
     double caracteristicLength = 1.0;
     double cutOffRadius = 0.1;
@@ -25,21 +27,27 @@ void runSimulation(int numParticles) {
         }
     }
 
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+    std::cout << "Universe creation with " << numParticles << " particles took " << duration.count() << " seconds." << std::endl;
+
     // Run the simulation
+    auto startSim = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < 100; ++i) {
         univers.update(0.01);
     }
+    auto endSim = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> durationSim = endSim - startSim;
+    std::cout << "Simulation with " << numParticles << " particles took " << durationSim.count() << " seconds." << std::endl;
+    std::cout << std::endl;
 }
 
 int main() {
     std::cout << "Simulation parameters: 100 time steps, 0.01 time step size" << std::endl;
-    for (int k = 3; k < 10; ++k) {
+    for (int k = 3; k < 20; ++k) {
         int numParticles = std::pow(2, k);
-        auto start = std::chrono::high_resolution_clock::now();
         runSimulation(numParticles);
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> duration = end - start;
-        std::cout << "Simulation with " << numParticles << " particles took " << duration.count() << " seconds." << std::endl;
+
     }
 
     return 0;
