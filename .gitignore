@@ -3,3 +3,6 @@
 *.pdf
 *.idea/
 *.build/
+*.demo/
+*.vtk
+*.vtu
