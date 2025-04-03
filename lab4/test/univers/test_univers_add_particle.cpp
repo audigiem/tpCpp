@@ -15,5 +15,5 @@ TEST(UniversTest, AddParticle) {
 
     ASSERT_NE(cell, nullptr);
     EXPECT_EQ(cell->getParticles().size(), 1);
-    EXPECT_EQ(cell->getParticles()[0].getId(), 1);
+    EXPECT_EQ(cell->getParticles().front().getId(), 1);
 }

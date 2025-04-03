@@ -19,8 +19,8 @@ TEST(CellTest, GetParticles) {
     auto particles = cell.getParticles();
     ASSERT_EQ(particles.size(), 2);
 
-    EXPECT_EQ(particles[0].getId(), 1);
-    EXPECT_EQ(particles[1].getId(), 2);
-    EXPECT_EQ(particles[0].getPosition(), position1);
-    EXPECT_EQ(particles[1].getPosition(), position2);
+    EXPECT_EQ(particles.front().getId(), 1);
+    EXPECT_EQ(particles.back().getId(), 2);
+    EXPECT_EQ(particles.front().getPosition(), position1);
+    EXPECT_EQ(particles.back().getPosition(), position2);
 }
