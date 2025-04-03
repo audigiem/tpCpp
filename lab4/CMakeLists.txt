@@ -28,7 +28,7 @@ add_subdirectory(test)
 include(FetchContent)
 FetchContent_Declare(
     googletest
-    URL https://github.com/google/googletest/archive/release-1.12.1.zip
+    GIT https://github.com/google/googletest/archive/release-1.12.1.zip
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 ## Uncomment the following if errors on Windows
