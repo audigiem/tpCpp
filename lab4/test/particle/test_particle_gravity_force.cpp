@@ -9,5 +9,5 @@ TEST(ParticleTest, GravityForce) {
     Particle<3> particle2(2, position2, Vecteur<3>(), 10.0, "test2");
 
     Vecteur<3> expectedForce({50.0, 0.0, 0.0}); // F = G * m1 * m2 / r^2
-    EXPECT_EQ(particle1.getGravityForce(particle2), expectedForce);
+    EXPECT_EQ(particle1.getGravityForce(std::make_shared<Particle<3>>(particle2)), expectedForce);
 }

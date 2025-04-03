@@ -4,6 +4,7 @@ template <std::size_t N>
 Univers<N>::Univers(double caracteristicLength, double cutOffRadius)
     : caracteristicLength(caracteristicLength), cutOffRadius(cutOffRadius) {
     cellLength = static_cast<int>(std::ceil(caracteristicLength / cutOffRadius));
+    nbParticles = 0;
 }
 
 template <std::size_t N>
@@ -27,6 +28,22 @@ int Univers<N>::getCellLength() const {
 }
 
 template <std::size_t N>
+int Univers<N>::getNbParticles() const {
+    return nbParticles;
+}
+
+template <std::size_t N>
+std::list<std::shared_ptr<Particle<N>>> Univers<N>::getParticles() const {
+    std::list<std::shared_ptr<Particle<N>>> particles;
+    for (const auto& cell : cells) {
+        auto cellParticles = cell.second->getParticles();
+        particles.insert(particles.end(), cellParticles.begin(), cellParticles.end());
+    }
+    return particles;
+}
+
+
+template <std::size_t N>
 void Univers<N>::setCaracteristicLength(double caracteristicLength) {
     this->caracteristicLength = caracteristicLength;
 }
@@ -45,6 +62,7 @@ std::shared_ptr<Cell<N>> Univers<N>::getCell(const std::array<int, N>& cellIndex
     return nullptr;
 }
 
+/**
 template <std::size_t N>
 std::vector<std::shared_ptr<Cell<N>>> Univers<N>::getCoordNeighbourCells(const std::array<int, N>& cellIndex) const {
     std::vector<std::shared_ptr<Cell<N>>> neighbourCells;
@@ -60,13 +78,13 @@ std::vector<std::shared_ptr<Cell<N>>> Univers<N>::getCoordNeighbourCells(const s
     }
     return neighbourCells;
 }
-
+*/
 
 template <std::size_t N>
-void Univers<N>::addParticle(const Particle<N>& particle) {
+void Univers<N>::addParticle(const std::shared_ptr<Particle<N>>& particle) {
     std::array<int, N> cellIndex;
     for (std::size_t i = 0; i < N; ++i) {
-        cellIndex[i] = static_cast<int>(std::floor(particle.getPosition().get(i) / cutOffRadius));
+        cellIndex[i] = static_cast<int>(std::floor(particle->getPosition().get(i) / cutOffRadius));
     }
     auto cell = getCell(cellIndex);
     if (!cell) {
@@ -74,14 +92,22 @@ void Univers<N>::addParticle(const Particle<N>& particle) {
         cells[cellIndex] = cell;
     }
     cell->addParticle(particle);
+    ++nbParticles;
 }
 
+
+/** * @brief Update the cells configuration according to the new position of the particle
+ * IMPORTANT: This function does not update the particle position in the cell, it only updates the cells configuration
+ * @param particle The particle to update
+ * @param newPosition The new position of the particle
+ * @param newVelocity The new velocity of the particle
+ */
 template <std::size_t N>
-void Univers<N>::updateParticlePositionInCell(const Particle<N> &particle, const Vecteur<N> &newPosition,
+void Univers<N>::updateParticlePositionInCell(const std::shared_ptr<Particle<N>>& particle, const Vecteur<N> &newPosition,
                                               const Vecteur<N> &newVelocity) {
     std::array<int, N> oldCellIndex;
     for (std::size_t i = 0; i < N; ++i) {
-        oldCellIndex[i] = static_cast<int>(std::floor(particle.getPosition().get(i) / cutOffRadius));
+        oldCellIndex[i] = static_cast<int>(std::floor(particle->getPosition().get(i) / cutOffRadius));
     }
     std::array<int, N> newCellIndex;
     for (std::size_t i = 0; i < N; ++i) {
@@ -90,11 +116,15 @@ void Univers<N>::updateParticlePositionInCell(const Particle<N> &particle, const
     if (oldCellIndex != newCellIndex) {
         auto oldCell = getCell(oldCellIndex);
         auto newCell = getCell(newCellIndex);
-        if (oldCell and newCell) {
-            // remove particle from old cell and add it to the new cell
+        // remove the particle from the old cell and add it to the new cell
+        if (oldCell) {
             oldCell->removeParticle(particle);
-            newCell->addParticle(particle);
         }
+        if (!newCell) {
+            newCell = std::make_shared<Cell<N>>();
+            cells[newCellIndex] = newCell;
+        }
+        newCell->addParticle(particle);
     }
 }
 
@@ -113,13 +143,21 @@ void Univers<N>::removeEmptyCells() {
 template <std::size_t N>
 void Univers<N>::fillUnivers(int nbParticles) {
     for (int i = 0; i < nbParticles; ++i) {
-        Particle<N> particle;
+        // create a random position and velocity for the particle
+        Vecteur<N> position;
+        Vecteur<N> velocity;
+        for (std::size_t j = 0; j < N; ++j) {
+            position.set(j, static_cast<double>(rand()) / RAND_MAX * caracteristicLength);
+            velocity.set(j, static_cast<double>(rand()) / RAND_MAX * caracteristicLength);
+        }
+        Particle<N> particle(i, position, velocity, 1.0, "default");
         addParticle(particle);
     }
 }
 
 template <std::size_t N>
 void Univers<N>::showUnivers() const {
+    std::cout << "========== Univers ==========" << std::endl;
     for (const auto& cell : cells) {
         std::cout << "Cell at index: ";
         for (const auto& index : cell.first) {
@@ -128,34 +166,32 @@ void Univers<N>::showUnivers() const {
         std::cout << std::endl;
         cell.second->showParticles();
     }
+    std::cout << "=============================" << std::endl;
 }
 
 template <std::size_t N>
 void Univers<N>::update(double dt) {
-    for (auto& cell : cells) {
-        for (auto& particle : cell.second->getParticles()) {
-            Vecteur<N> force;
-            for (const auto& otherCell : cells) {
-                for (const auto& otherParticle : otherCell.second->getParticles()) {
-                    if (particle.getId() != otherParticle.getId()) {
-                        force = force + particle.optimizedGetAllForces(otherParticle, 24.0, 1.0);
-                    }
+    for (const auto& cell : cells) {
+        // we look up for each particle in the neighbouring cells that are at a distance less than cutOffRadius
+        for (const auto& particle : cell.second->getParticles()) {
+            for (auto& otherParticle : cell.second->getParticles()) {
+                if ((particle->getId() != otherParticle->getId()) and (particle->getPosition() - otherParticle->getPosition()).norm() < cutOffRadius) {
+                    Vecteur<N> force = particle->getAllForces(otherParticle, 1.0, 1.0);
+                    otherParticle->applyForce(force);
                 }
             }
-            particle.applyForce(force);
         }
-
     }
 
     for (const auto& cell : cells) {
         for (auto& particle : cell.second->getParticles()) {
-            Vecteur<N> acceleration = particle.getForce() / particle.getMass();
-            Vecteur<N> newVelocity = particle.getVelocity() + acceleration * dt;
-            Vecteur<N> newPosition = particle.getPosition() + newVelocity * dt;
+            Vecteur<N> acceleration = particle->getForce() / particle->getMass();
+            Vecteur<N> newVelocity = particle->getVelocity() + acceleration * dt;
+            Vecteur<N> newPosition = particle->getPosition() + newVelocity * dt;
             // update particle position and velocity and modify the hashmap cells
             updateParticlePositionInCell(particle, newPosition, newVelocity);
-            particle.setPosition(newPosition);
-            particle.setVelocity(newVelocity);
+            particle->setPosition(newPosition);
+            particle->setVelocity(newVelocity);
         }
     }
 

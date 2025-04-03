@@ -13,14 +13,14 @@ TEST(CellTest, GetParticles) {
     Vecteur<3> velocity2({0.4, 0.5, 0.6});
     Particle<3> particle2(2, position2, velocity2, 10.0, "test2");
 
-    cell.addParticle(particle1);
-    cell.addParticle(particle2);
+    cell.addParticle(std::make_shared<Particle<3>>(particle1));
+    cell.addParticle(std::make_shared<Particle<3>>(particle2));
 
     auto particles = cell.getParticles();
     ASSERT_EQ(particles.size(), 2);
 
-    EXPECT_EQ(particles.front().getId(), 1);
-    EXPECT_EQ(particles.back().getId(), 2);
-    EXPECT_EQ(particles.front().getPosition(), position1);
-    EXPECT_EQ(particles.back().getPosition(), position2);
+    EXPECT_EQ(particles.front()->getId(), 1);
+    EXPECT_EQ(particles.back()->getId(), 2);
+    EXPECT_EQ(particles.front()->getPosition(), position1);
+    EXPECT_EQ(particles.back()->getPosition(), position2);
 }

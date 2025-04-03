@@ -3,8 +3,10 @@
 #include "../include/univers.hpp"
 #include "../include/particle.hpp"
 #include "../include/vecteur.hpp"
+#include "../include/VTKconverter.hpp"
+#include <fstream>
 
-void runSimulation(int numParticles) {
+void runSimulation(int numParticles, VTKconverter<3>& vtkConverter) {
     // Create the universe and show the time to create it
     auto start = std::chrono::high_resolution_clock::now();
     const double spacing = 1.0 / (std::cbrt(numParticles) - 1);
@@ -22,7 +24,7 @@ void runSimulation(int numParticles) {
                 double mass = 1.0;
                 std::string category = "default";
                 Particle<3> particle(id++, position, velocity, mass, category);
-                univers.addParticle(particle);
+                univers.addParticle(std::make_shared<Particle<3>>(particle));
             }
         }
     }
@@ -35,20 +37,34 @@ void runSimulation(int numParticles) {
     auto startSim = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < 100; ++i) {
         univers.update(0.01);
+        // create a file for the VTK converter
+        vtkConverter.createFile();
+        vtkConverter.convertToVTK(univers);
+        vtkConverter.closeFile();
     }
     auto endSim = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> durationSim = endSim - startSim;
     std::cout << "Simulation with " << numParticles << " particles took " << durationSim.count() << " seconds." << std::endl;
     std::cout << std::endl;
+
+
+
 }
 
 int main() {
     std::cout << "Simulation parameters: 100 time steps, 0.01 time step size" << std::endl;
-    for (int k = 3; k < 20; ++k) {
+
+
+    for (int k = 3; k < 15; ++k) {
         int numParticles = std::pow(2, k);
-        runSimulation(numParticles);
+        // create a VTK converter
+        VTKconverter<3> vtkConverter("testUnivers2_"+std::to_string(numParticles), "test");
+        runSimulation(numParticles, vtkConverter);
+        // detruire le VTK converter
+        vtkConverter.~VTKconverter();
 
     }
+
 
     return 0;
 }

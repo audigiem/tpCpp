@@ -32,6 +32,7 @@ private:
     double cutOffRadius;
     int cellLength;
     std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>> cells;
+    int nbParticles;
 
 public:
     Univers(double caracteristicLength, double cutOffRadius);
@@ -41,6 +42,8 @@ public:
     [[nodiscard]] double getCutOffRadius() const;
     [[nodiscard]] const std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>>& getCells() const;
     [[nodiscard]] int getCellLength() const;
+    [[nodiscard]] int getNbParticles() const;
+    [[nodiscard]] std::list<std::shared_ptr<Particle<N>>> getParticles() const;
 
     void setCaracteristicLength(double caracteristicLength);
     void setCutOffRadius(double cutOffRadius);
@@ -48,9 +51,9 @@ public:
     // Methods
     std::shared_ptr<Cell<N>> getCell(const std::array<int, N>& cellIndex) const;
     std::vector<std::shared_ptr<Cell<N>>> getCoordNeighbourCells(const std::array<int, N>& cellIndex) const;
-    void addParticle(const Particle<N>& particle);
+    void addParticle(const std::shared_ptr<Particle<N>>& particle);
     void removeEmptyCells();
-    void updateParticlePositionInCell(const Particle<N>& particle, const Vecteur<N>& newPosition, const Vecteur<N>& newVelocity);
+    void updateParticlePositionInCell(const std::shared_ptr<Particle<N>>& particle, const Vecteur<N>& newPosition, const Vecteur<N>& newVelocity);
     void fillUnivers(int nbParticles);
 
     void showUnivers() const;

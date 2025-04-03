@@ -3,6 +3,7 @@
 
 #include "vecteur.hpp"
 #include <string>
+#include <memory>
 
 template <std::size_t N>
 class Particle {
@@ -29,10 +30,12 @@ public:
     void applyForce(const Vecteur<N>& newForce);
     void resetForce();
 
-    Vecteur<N> getGravityForce(const Particle<N>& p) const;
-    Vecteur<N> getLennardJonesForce(const Particle<N>& p, float epsilon, float sigma) const;
-    Vecteur<N> getAllForces(const Particle<N>& p, float epsilon, float sigma) const;
-    Vecteur<N> optimizedGetAllForces(const Particle<N>& p, float epsilon_times_24, float sigma) const;
+    bool operator==(const Particle<N>& other) const;
+
+    Vecteur<N> getGravityForce(const std::shared_ptr<Particle<N>>& p) const;
+    Vecteur<N> getLennardJonesForce(const std::shared_ptr<Particle<N>>& p, float epsilon, float sigma) const;
+    Vecteur<N> getAllForces(const std::shared_ptr<Particle<N>>& p, float epsilon, float sigma) const;
+    Vecteur<N> optimizedGetAllForces(const std::shared_ptr<Particle<N>>& p, float epsilon_times_24, float sigma) const;
 
     friend bool operator==(const Particle<N>& p1, const Particle<N>& p2) {
         return p1.id == p2.id &&

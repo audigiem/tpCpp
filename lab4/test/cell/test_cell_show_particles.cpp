@@ -10,7 +10,7 @@ TEST(CellTest, ShowParticles) {
     Vecteur<3> velocity({0.1, 0.2, 0.3});
     Particle<3> particle(1, position, velocity, 5.0, "test");
 
-    cell.addParticle(particle);
+    cell.addParticle(std::make_shared<Particle<3>>(particle));
 
     std::ostringstream output;
     std::streambuf* oldCoutBuffer = std::cout.rdbuf(output.rdbuf()); // Redirect std::cout
@@ -19,6 +19,6 @@ TEST(CellTest, ShowParticles) {
 
     std::cout.rdbuf(oldCoutBuffer); // Restore std::cout
 
-    std::string expectedOutput = "Particle 1 at (1, 2, 3) with velocity (0.1, 0.2, 0.3)\n";
+    std::string expectedOutput = "Particles in this cell:\nParticle ID: 1, Position: (1, 2, 3)\n";
     EXPECT_EQ(output.str(), expectedOutput);
 }

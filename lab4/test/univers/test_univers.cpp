@@ -19,7 +19,7 @@ int main() {
                 double mass = 1.0;
                 std::string category = "default";
                 Particle<3> particle(id++, position, velocity, mass, category);
-                univers.addParticle(particle);
+                univers.addParticle(std::make_shared<Particle<3>>(particle));
             }
         }
     }
