@@ -10,7 +10,7 @@ TEST(ParticleTest, LennardJonesForce) {
 
     float epsilon = 1.0;
     float sigma = 1.0;
-    Vecteur<3> force = particle1.getLennardJonesForce(particle2, epsilon, sigma);
+    Vecteur<3> force = particle1.getLennardJonesForce(std::make_shared<Particle<3>>(particle2), epsilon, sigma);
 
     // Check that the force is computed correctly (values depend on epsilon and sigma)
     EXPECT_NEAR(force.get(0), -23.0, 1.0); // Example value
