@@ -96,3 +96,8 @@ Vecteur<N> Particle<N>::optimizedGetAllForces(const Particle<N>& p, float epsilo
     double gravity = mass * p.getMass() / (distance_squared * distance);
     return (lennard_jones + gravity) * distance_vect;
 }
+
+template <std::size_t N>
+bool Particle<N>::operator==(const Particle<N>& other) const {
+    return id == other.id && position == other.position && velocity == other.velocity && mass == other.mass;
+}

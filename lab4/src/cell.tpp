@@ -13,6 +13,11 @@ bool Cell<N>::isEmpty() const {
 }
 
 template <std::size_t N>
+void Cell<N>::removeParticle(const Particle<N>& particle) {
+    particles.remove(particle);
+}
+
+template <std::size_t N>
 void Cell<N>::showParticles() const {
     for (const Particle<N>& p : particles) {
         std::cout << "Particle " << p.getId() << " at " << p.getPosition() << " with velocity " << p.getVelocity() << std::endl;
@@ -20,6 +25,6 @@ void Cell<N>::showParticles() const {
 }
 
 template <std::size_t N>
-std::vector<Particle<N>> Cell<N>::getParticles() const {
+std::list<Particle<N>> Cell<N>::getParticles() const {
     return particles;
 }

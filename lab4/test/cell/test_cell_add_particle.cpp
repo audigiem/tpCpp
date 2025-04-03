@@ -13,8 +13,8 @@ TEST(CellTest, AddParticle) {
 
     auto particles = cell.getParticles();
     ASSERT_EQ(particles.size(), 1);
-    EXPECT_EQ(particles[0].getId(), 1);
-    EXPECT_EQ(particles[0].getPosition(), position);
-    EXPECT_EQ(particles[0].getVelocity(), velocity);
-    EXPECT_DOUBLE_EQ(particles[0].getMass(), 5.0);
+    EXPECT_EQ(particles.front().getId(), 1);
+    EXPECT_EQ(particles.front().getPosition(), position);
+    EXPECT_EQ(particles.front().getVelocity(), velocity);
+    EXPECT_DOUBLE_EQ(particles.front().getMass(), 5.0);
 }
