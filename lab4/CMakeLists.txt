@@ -27,9 +27,9 @@ add_subdirectory(test)
 ## On ajoute la librairie de test GoogleTest
 include(FetchContent)
 FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/release-1.12.1.zip
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG release-1.12.1
 )
 ## Uncomment the following if errors on Windows
 ## set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
