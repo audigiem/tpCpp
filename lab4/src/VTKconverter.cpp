@@ -4,68 +4,103 @@
 
 #include "../include/VTKconverter.hpp"
 #include <iostream>
+#include <filesystem>
 
 template <std::size_t N>
-VTKconverter<N>::VTKconverter(std::string filename) : filename(std::move(filename)) {
-    // Ouvre le fichier en mode écriture
-    file.open(this->filename);
-    if (!file.is_open()) {
-        std::cerr << "Erreur : Impossible d'ouvrir le fichier " << this->filename << " !" << std::endl;
-    }
+VTKconverter<N>::VTKconverter(std::string dirName, std::string filesName) : dirName(std::move(dirName)), nbFiles(0), fileName(std::move(filesName)) {
+    // create a directory named dirName if it doesn't exist in ../demo
+    std::string command = "mkdir -p ../demo/" + dirName;
+    system(command.c_str());
+
 }
 
 template <std::size_t N>
 VTKconverter<N>::~VTKconverter() {
-    if (file.is_open()) {
-        file.close();
+    if (currentFile.is_open()) {
+        currentFile.close();
     }
+    std::cout << "VTK converter destroyed" << std::endl;
+    std::cout << "VTK files created in ../demo/" + dirName << std::endl;
+}
+
+
+/** * @brief Create a file in the specified directory corresponding to the current time step.
+ * @param fileName The name of the file to create.
+ * @details This function creates a file in the specified directory and opens it for writing.
+ */
+template <std::size_t N>
+void VTKconverter<N>::createFile() {
+    // check if the directory exists
+    if (!std::filesystem::exists("../demo/" + dirName)) {
+        std::cerr << "Error: Directory " << dirName << " does not exist." << std::endl;
+        // create the directory
+        std::string command = "mkdir -p ../demo/" + dirName;
+        system(command.c_str());
+
+    }
+    nbFiles ++;
+    std::string fullPath = "../demo/" + dirName + "/" + fileName +"_"+ std::to_string(nbFiles) + ".vtu";
+    // create the file and open it for writing
+    currentFile.open(fullPath);
+    if (!currentFile.is_open()) {
+        std::cerr << "Error: Could not create file " << fullPath << std::endl;
+        return;
+    }
+
 }
 
 template <std::size_t N>
 void VTKconverter<N>::convertToVTK(const Univers<N>& univers) {
-    file << "<VTKFile type='UnstructuredGrid' version='0.1' byte_order='LittleEndian'>" << std::endl;
-    file << "<UnstructuredGrid>" << std::endl;
-    file << "<Piece NumberOfPoints='" << univers.getNbParticles() << "' NumberOfCells='" << univers.getCells().size() << ">" << std::endl;
-    std::list<Particle<N>> particles = univers.getParticles();
+    currentFile << "<VTKFile type='UnstructuredGrid' version='0.1' byte_order='LittleEndian'>" << std::endl;
+    currentFile << "<UnstructuredGrid>" << std::endl;
+    currentFile << "<Piece NumberOfPoints='" << univers.getNbParticles() << "' NumberOfCells='" << univers.getCells().size() << ">" << std::endl;
+    std::list<std::shared_ptr<Particle<N>>> particles = univers.getParticles();
     writeData(particles, "Points");
     writeData(particles, "Velocity");
     writeData(particles, "Masse");
     writeCells(univers);
-    file << "</Piece>" << std::endl;
-    file << "</UnstructuredGrid>" << std::endl;
-    file << "</VTKFile>" << std::endl;
+    currentFile << "</Piece>" << std::endl;
+    currentFile << "</UnstructuredGrid>" << std::endl;
+    currentFile << "</VTKFile>" << std::endl;
 }
 
 
 
 template <std::size_t N>
-void VTKconverter<N>::writeData(const std::list<Particle<N>>& particles, const std::string& dataType) {
+void VTKconverter<N>::writeData(const std::list<std::shared_ptr<Particle<N>>>& particles, const std::string& dataType) {
 
-    file << "<" + dataType + ">" << std::endl;
+    currentFile << "<" + dataType + ">" << std::endl;
     int nbComponents = N;
     if (dataType == "Masse") {
-        file << "<DataArray name='" << dataType << "' type='Float32' format='ascii'>" << std::endl;
+        currentFile << "<DataArray name='" << dataType << "' type='Float32' format='ascii'>" << std::endl;
         for (const auto& particle : particles) {
-            particle.getMass();
+            particle->getMass();
         }
-        file << "</DataArray>" << std::endl;
+        currentFile << "</DataArray>" << std::endl;
     }
     else {
-        file << "<DataArray name='" << dataType << "' type='Float32' NumberOfComponents=' " << nbComponents << "' format='ascii'>" << std::endl;
+        currentFile << "<DataArray name='" << dataType << "' type='Float32' NumberOfComponents=' " << nbComponents << "' format='ascii'>" << std::endl;
         for (const auto& particle : particles) {
             for (int i = 0; i < N; ++i) {
-                file << particle.getPosition().get(i) << " ";
+                currentFile << particle->getPosition().get(i) << " ";
             }
         }
-        file << "</DataArray>" << std::endl;
+        currentFile << "</DataArray>" << std::endl;
     }
-    file << "</" + dataType + ">" << std::endl;
+    currentFile << "</" + dataType + ">" << std::endl;
 }
 
 template <std::size_t N>
 void VTKconverter<N>::writeCells(const Univers<N>& univers) {
-    file << "<Cells>" << std::endl;
-    file << "<DataArray type='Int32' Name='connectivity' format='ascii'>" << std::endl;
-    file << "</DataArray>" << std::endl;
-    file << "</Cells>" << std::endl;
+    currentFile << "<Cells>" << std::endl;
+    currentFile << "<DataArray type='Int32' Name='connectivity' format='ascii'>" << std::endl;
+    currentFile << "</DataArray>" << std::endl;
+    currentFile << "</Cells>" << std::endl;
+}
+
+template <std::size_t N>
+void VTKconverter<N>::closeFile() {
+    if (currentFile.is_open()) {
+        currentFile.close();
+    }
 }

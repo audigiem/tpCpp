@@ -33,10 +33,10 @@ int Univers<N>::getNbParticles() const {
 }
 
 template <std::size_t N>
-std::list<Particle<N>> Univers<N>::getParticles() const {
-    std::list<Particle<N>> particles;
+std::list<std::shared_ptr<Particle<N>>> Univers<N>::getParticles() const {
+    std::list<std::shared_ptr<Particle<N>>> particles;
     for (const auto& cell : cells) {
-        const auto& cellParticles = cell.second->getParticles();
+        auto cellParticles = cell.second->getParticles();
         particles.insert(particles.end(), cellParticles.begin(), cellParticles.end());
     }
     return particles;
@@ -80,10 +80,10 @@ std::vector<std::shared_ptr<Cell<N>>> Univers<N>::getCoordNeighbourCells(const s
 
 
 template <std::size_t N>
-void Univers<N>::addParticle(const Particle<N>& particle) {
+void Univers<N>::addParticle(const std::shared_ptr<Particle<N>>& particle) {
     std::array<int, N> cellIndex;
     for (std::size_t i = 0; i < N; ++i) {
-        cellIndex[i] = static_cast<int>(std::floor(particle.getPosition().get(i) / cutOffRadius));
+        cellIndex[i] = static_cast<int>(std::floor(particle->getPosition().get(i) / cutOffRadius));
     }
     auto cell = getCell(cellIndex);
     if (!cell) {
@@ -102,11 +102,11 @@ void Univers<N>::addParticle(const Particle<N>& particle) {
  * @param newVelocity The new velocity of the particle
  */
 template <std::size_t N>
-void Univers<N>::updateParticlePositionInCell(const Particle<N> &particle, const Vecteur<N> &newPosition,
+void Univers<N>::updateParticlePositionInCell(const std::shared_ptr<Particle<N>>& particle, const Vecteur<N> &newPosition,
                                               const Vecteur<N> &newVelocity) {
     std::array<int, N> oldCellIndex;
     for (std::size_t i = 0; i < N; ++i) {
-        oldCellIndex[i] = static_cast<int>(std::floor(particle.getPosition().get(i) / cutOffRadius));
+        oldCellIndex[i] = static_cast<int>(std::floor(particle->getPosition().get(i) / cutOffRadius));
     }
     std::array<int, N> newCellIndex;
     for (std::size_t i = 0; i < N; ++i) {
@@ -173,27 +173,26 @@ void Univers<N>::update(double dt) {
     for (const auto& cell : cells) {
         // we look up for each particle in the neighbouring cells that are at a distance less than cutOffRadius
         for (const auto& neighbourCell : getCoordNeighbourCells(cell.first)) {
-            for (const auto& particle : neighbourCell->getParticles()) {
+            for (const auto& particle : cell.second->getParticles()) {
                 for (auto& otherParticle : cell.second->getParticles()) {
-                    if ((particle.getId() != otherParticle.getId()) and (particle.getPosition() - otherParticle.getPosition()).norm() < cutOffRadius) {
-                        Vecteur<N> force = particle.getAllForces(otherParticle, 1.0, 1.0);
-                        otherParticle.applyForce(force);
+                    if ((particle->getId() != otherParticle->getId()) and (particle->getPosition() - otherParticle->getPosition()).norm() < cutOffRadius) {
+                        Vecteur<N> force = particle->getAllForces(otherParticle, 1.0, 1.0);
+                        otherParticle->applyForce(force);
                     }
                 }
             }
         }
-
     }
 
     for (const auto& cell : cells) {
         for (auto& particle : cell.second->getParticles()) {
-            Vecteur<N> acceleration = particle.getForce() / particle.getMass();
-            Vecteur<N> newVelocity = particle.getVelocity() + acceleration * dt;
-            Vecteur<N> newPosition = particle.getPosition() + newVelocity * dt;
+            Vecteur<N> acceleration = particle->getForce() / particle->getMass();
+            Vecteur<N> newVelocity = particle->getVelocity() + acceleration * dt;
+            Vecteur<N> newPosition = particle->getPosition() + newVelocity * dt;
             // update particle position and velocity and modify the hashmap cells
             updateParticlePositionInCell(particle, newPosition, newVelocity);
-            particle.setPosition(newPosition);
-            particle.setVelocity(newVelocity);
+            particle->setPosition(newPosition);
+            particle->setVelocity(newVelocity);
         }
     }
 
