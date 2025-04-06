@@ -3,7 +3,7 @@
 #include "../../include/particle.hpp"
 
 TEST(UniversTest, AddParticle) {
-    Univers<3> univers(100.0, 10.0);
+    Univers<3> univers({100, 100, 100}, 10.0);
 
     Vecteur<3> position({5.0, 5.0, 5.0});
     Particle<3> particle(1, position, Vecteur<3>(), 1.0, "test");

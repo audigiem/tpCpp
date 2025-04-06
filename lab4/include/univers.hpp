@@ -28,24 +28,24 @@ namespace std {
 template <std::size_t N>
 class Univers {
 private:
-    double caracteristicLength;
+    std::array<double, N> caracteristicLength;
     double cutOffRadius;
-    int cellLength;
+    std::array<int, N> cellLength;
     std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>> cells;
     int nbParticles;
 
 public:
-    Univers(double caracteristicLength, double cutOffRadius);
+    Univers(std::array<double, N> caracteristicLength, double cutOffRadius);
 
     // Getters and setters
-    [[nodiscard]] double getCaracteristicLength() const;
+    [[nodiscard]] std::array<double, N> getCaracteristicLength() const;
     [[nodiscard]] double getCutOffRadius() const;
     [[nodiscard]] const std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>>& getCells() const;
-    [[nodiscard]] int getCellLength() const;
+    [[nodiscard]] std::array<int, N> getCellLength() const;
     [[nodiscard]] int getNbParticles() const;
     [[nodiscard]] std::list<std::shared_ptr<Particle<N>>> getParticles() const;
 
-    void setCaracteristicLength(double caracteristicLength);
+    void setCaracteristicLength(std::array<double, N> caracteristicLength);
     void setCutOffRadius(double cutOffRadius);
 
     // Methods
@@ -53,12 +53,17 @@ public:
     std::vector<std::shared_ptr<Cell<N>>> getCoordNeighbourCells(const std::array<int, N>& cellIndex) const;
     void addParticle(const std::shared_ptr<Particle<N>>& particle);
     void removeEmptyCells();
-    void updateParticlePositionInCell(const std::shared_ptr<Particle<N>>& particle, const Vecteur<N>& newPosition, const Vecteur<N>& newVelocity);
+    void updateParticlePositionInCell(const std::shared_ptr<Particle<N>>& particle, const Vecteur<N>& newPosition);
     void fillUnivers(int nbParticles);
-
     void showUnivers() const;
 
-    void update(double dt);
+
+    std::list<std::shared_ptr<Particle<N>>> getParticlesInNeighbourhood(const std::shared_ptr<Particle<N>>& particle) const;
+    void computeAllForcesOnParticle(float epsilon, float sigma);
+    std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>> cloneCells() const;
+
+    void update(double dt, float epsilon, float sigma);
+    // void stromerVerlet(double dt, float epsilon, float sigma);
 };
 
 #include "../src/univers.tpp"

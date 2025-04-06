@@ -1,3 +1,7 @@
+//
+// Created by matteo on 03/04/25.
+//
+
 #include <iostream>
 #include <chrono>
 #include "../include/univers.hpp"
@@ -11,7 +15,9 @@ void runSimulation(int numParticles, VTKconverter<3>& vtkConverter) {
     auto start = std::chrono::high_resolution_clock::now();
     const double spacing = 1.0 / (std::cbrt(numParticles) - 1);
     std::array<double, 3> caracteristicLength = {1.0, 1.0, 1.0};
-    double cutOffRadius = 0.1;
+    double cutOffRadius = 0.5;
+    float epsilon = 1.0;
+    float sigma = 1.0;
     Univers<3> univers(caracteristicLength, cutOffRadius);
 
     int id = 0;
@@ -31,37 +37,36 @@ void runSimulation(int numParticles, VTKconverter<3>& vtkConverter) {
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
-    std::cout << "Universe creation with " << numParticles << " particles took " << duration.count() << " seconds." << std::endl;
+    // std::cout << "Universe creation with " << numParticles << " particles took " << duration.count() << " seconds." << std::endl;
 
     // Run the simulation
     auto startSim = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < 100; ++i) {
-        univers.update(0.01, 1.0, 1.0);
+    univers.computeAllForcesOnParticle(epsilon, sigma);
+    univers.showUnivers();
+    for (int i = 0; i < 10; ++i) {
+        univers.update(0.01, epsilon, sigma);
         // create a file for the VTK converter
-        vtkConverter.createFile();
-        vtkConverter.convertToVTK(univers);
-        vtkConverter.closeFile();
+        // vtkConverter.createFile();
+        // vtkConverter.convertToVTK(univers);
+        // vtkConverter.closeFile();
+        // std::cout << "Outiside Position particle 1: " << univers.getParticles().front()->getPosition() << std::endl;
+        // std::cout << std::endl;
     }
+    univers.showUnivers();
     auto endSim = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> durationSim = endSim - startSim;
-    std::cout << "Simulation with " << numParticles << " particles took " << durationSim.count() << " seconds." << std::endl;
-    std::cout << std::endl;
-
-
-
+    // std::cout << "Simulation with " << numParticles << " particles took " << durationSim.count() << " seconds." << std::endl;
+    // std::cout << std::endl;
 }
 
 int main() {
-    std::cout << "Simulation parameters: 100 time steps, 0.01 time step size" << std::endl;
+    // std::cout << "Simulation parameters: 100 time steps, 0.01 time step size" << std::endl;
 
-
-    for (int k = 3; k < 15; ++k) {
+    for (int k = 7; k < 8; ++k) {
         int numParticles = std::pow(2, k);
         // create a VTK converter
         VTKconverter<3> vtkConverter("testUnivers2_"+std::to_string(numParticles), "test");
         runSimulation(numParticles, vtkConverter);
-        // detruire le VTK converter
-        vtkConverter.~VTKconverter();
 
     }
 

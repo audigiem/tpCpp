@@ -1,14 +1,16 @@
 #include "../include/univers.hpp"
 
 template <std::size_t N>
-Univers<N>::Univers(double caracteristicLength, double cutOffRadius)
+Univers<N>::Univers(std::array<double, N> caracteristicLength, double cutOffRadius)
     : caracteristicLength(caracteristicLength), cutOffRadius(cutOffRadius) {
-    cellLength = static_cast<int>(std::ceil(caracteristicLength / cutOffRadius));
+    for (std::size_t i = 0; i < N; ++i) {
+        cellLength[i] = static_cast<int>(std::ceil(caracteristicLength[i] / cutOffRadius));
+    }
     nbParticles = 0;
 }
 
 template <std::size_t N>
-double Univers<N>::getCaracteristicLength() const {
+std::array<double, N> Univers<N>::getCaracteristicLength() const {
     return caracteristicLength;
 }
 
@@ -23,7 +25,7 @@ const std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>>& Univers<
 }
 
 template <std::size_t N>
-int Univers<N>::getCellLength() const {
+std::array<int, N> Univers<N>::getCellLength() const {
     return cellLength;
 }
 
@@ -44,7 +46,10 @@ std::list<std::shared_ptr<Particle<N>>> Univers<N>::getParticles() const {
 
 
 template <std::size_t N>
-void Univers<N>::setCaracteristicLength(double caracteristicLength) {
+void Univers<N>::setCaracteristicLength(std::array<double, N> caracteristicLength) {
+    for (std::size_t i = 0; i < N; ++i) {
+        cellLength[i] = static_cast<int>(std::ceil(caracteristicLength[i] / cutOffRadius));
+    }
     this->caracteristicLength = caracteristicLength;
 }
 
@@ -62,7 +67,7 @@ std::shared_ptr<Cell<N>> Univers<N>::getCell(const std::array<int, N>& cellIndex
     return nullptr;
 }
 
-/**
+
 template <std::size_t N>
 std::vector<std::shared_ptr<Cell<N>>> Univers<N>::getCoordNeighbourCells(const std::array<int, N>& cellIndex) const {
     std::vector<std::shared_ptr<Cell<N>>> neighbourCells;
@@ -78,7 +83,7 @@ std::vector<std::shared_ptr<Cell<N>>> Univers<N>::getCoordNeighbourCells(const s
     }
     return neighbourCells;
 }
-*/
+
 
 template <std::size_t N>
 void Univers<N>::addParticle(const std::shared_ptr<Particle<N>>& particle) {
@@ -100,11 +105,9 @@ void Univers<N>::addParticle(const std::shared_ptr<Particle<N>>& particle) {
  * IMPORTANT: This function does not update the particle position in the cell, it only updates the cells configuration
  * @param particle The particle to update
  * @param newPosition The new position of the particle
- * @param newVelocity The new velocity of the particle
  */
 template <std::size_t N>
-void Univers<N>::updateParticlePositionInCell(const std::shared_ptr<Particle<N>>& particle, const Vecteur<N> &newPosition,
-                                              const Vecteur<N> &newVelocity) {
+void Univers<N>::updateParticlePositionInCell(const std::shared_ptr<Particle<N>>& particle, const Vecteur<N> &newPosition) {
     std::array<int, N> oldCellIndex;
     for (std::size_t i = 0; i < N; ++i) {
         oldCellIndex[i] = static_cast<int>(std::floor(particle->getPosition().get(i) / cutOffRadius));
@@ -151,7 +154,7 @@ void Univers<N>::fillUnivers(int nbParticles) {
             velocity.set(j, static_cast<double>(rand()) / RAND_MAX * caracteristicLength);
         }
         Particle<N> particle(i, position, velocity, 1.0, "default");
-        addParticle(particle);
+        addParticle(std::make_shared<Particle<N>>(particle) );
     }
 }
 
@@ -169,31 +172,134 @@ void Univers<N>::showUnivers() const {
     std::cout << "=============================" << std::endl;
 }
 
+
+/** * @brief Get the particles in the neighbourhood of a particle
+ * this includes the particles in the same cell and the particles in the neighbouring cells
+ * @param particle The particle to get the neighbourhood of
+ * @return A list of particles in the neighbourhood of the particle
+ */
 template <std::size_t N>
-void Univers<N>::update(double dt) {
-    for (const auto& cell : cells) {
-        // we look up for each particle in the neighbouring cells that are at a distance less than cutOffRadius
-        for (const auto& particle : cell.second->getParticles()) {
-            for (auto& otherParticle : cell.second->getParticles()) {
-                if ((particle->getId() != otherParticle->getId()) and (particle->getPosition() - otherParticle->getPosition()).norm() < cutOffRadius) {
-                    Vecteur<N> force = particle->getAllForces(otherParticle, 1.0, 1.0);
-                    otherParticle->applyForce(force);
+std::list<std::shared_ptr<Particle<N>>> Univers<N>::getParticlesInNeighbourhood(const std::shared_ptr<Particle<N>>& particle) const {
+    std::list<std::shared_ptr<Particle<N>>> neighbourParticles;
+    std::array<int, N> centerCell = particle->getCellIndexofParticle(cellLength);
+
+    // Calcul du nombre de couches de cellules à visiter dans chaque direction
+    std::array<int, N> layers;
+    for (std::size_t i = 0; i < N; ++i) {
+        layers[i] = std::ceil(cutOffRadius / cellLength[i]);
+    }
+
+    // Générer les offsets dans l’hypercube [-layers[i], +layers[i]] pour chaque dimension
+    std::vector<std::array<int, N>> offsets;
+
+    std::function<void(std::array<int, N>&, int)> generateOffsets = [&](std::array<int, N>& current, int dim) {
+        if (dim == N) {
+            offsets.push_back(current);
+            return;
+        }
+        for (int i = -layers[dim]; i <= layers[dim]; ++i) {
+            current[dim] = centerCell[dim] + i;
+            generateOffsets(current, dim + 1);
+        }
+    };
+
+    std::array<int, N> currentOffset;
+    generateOffsets(currentOffset, 0);
+
+    // Parcours des cellules candidates
+    for (const auto& offset : offsets) {
+        auto it = cells.find(offset);
+        if (it != cells.end()) {
+            for (const auto& p : it->second->getParticles()) {
+                if (p != particle && particle->getDistance(*p) < cutOffRadius) {
+                    neighbourParticles.push_back(p);
                 }
             }
         }
     }
 
+    return neighbourParticles;
+}
+
+
+/**
+* @brief Compute all the forces applied on each particle and store it in each particle
+* !! this function overloads the forces already stored in the particle !!
+* and saves the previous forces in the particle
+ * we consider only the particles in the neighbourhood of the particle
+ */
+template <std::size_t N>
+void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
+    std::list<Vecteur<N>> previousForcesOnParticles;
     for (const auto& cell : cells) {
-        for (auto& particle : cell.second->getParticles()) {
-            Vecteur<N> acceleration = particle->getForce() / particle->getMass();
-            Vecteur<N> newVelocity = particle->getVelocity() + acceleration * dt;
-            Vecteur<N> newPosition = particle->getPosition() + newVelocity * dt;
-            // update particle position and velocity and modify the hashmap cells
-            updateParticlePositionInCell(particle, newPosition, newVelocity);
-            particle->setPosition(newPosition);
-            particle->setVelocity(newVelocity);
+        for (const auto& particle : cell.second->getParticles()) {
+            particle->saveForce(particle->getForce());
+            for (const auto& neighbour : getParticlesInNeighbourhood(particle)) {
+                if (neighbour != particle) {
+                    Vecteur<N> force = particle->optimizedGetAllForces(neighbour, epsilon, sigma);
+                    particle->applyForce(force);
+                }
+            }
         }
     }
-
-    removeEmptyCells();
 }
+
+
+/** * @brief Clone the cells of the universe
+ * @return A deep copy of the cells of the universe
+ */
+template<std::size_t N>
+std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N> > > Univers<N>::cloneCells() const {
+    std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>> clonedCells;
+    for (const auto& [cellIndex, cell] : cells) {
+        clonedCells[cellIndex] = std::make_shared<Cell<N>>(*cell);
+    }
+    return clonedCells;
+}
+
+
+
+
+template <std::size_t N>
+void Univers<N>::update(double dt, float epsilon, float sigma) {
+    // std::cout << "Updating universe..." << std::endl;
+    // showUnivers();
+
+    // during the iterations, we will move particles and therefore modify the configuration
+    // of the cells as particle will move in and out of them.
+    // Consequently, we will iterate over a (deep) copy of the initial cells that will not be modified
+    std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>> currentCells = cloneCells();
+    // we loop through the particles and update their position
+    for (const auto& cell : currentCells) {
+        for (const auto& p : cell.second->getParticles()) {
+            // update the position of the particle
+            Vecteur<N> newPosition = p->getPosition() + p->getVelocity() * dt + (p->getForce() / p->getMass()) * (dt * dt) / 2;
+            // update the cells configuration (of the original cells)
+            updateParticlePositionInCell(p, newPosition);
+            p->setPosition(newPosition);
+            // p->showParticle();
+            // std::cout << "is supposed to move to " << newPosition << std::endl;
+            // showUnivers();
+
+            // dont need to save the old forces as we have done it first line and they havent changed
+            // we do it anyway to be sure
+            p->saveForce(p->getForce());
+        }
+    }
+    computeAllForcesOnParticle(epsilon, sigma);
+    for (const auto& cell : currentCells) {
+        for (const auto& p : cell.second->getParticles()) {
+            // update the velocity of the particle
+            Vecteur<N> newVelocity = p->getVelocity() + dt * 0.5/p->getMass() * (p->getForce() + p->getOldForce());
+            p->setVelocity(newVelocity);
+        }
+    }
+    removeEmptyCells();
+
+    // std::cout << "End of update: " << std::endl;
+    // showUnivers();
+
+
+
+}
+

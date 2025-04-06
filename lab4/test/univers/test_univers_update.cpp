@@ -3,7 +3,7 @@
 #include "../../include/particle.hpp"
 
 TEST(UniversTest, Update) {
-    Univers<3> univers(100.0, 10.0);
+    Univers<3> univers({100.0, 100.0, 100.0}, 10.0);
 
     Vecteur<3> position1({5.0, 5.0, 5.0});
     Vecteur<3> position2({15.0, 5.0, 5.0});
@@ -13,7 +13,7 @@ TEST(UniversTest, Update) {
     univers.addParticle(std::make_shared<Particle<3>>(particle1));
     univers.addParticle(std::make_shared<Particle<3>>(particle2));
 
-    univers.update(0.1);
+    univers.update(0.1, 5.0, 1.0);
 
     auto cell1 = univers.getCell({0, 0, 0});
     auto cell2 = univers.getCell({1, 0, 0});

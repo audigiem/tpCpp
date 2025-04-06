@@ -6,7 +6,7 @@
 int main() {
     const int numParticlesPerDimension = 4;
     const double spacing = 1.0 / (numParticlesPerDimension - 1);
-    double caracteristicLength = 1.0;
+    std::array<double, 3> caracteristicLength = {1.0, 1.0, 1.0};
     double cutOffRadius = 0.1;
     Univers<3> univers(caracteristicLength, cutOffRadius);
 

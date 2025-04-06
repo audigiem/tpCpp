@@ -3,7 +3,7 @@
 
 #include <array>
 #include <list>
-#include <particle.hpp>
+#include "particle.hpp"
 #include <memory>
 
 
@@ -13,6 +13,11 @@ private:
     std::list<std::shared_ptr<Particle<N>>> particles;
 
 public:
+    // constructor by copy
+    Cell() = default;
+    Cell(const Cell<N>& other);
+
+
     void addParticle(const std::shared_ptr<Particle<N>>& particle);
     bool isEmpty() const;
     void showParticles() const;
