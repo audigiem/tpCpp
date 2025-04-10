@@ -1,4 +1,5 @@
 #include "../include/univers.hpp"
+#include <functional>
 
 template <std::size_t N>
 Univers<N>::Univers(std::array<double, N> caracteristicLength, double cutOffRadius)
