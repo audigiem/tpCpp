@@ -43,6 +43,7 @@ public:
     Vecteur<N> getAllForces(const std::shared_ptr<Particle<N>>& p, float epsilon, float sigma) const;
     Vecteur<N> optimizedGetAllForces(const std::shared_ptr<Particle<N>>& p, float epsilon_times_24, float sigma) const;
 
+    Vecteur<N> optimizedGetAllForcesKDtree(Particle<N>* p, float epsilon_times_24, float sigma) const;
     std::array<int, N> getCellIndexofParticle(std::array<int, N> cellLength) const;
 
     friend bool operator==(const Particle<N>& p1, const Particle<N>& p2) {

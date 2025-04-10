@@ -116,6 +116,21 @@ Vecteur<N> Particle<N>::optimizedGetAllForces(const std::shared_ptr<Particle<N>>
     return (lennard_jones + gravity) * distance_vect;
 }
 
+
+template <std::size_t N>
+Vecteur<N> Particle<N>::optimizedGetAllForcesKDtree(Particle<N>* p, float epsilon_times_24, float sigma) const {
+    // Combine all forces
+    Vecteur<N>distance_vect = (p->getPosition() - position);
+    double distance = distance_vect.norm();
+    double distance_squared = distance * distance;
+    double tmp = sigma / distance;
+    double pow_6 = tmp * tmp * tmp;
+    pow_6 *= pow_6;
+    double lennard_jones = epsilon_times_24 / (distance_squared) * pow_6 * (1 - 2 * pow_6);
+    double gravity = mass * p->getMass() / (distance_squared * distance);
+    return (lennard_jones + gravity) * distance_vect;
+}
+
 template <std::size_t N>
 std::array<int, N> Particle<N>::getCellIndexofParticle(std::array<int, N> cellLength) const {
     std::array<int, N> cellIndex;
