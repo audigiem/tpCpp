@@ -182,39 +182,22 @@ void Univers<N>::showUnivers() const {
 template <std::size_t N>
 std::list<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>*& particle) const {
     std::list<Particle<N>*> neighbourParticles;
-    std::array<int, N> centerCell = particle->getCellIndexofParticle(cellLength);
 
-    // Calcul du nombre de couches de cellules à visiter dans chaque direction
-    std::array<int, N> layers;
-    for (std::size_t i = 0; i < N; ++i) {
-        layers[i] = std::ceil(cutOffRadius / cellLength[i]);
+    // Get the cell of the particle
+    std::array<int, N> cellIndex = particle->getCellIndexofParticle(cellLength);
+    auto cell = getCell(cellIndex);
+
+    // Get the neighbouring cells
+    for(auto & neighbourCell : getNeighbourCells(cellIndex)) {
+        auto particlesInCell = neighbourCell->getParticles();
+        neighbourParticles.insert(neighbourParticles.end(), particlesInCell.begin(), particlesInCell.end());
     }
 
-    // Générer les offsets dans l’hypercube [-layers[i], +layers[i]] pour chaque dimension
-    std::vector<std::array<int, N>> offsets;
-
-    std::function<void(std::array<int, N>&, int)> generateOffsets = [&](std::array<int, N>& current, int dim) {
-        if (dim == N) {
-            offsets.push_back(current);
-            return;
-        }
-        for (int i = -layers[dim]; i <= layers[dim]; ++i) {
-            current[dim] = centerCell[dim] + i;
-            generateOffsets(current, dim + 1);
-        }
-    };
-
-    std::array<int, N> currentOffset;
-    generateOffsets(currentOffset, 0);
-
-    // Parcours des cellules candidates
-    for (const auto& offset : offsets) {
-        auto it = cells.find(offset);
-        if (it != cells.end()) {
-            for (const auto& p : it->second->getParticles()) {
-                if (p != particle && particle->getDistance(*p) < cutOffRadius) {
-                    neighbourParticles.push_back(p);
-                }
+    if (cell) {
+        // Add the particles in the same cell, excluding the particle itself
+        for (auto& p : cell->getParticles()) {
+            if (p != particle) {
+                neighbourParticles.push_back(p);
             }
         }
     }
@@ -231,20 +214,12 @@ std::list<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>*& pa
  */
 template <std::size_t N>
 void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
-    std::list<Vecteur<N>> previousForcesOnParticles;
-    for (const auto& cell : cells) {
-        for ( auto& particle : cell.second->getParticles()) {
-            particle->saveForce(particle->getForce());
-            for ( auto& neighbour : getParticlesInNeighbourhood(particle)) {
-                if (neighbour != particle) {
-                    Vecteur<N> force = particle->optimizedGetAllForces(neighbour, epsilon, sigma);
-                    particle->applyForce(force);
-                }
-            }
+    for(const auto& particle : particles) {
+        for(const auto& neighbourParticle : getParticlesInNeighbourhood(particle)) {
+            particle->applyForce(neighbourParticle->optimizedGetAllForces(neighbourParticle, epsilon, sigma));
         }
     }
 }
-
 
 /** * @brief Clone the cells of the universe
  * @return A deep copy of the cells of the universe

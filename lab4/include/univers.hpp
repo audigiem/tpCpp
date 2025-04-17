@@ -9,19 +9,16 @@
 #include <unordered_map>
 #include <memory>
 
-// Specialization of std::hash for std::array<int, N>
-namespace std {
-    template <std::size_t N>
-    struct hash<std::array<int, N>> {
-        std::size_t operator()(const std::array<int, N>& values) const {
-            std::size_t hash = 0;
-            for (std::size_t i = 0; i < N; ++i) {
-                hash ^= std::hash<int>{}(values[i]) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-            }
-            return hash;
+template <std::size_t N>
+struct ArrayHash {
+    std::size_t operator()(const std::array<int, N>& values) const {
+        std::size_t hash = 0;
+        for (std::size_t i = 0; i < N; ++i) {
+            hash ^= std::hash<int>{}(values[i]) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
         }
-    };
-}
+        return hash;
+    }
+};
 
 template <std::size_t N>
 class Univers {
@@ -30,7 +27,9 @@ private:
     double cutOffRadius;
     std::array<int, N> cellLength;
     std::unordered_map<std::array<int, N>, Cell<N>*> cells;
+    std::vector<Particle<N>*> particles;
     int nbParticles;
+    static ArrayHash<N> arrayHash;
 
 public:
     Univers(std::array<double, N> caracteristicLength, double cutOffRadius);
