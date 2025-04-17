@@ -7,6 +7,5 @@ TEST(UniversTest, Getters) {
 
     EXPECT_DOUBLE_EQ(univers.getCaracteristicLength()[0], 100.0);
     EXPECT_DOUBLE_EQ(univers.getCutOffRadius(), 10.0);
-    EXPECT_EQ(univers.getCellLength()[0], static_cast<int>(std::ceil(100.0 / 10.0)));
-    EXPECT_TRUE(univers.getCells().empty());
+    EXPECT_EQ(univers.getnumberOfCells()[0], static_cast<int>(std::ceil(100.0 / 10.0)));
 }

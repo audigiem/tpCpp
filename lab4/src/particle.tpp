@@ -103,7 +103,7 @@ Vecteur<N> Particle<N>::getAllForces(Particle<N>*& p, float epsilon, float sigma
 }
 
 template <std::size_t N>
-Vecteur<N> Particle<N>::optimizedGetAllForces(Particle<N>*& p, float epsilon_times_24, float sigma) const {
+Vecteur<N> Particle<N>::optimizedGetAllForces(Particle<N>* p, float epsilon_times_24, float sigma) const {
     // Combine all forces
     Vecteur<N>distance_vect = (p->getPosition() - position);
     double distance = distance_vect.norm();
@@ -132,10 +132,10 @@ Vecteur<N> Particle<N>::optimizedGetAllForcesKDtree(Particle<N>* p, float epsilo
 }
 
 template <std::size_t N>
-std::array<int, N> Particle<N>::getCellIndexofParticle(std::array<int, N> cellLength) const {
+std::array<int, N> Particle<N>::getCellIndexofParticle(double cellLength) const {
     std::array<int, N> cellIndex;
     for (std::size_t i = 0; i < N; ++i) {
-        cellIndex[i] = static_cast<int>(std::floor(position.get(i) /cellLength[i]));
+        cellIndex[i] = static_cast<int>(std::floor(position.get(i) /cellLength));
     }
     return cellIndex;
 }

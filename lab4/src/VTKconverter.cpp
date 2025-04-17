@@ -70,12 +70,13 @@ void VTKconverter<N>::convertToVTK(const Univers<N>& univers) {
     currentFile << "<VTKFile type='UnstructuredGrid' version='0.1' byte_order='LittleEndian'>" << std::endl;
     currentFile << "<UnstructuredGrid>" << std::endl;
     int numberOfCells = 0;
-    for (std::size_t i = 0; i < N; ++i) {
-        numberOfCells+= std::ceil(univers.getCaracteristicLength()[i] / univers.getCellLength()[i]);
+    std::array<int, N> numberOfCellsArray = univers.getnumberOfCells();
+    for (int i = 0; i < N; ++i) {
+        numberOfCells += numberOfCellsArray[i];
     }
     currentFile << "<Piece NumberOfPoints='" << univers.getNbParticles() << "' NumberOfCells='" << numberOfCells << "'>" << std::endl;
 
-    std::list<Particle<N>*> particles = univers.getParticles();
+    std::vector<Particle<N>*> particles = univers.getParticles();
     writeData(particles, "Points");
     writeCells(univers);
     writeData(particles, "Velocity");
@@ -90,7 +91,7 @@ void VTKconverter<N>::convertToVTK(const Univers<N>& univers) {
 }
 
 template <std::size_t N>
-void VTKconverter<N>::writeData(const std::list<Particle<N>*>& particles, const std::string& dataType) {
+void VTKconverter<N>::writeData(const std::vector<Particle<N>*>& particles, const std::string& dataType) {
     if (!currentFile.is_open()) {
         std::cerr << "Error: Attempt to write data to a file that is not open!" << std::endl;
         return;

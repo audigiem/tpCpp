@@ -41,10 +41,10 @@ public:
     Vecteur<N> getGravityForce(Particle<N>*& p) const;
     Vecteur<N> getLennardJonesForce(Particle<N>*& p, float epsilon, float sigma) const;
     Vecteur<N> getAllForces(Particle<N>*& p, float epsilon, float sigma) const;
-    Vecteur<N> optimizedGetAllForces(Particle<N>*& p, float epsilon_times_24, float sigma) const;
+    Vecteur<N> optimizedGetAllForces(Particle<N>* p, float epsilon_times_24, float sigma) const;
 
     Vecteur<N> optimizedGetAllForcesKDtree(Particle<N>* p, float epsilon_times_24, float sigma) const;
-    std::array<int, N> getCellIndexofParticle(std::array<int, N> cellLength) const;
+    std::array<int, N> getCellIndexofParticle(double cellLength) const;
 
     friend bool operator==(const Particle<N>& p1, const Particle<N>& p2) {
         return p1.id == p2.id &&
