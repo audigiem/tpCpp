@@ -12,6 +12,8 @@ class Cell {
 private:
     std::list<Particle<N>*> particles;
 
+
+
 public:
     // constructor by copy
     Cell() = default;

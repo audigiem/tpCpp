@@ -21,7 +21,7 @@ double Univers<N>::getCutOffRadius() const {
 }
 
 template <std::size_t N>
-const std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>>& Univers<N>::getCells() const {
+const std::unordered_map<std::array<int, N>, Cell<N>*>& Univers<N>::getCells() const {
     return cells;
 }
 
@@ -60,7 +60,7 @@ void Univers<N>::setCutOffRadius(double cutOffRadius) {
 }
 
 template <std::size_t N>
-std::shared_ptr<Cell<N>> Univers<N>::getCell(const std::array<int, N>& cellIndex) const {
+Cell<N>* Univers<N>::getCell(const std::array<int, N>& cellIndex) const {
     auto it = cells.find(cellIndex);
     if (it != cells.end()) {
         return it->second;
@@ -70,8 +70,8 @@ std::shared_ptr<Cell<N>> Univers<N>::getCell(const std::array<int, N>& cellIndex
 
 
 template <std::size_t N>
-std::vector<std::shared_ptr<Cell<N>>> Univers<N>::getCoordNeighbourCells(const std::array<int, N>& cellIndex) const {
-    std::vector<std::shared_ptr<Cell<N>>> neighbourCells;
+std::vector<Cell<N> *> Univers<N>::getCoordNeighbourCells(const std::array<int, N>& cellIndex) const {
+    std::vector<Cell<N>*> neighbourCells;
     std::array<int, N> neighbourIndex;
     for (std::size_t i = 0; i < N; ++i) {
         for (int j = -1; j <= 1; ++j) {
@@ -94,7 +94,7 @@ void Univers<N>::addParticle(Particle<N>*& particle) {
     }
     auto cell = getCell(cellIndex);
     if (!cell) {
-        cell = std::make_shared<Cell<N>>();
+        cell = new Cell<N>();
         cells[cellIndex] = cell;
     }
     cell->addParticle(particle);
@@ -125,7 +125,7 @@ void Univers<N>::updateParticlePositionInCell(Particle<N>*& particle, const Vect
             oldCell->removeParticle(particle);
         }
         if (!newCell) {
-            newCell = std::make_shared<Cell<N>>();
+            newCell = new Cell<N>();
             cells[newCellIndex] = newCell;
         }
         newCell->addParticle(particle);
@@ -250,10 +250,10 @@ void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
  * @return A deep copy of the cells of the universe
  */
 template<std::size_t N>
-std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N> > > Univers<N>::cloneCells() const {
-    std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>> clonedCells;
+std::unordered_map<std::array<int, N>, Cell<N>* > Univers<N>::cloneCells() const {
+    std::unordered_map<std::array<int, N>, Cell<N>*> clonedCells;
     for (const auto& [cellIndex, cell] : cells) {
-        clonedCells[cellIndex] = std::make_shared<Cell<N>>(*cell);
+        clonedCells[cellIndex] = new Cell<N>(*cell); // Deep copy of the cell
     }
     return clonedCells;
 }
@@ -269,7 +269,7 @@ void Univers<N>::update(double dt, float epsilon, float sigma) {
     // during the iterations, we will move particles and therefore modify the configuration
     // of the cells as particle will move in and out of them.
     // Consequently, we will iterate over a (deep) copy of the initial cells that will not be modified
-    std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>> currentCells = cloneCells();
+    std::unordered_map<std::array<int, N>, Cell<N>*> currentCells = cloneCells();
     // we loop through the particles and update their position
     for (const auto& cell : currentCells) {
         for (auto& p : cell.second->getParticles()) {
