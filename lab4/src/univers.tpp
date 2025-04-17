@@ -11,6 +11,11 @@ Univers<N>::Univers(std::array<double, N> caracteristicLength, double cutOffRadi
 }
 
 template <std::size_t N>
+void Univers<N>::createCells() {
+    
+}
+
+template <std::size_t N>
 std::array<double, N> Univers<N>::getCaracteristicLength() const {
     return caracteristicLength;
 }
@@ -69,22 +74,6 @@ Cell<N>* Univers<N>::getCell(const std::array<int, N>& cellIndex) const {
 }
 
 
-template <std::size_t N>
-std::vector<Cell<N> *> Univers<N>::getCoordNeighbourCells(const std::array<int, N>& cellIndex) const {
-    std::vector<Cell<N>*> neighbourCells;
-    std::array<int, N> neighbourIndex;
-    for (std::size_t i = 0; i < N; ++i) {
-        for (int j = -1; j <= 1; ++j) {
-            neighbourIndex[i] = cellIndex[i] + j;
-            auto cell = getCell(neighbourIndex);
-            if (cell) {
-                neighbourCells.push_back(cell);
-            }
-        }
-    }
-    return neighbourCells;
-}
-
 
 template <std::size_t N>
 void Univers<N>::addParticle(Particle<N>*& particle) {
@@ -93,10 +82,6 @@ void Univers<N>::addParticle(Particle<N>*& particle) {
         cellIndex[i] = static_cast<int>(std::floor(particle->getPosition().get(i) / cutOffRadius));
     }
     auto cell = getCell(cellIndex);
-    if (!cell) {
-        cell = new Cell<N>();
-        cells[cellIndex] = cell;
-    }
     cell->addParticle(particle);
     ++nbParticles;
 }
@@ -129,18 +114,6 @@ void Univers<N>::updateParticlePositionInCell(Particle<N>*& particle, const Vect
             cells[newCellIndex] = newCell;
         }
         newCell->addParticle(particle);
-    }
-}
-
-
-template <std::size_t N>
-void Univers<N>::removeEmptyCells() {
-    for (auto it = cells.begin(); it != cells.end();) {
-        if (it->second->isEmpty()) {
-            it = cells.erase(it);
-        } else {
-            ++it;
-        }
     }
 }
 
@@ -188,7 +161,7 @@ std::list<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>*& pa
     auto cell = getCell(cellIndex);
 
     // Get the neighbouring cells
-    for(auto & neighbourCell : getNeighbourCells(cellIndex)) {
+    for(auto & neighbourCell : cell->getNeighbourCells()) {
         auto particlesInCell = neighbourCell->getParticles();
         neighbourParticles.insert(neighbourParticles.end(), particlesInCell.begin(), particlesInCell.end());
     }
@@ -220,21 +193,6 @@ void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
         }
     }
 }
-
-/** * @brief Clone the cells of the universe
- * @return A deep copy of the cells of the universe
- */
-template<std::size_t N>
-std::unordered_map<std::array<int, N>, Cell<N>* > Univers<N>::cloneCells() const {
-    std::unordered_map<std::array<int, N>, Cell<N>*> clonedCells;
-    for (const auto& [cellIndex, cell] : cells) {
-        clonedCells[cellIndex] = new Cell<N>(*cell); // Deep copy of the cell
-    }
-    return clonedCells;
-}
-
-
-
 
 template <std::size_t N>
 void Univers<N>::update(double dt, float epsilon, float sigma) {

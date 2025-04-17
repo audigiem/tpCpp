@@ -46,10 +46,9 @@ public:
     void setCutOffRadius(double cutOffRadius);
 
     // Methods
+    void createCells();
     Cell<N>* getCell(const std::array<int, N>& cellIndex) const;
-    std::vector<Cell<N> *> getCoordNeighbourCells(const std::array<int, N>& cellIndex) const;
     void addParticle(Particle<N>*& particle);
-    void removeEmptyCells();
     void updateParticlePositionInCell(Particle<N>*& particle, const Vecteur<N>& newPosition);
     void fillUnivers(int nbParticles);
     void showUnivers() const;
@@ -57,7 +56,6 @@ public:
 
     std::list<Particle<N>*> getParticlesInNeighbourhood(Particle<N>*& particle) const;
     void computeAllForcesOnParticle(float epsilon, float sigma);
-    std::unordered_map<std::array<int, N>, Cell<N>*> cloneCells() const;
 
     void update(double dt, float epsilon, float sigma);
     // void stromerVerlet(double dt, float epsilon, float sigma);

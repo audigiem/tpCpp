@@ -2,7 +2,7 @@
 #define PARTICLE_H
 
 #include <array>
-#include <list>
+#include <vector>
 #include "particle.hpp"
 #include <memory>
 
@@ -10,7 +10,8 @@
 template <std::size_t N>
 class Cell {
 private:
-    std::list<Particle<N>*> particles;
+    std::vector<Particle<N>*> particles;
+    std::vector<Cell<N>*> neighbourCells;
 
 
 
@@ -23,8 +24,11 @@ public:
     void addParticle(Particle<N>*& particle);
     bool isEmpty() const;
     void showParticles() const;
-    std::list<Particle<N>*> getParticles() const;
+    std::vector<Particle<N>*> getParticles() const;
     void removeParticle(Particle<N>*& particle);
+    std::vector<Cell<N>*> getNeighbourCells() const {
+        return neighbourCells;
+    }
 
 
 };
