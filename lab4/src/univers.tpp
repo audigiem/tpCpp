@@ -296,6 +296,9 @@ void Univers<N>::update(double dt, float epsilon, float sigma) {
         }
     }
     removeEmptyCells();
+    for (auto& [_, cellPtr] : currentCells) {
+        delete cellPtr;
+    }
 
     // std::cout << "End of update: " << std::endl;
     // showUnivers();

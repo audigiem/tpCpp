@@ -27,7 +27,7 @@ int main() {
     int N2 = 160;
     double cutOffRadius = 2.5 * sigma;
     double dt = 0.00005;
-    double tEnd = 0.0195;
+    double tEnd = 0.000195;
 
     Univers<2> univers({L1, L2}, cutOffRadius);
     // particle of the red square:
@@ -81,10 +81,13 @@ int main() {
     std::cout << "Simulation with " << N1 * N1 + N1 * N2 << " particles took " << durationSim.count() << " seconds." << std::endl;
 
 
-
-
-
-
+    // free the memory
+    for (const auto& cell : univers.getCells()) {
+        for (auto& particle : cell.second->getParticles()) {
+            delete particle;
+        }
+        delete cell.second;
+    }
 
     return 0;
 }
