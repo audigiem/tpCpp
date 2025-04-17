@@ -74,7 +74,7 @@ double Particle<N>::getDistance(const Particle<N>& other) const {
 }
 
 template <std::size_t N>
-Vecteur<N> Particle<N>::getGravityForce(const std::shared_ptr<Particle<N>>& p) const {
+Vecteur<N> Particle<N>::getGravityForce(Particle<N>*& p) const {
     // Compute the gravity force between two particles
     Vecteur<N> distance_vect = (p->getPosition() - position);
     double distance = distance_vect.norm();
@@ -83,7 +83,7 @@ Vecteur<N> Particle<N>::getGravityForce(const std::shared_ptr<Particle<N>>& p) c
 }
 
 template <std::size_t N>
-Vecteur<N> Particle<N>::getLennardJonesForce(const std::shared_ptr<Particle<N>>& p, float epsilon, float sigma) const {
+Vecteur<N> Particle<N>::getLennardJonesForce(Particle<N>*& p, float epsilon, float sigma) const {
     // Compute the Lennard-Jones force between two particles
     Vecteur<N> distance_vect = (p->getPosition() - position);
     double distance = distance_vect.norm();
@@ -92,7 +92,7 @@ Vecteur<N> Particle<N>::getLennardJonesForce(const std::shared_ptr<Particle<N>>&
 }
 
 template <std::size_t N>
-Vecteur<N> Particle<N>::getAllForces(const std::shared_ptr<Particle<N>>& p, float epsilon, float sigma) const {
+Vecteur<N> Particle<N>::getAllForces(Particle<N>*& p, float epsilon, float sigma) const {
     // Combine all forces
     Vecteur<N>distance_vect = (p->getPosition() - position);
     double distance = distance_vect.norm();
@@ -103,7 +103,7 @@ Vecteur<N> Particle<N>::getAllForces(const std::shared_ptr<Particle<N>>& p, floa
 }
 
 template <std::size_t N>
-Vecteur<N> Particle<N>::optimizedGetAllForces(const std::shared_ptr<Particle<N>>& p, float epsilon_times_24, float sigma) const {
+Vecteur<N> Particle<N>::optimizedGetAllForces(Particle<N>*& p, float epsilon_times_24, float sigma) const {
     // Combine all forces
     Vecteur<N>distance_vect = (p->getPosition() - position);
     double distance = distance_vect.norm();

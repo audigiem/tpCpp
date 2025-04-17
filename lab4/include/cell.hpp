@@ -10,7 +10,7 @@
 template <std::size_t N>
 class Cell {
 private:
-    std::list<std::shared_ptr<Particle<N>>> particles;
+    std::list<Particle<N>*> particles;
 
 public:
     // constructor by copy
@@ -18,11 +18,11 @@ public:
     Cell(const Cell<N>& other);
 
 
-    void addParticle(const std::shared_ptr<Particle<N>>& particle);
+    void addParticle(Particle<N>*& particle);
     bool isEmpty() const;
     void showParticles() const;
-    std::list<std::shared_ptr<Particle<N>>> getParticles() const;
-    void removeParticle(const std::shared_ptr<Particle<N>>& particle);
+    std::list<Particle<N>*> getParticles() const;
+    void removeParticle(Particle<N>*& particle);
 
 
 };

@@ -7,11 +7,11 @@ TEST(UniversTest, Update) {
 
     Vecteur<3> position1({5.0, 5.0, 5.0});
     Vecteur<3> position2({15.0, 5.0, 5.0});
-    Particle<3> particle1(1, position1, Vecteur<3>(), 1.0, "test1");
-    Particle<3> particle2(2, position2, Vecteur<3>(), 1.0, "test2");
+    Particle<3>* particle1 = new Particle<3>(1, position1, Vecteur<3>(), 1.0, "test1");
+    Particle<3>* particle2 = new Particle<3>(2, position2, Vecteur<3>(), 1.0, "test2");
 
-    univers.addParticle(std::make_shared<Particle<3>>(particle1));
-    univers.addParticle(std::make_shared<Particle<3>>(particle2));
+    univers.addParticle(particle1);
+    univers.addParticle(particle2);
 
     univers.update(0.1, 5.0, 1.0);
 

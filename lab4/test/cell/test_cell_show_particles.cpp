@@ -8,9 +8,9 @@ TEST(CellTest, ShowParticles) {
 
     Vecteur<3> position({1.0, 2.0, 3.0});
     Vecteur<3> velocity({0.1, 0.2, 0.3});
-    Particle<3> particle(1, position, velocity, 5.0, "test");
+    Particle<3>* particle = new Particle<3>(1, position, velocity, 5.0, "test");
 
-    cell.addParticle(std::make_shared<Particle<3>>(particle));
+    cell.addParticle(particle);
 
     std::ostringstream output;
     std::streambuf* oldCoutBuffer = std::cout.rdbuf(output.rdbuf()); // Redirect std::cout

@@ -38,10 +38,10 @@ public:
     bool operator==(const Particle<N>& other) const;
     bool operator!=(const Particle<N>& other) const;
 
-    Vecteur<N> getGravityForce(const std::shared_ptr<Particle<N>>& p) const;
-    Vecteur<N> getLennardJonesForce(const std::shared_ptr<Particle<N>>& p, float epsilon, float sigma) const;
-    Vecteur<N> getAllForces(const std::shared_ptr<Particle<N>>& p, float epsilon, float sigma) const;
-    Vecteur<N> optimizedGetAllForces(const std::shared_ptr<Particle<N>>& p, float epsilon_times_24, float sigma) const;
+    Vecteur<N> getGravityForce(Particle<N>*& p) const;
+    Vecteur<N> getLennardJonesForce(Particle<N>*& p, float epsilon, float sigma) const;
+    Vecteur<N> getAllForces(Particle<N>*& p, float epsilon, float sigma) const;
+    Vecteur<N> optimizedGetAllForces(Particle<N>*& p, float epsilon_times_24, float sigma) const;
 
     Vecteur<N> optimizedGetAllForcesKDtree(Particle<N>* p, float epsilon_times_24, float sigma) const;
     std::array<int, N> getCellIndexofParticle(std::array<int, N> cellLength) const;

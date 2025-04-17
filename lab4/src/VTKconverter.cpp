@@ -75,7 +75,7 @@ void VTKconverter<N>::convertToVTK(const Univers<N>& univers) {
     }
     currentFile << "<Piece NumberOfPoints='" << univers.getNbParticles() << "' NumberOfCells='" << numberOfCells << "'>" << std::endl;
 
-    std::list<std::shared_ptr<Particle<N>>> particles = univers.getParticles();
+    std::list<Particle<N>*> particles = univers.getParticles();
     writeData(particles, "Points");
     writeCells(univers);
     writeData(particles, "Velocity");
@@ -90,7 +90,7 @@ void VTKconverter<N>::convertToVTK(const Univers<N>& univers) {
 }
 
 template <std::size_t N>
-void VTKconverter<N>::writeData(const std::list<std::shared_ptr<Particle<N>>>& particles, const std::string& dataType) {
+void VTKconverter<N>::writeData(const std::list<Particle<N>*>& particles, const std::string& dataType) {
     if (!currentFile.is_open()) {
         std::cerr << "Error: Attempt to write data to a file that is not open!" << std::endl;
         return;

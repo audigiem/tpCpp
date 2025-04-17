@@ -38,8 +38,8 @@ int main() {
     for (int i = 0; i < N1; ++i) {
         for (int j = 0; j < N1; ++j) {
             Vecteur<2> position({(i+offset[0]) * spacing, (j + offset[1]) * spacing});
-            Particle<2> particle(id++, position, v, mass, "red");
-            univers.addParticle(std::make_shared<Particle<2>>(particle));
+            Particle<2>* particle = new Particle<2>(id++, position, v, mass, "red");
+            univers.addParticle(particle);
         }
     }
 
@@ -50,8 +50,8 @@ int main() {
     for (int i = 0; i < N2; ++i) {
         for (int j = 0; j < N1; ++j) {
             Vecteur<2> position({(i+offset[0]) * spacing, (j + offset[1]) * spacing});
-            Particle<2> particle(id2++, position, v2, mass, "blue");
-            univers.addParticle(std::make_shared<Particle<2>>(particle));
+            Particle<2>* particle = new Particle<2>(id2++, position, v2, mass, "blue");
+            univers.addParticle(particle);
         }
     }
 

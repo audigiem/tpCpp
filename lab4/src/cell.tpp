@@ -9,7 +9,7 @@ Cell<N>::Cell(const Cell<N>& other) {
 }
 
 template <std::size_t N>
-void Cell<N>::addParticle(const std::shared_ptr<Particle<N>>& particle) {
+void Cell<N>::addParticle(Particle<N>*& particle) {
     particles.push_back(particle);
 }
 
@@ -19,7 +19,7 @@ bool Cell<N>::isEmpty() const {
 }
 
 template <std::size_t N>
-void Cell<N>::removeParticle(const std::shared_ptr<Particle<N>>& particle) {
+void Cell<N>::removeParticle(Particle<N>*& particle) {
     particles.remove(particle);
 }
 
@@ -32,6 +32,6 @@ void Cell<N>::showParticles() const {
 }
 
 template <std::size_t N>
-std::list<std::shared_ptr<Particle<N>>> Cell<N>::getParticles() const {
+std::list<Particle<N>*> Cell<N>::getParticles() const {
     return particles;
 }

@@ -7,10 +7,51 @@ project(Lab4 CXX)
 ## Force le standard
 set(CMAKE_CXX_STANDARD 17)
 
-## Indique les options de compilations pour le projet
-## -pg : donne la possibilité de faire du profiling
-## -Wall : affiche les warnings
+
+
 set(CMAKE_CXX_FLAGS "-Wall")
+
+# Set optimization flags for Release builds
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+
+# Advanced optimization flags
+set(OPTIMIZATION_FLAGS
+    "-O3"                     # Highest standard optimization
+    "-march=native"           # Optimize for local machine architecture
+    "-mtune=native"           # Fine-tune for CPU-specific optimizations
+    "-ffast-math"             # Aggressive math optimizations (note: may affect IEEE compliance)
+    "-funroll-loops"          # Unroll loops for speed at cost of binary size
+    "-fomit-frame-pointer"    # Free up a register by omitting frame pointer
+    "-ftree-vectorize"        # Explicitly enable auto-vectorization
+    "-flto"                   # Link-Time Optimization
+    "-fno-signed-zeros"       # Ignore sign of zero
+    "-fno-trapping-math"      # Assume no IEEE exceptions
+    "-freciprocal-math"       # Allow reciprocal instead of division when faster
+    "-ffinite-math-only"      # No need to handle infinite/NaN
+    "-fno-math-errno"         # Don't set errno after math functions
+    "-fprefetch-loop-arrays"  # Prefetch memory in loops
+    "-fopenmp"                # OpenMP support
+)
+
+# Combine all flags
+string(REPLACE ";" " " OPTIMIZATION_FLAGS_STR "${OPTIMIZATION_FLAGS}")
+
+# Debug build - minimal optimization with debug symbols
+set(CMAKE_CXX_FLAGS_DEBUG "-g -Og -Wall -Wextra -pedantic")
+
+# Release build - full optimization
+set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG ${OPTIMIZATION_FLAGS_STR}")
+
+# RelWithDebInfo - optimization with debug info
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DNDEBUG ${OPTIMIZATION_FLAGS_STR}")
+
+# Set default build type if not specified
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose build type" FORCE)
+endif()
+
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Using optimization flags: ${OPTIMIZATION_FLAGS_STR}")
 
 ## Définir la localisation des entêtes.
 ## include_directories sera propager à l'ensemble du projet

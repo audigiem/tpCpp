@@ -18,8 +18,8 @@ int main() {
                 Vecteur<3> velocity({0.0, 0.0, 0.0});
                 double mass = 1.0;
                 std::string category = "default";
-                Particle<3> particle(id++, position, velocity, mass, category);
-                univers.addParticle(std::make_shared<Particle<3>>(particle));
+                Particle<3>* particle = new Particle<3>(id++, position, velocity, mass, category);
+                univers.addParticle(particle);
             }
         }
     }

@@ -90,8 +90,8 @@ void UniversKDtree<N>::fillUnivers(int nbParticles) {
             position.set(j, static_cast<double>(rand()) / RAND_MAX * caracteristicLength);
             velocity.set(j, static_cast<double>(rand()) / RAND_MAX * caracteristicLength);
         }
-        Particle<N> particle(i, position, velocity, 1.0, "default");
-        addParticle(std::make_shared<Particle<N>>(particle) );
+        Particle<N>* particle = new Particle<N>(i, position, velocity, 1.0, "default");
+        addParticle(particle);
     }
 }
 

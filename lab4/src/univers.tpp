@@ -36,8 +36,8 @@ int Univers<N>::getNbParticles() const {
 }
 
 template <std::size_t N>
-std::list<std::shared_ptr<Particle<N>>> Univers<N>::getParticles() const {
-    std::list<std::shared_ptr<Particle<N>>> particles;
+std::list<Particle<N>*> Univers<N>::getParticles() const {
+    std::list<Particle<N>*> particles;
     for (const auto& cell : cells) {
         auto cellParticles = cell.second->getParticles();
         particles.insert(particles.end(), cellParticles.begin(), cellParticles.end());
@@ -87,7 +87,7 @@ std::vector<std::shared_ptr<Cell<N>>> Univers<N>::getCoordNeighbourCells(const s
 
 
 template <std::size_t N>
-void Univers<N>::addParticle(const std::shared_ptr<Particle<N>>& particle) {
+void Univers<N>::addParticle(Particle<N>*& particle) {
     std::array<int, N> cellIndex;
     for (std::size_t i = 0; i < N; ++i) {
         cellIndex[i] = static_cast<int>(std::floor(particle->getPosition().get(i) / cutOffRadius));
@@ -108,7 +108,7 @@ void Univers<N>::addParticle(const std::shared_ptr<Particle<N>>& particle) {
  * @param newPosition The new position of the particle
  */
 template <std::size_t N>
-void Univers<N>::updateParticlePositionInCell(const std::shared_ptr<Particle<N>>& particle, const Vecteur<N> &newPosition) {
+void Univers<N>::updateParticlePositionInCell(Particle<N>*& particle, const Vecteur<N> &newPosition) {
     std::array<int, N> oldCellIndex;
     for (std::size_t i = 0; i < N; ++i) {
         oldCellIndex[i] = static_cast<int>(std::floor(particle->getPosition().get(i) / cutOffRadius));
@@ -154,8 +154,8 @@ void Univers<N>::fillUnivers(int nbParticles) {
             position.set(j, static_cast<double>(rand()) / RAND_MAX * caracteristicLength);
             velocity.set(j, static_cast<double>(rand()) / RAND_MAX * caracteristicLength);
         }
-        Particle<N> particle(i, position, velocity, 1.0, "default");
-        addParticle(std::make_shared<Particle<N>>(particle) );
+        Particle<N>* particle = new Particle<N>(i, position, velocity, 1.0, "default");
+        addParticle(particle);
     }
 }
 
@@ -180,8 +180,8 @@ void Univers<N>::showUnivers() const {
  * @return A list of particles in the neighbourhood of the particle
  */
 template <std::size_t N>
-std::list<std::shared_ptr<Particle<N>>> Univers<N>::getParticlesInNeighbourhood(const std::shared_ptr<Particle<N>>& particle) const {
-    std::list<std::shared_ptr<Particle<N>>> neighbourParticles;
+std::list<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>*& particle) const {
+    std::list<Particle<N>*> neighbourParticles;
     std::array<int, N> centerCell = particle->getCellIndexofParticle(cellLength);
 
     // Calcul du nombre de couches de cellules à visiter dans chaque direction
@@ -233,9 +233,9 @@ template <std::size_t N>
 void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
     std::list<Vecteur<N>> previousForcesOnParticles;
     for (const auto& cell : cells) {
-        for (const auto& particle : cell.second->getParticles()) {
+        for ( auto& particle : cell.second->getParticles()) {
             particle->saveForce(particle->getForce());
-            for (const auto& neighbour : getParticlesInNeighbourhood(particle)) {
+            for ( auto& neighbour : getParticlesInNeighbourhood(particle)) {
                 if (neighbour != particle) {
                     Vecteur<N> force = particle->optimizedGetAllForces(neighbour, epsilon, sigma);
                     particle->applyForce(force);
@@ -272,7 +272,7 @@ void Univers<N>::update(double dt, float epsilon, float sigma) {
     std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>> currentCells = cloneCells();
     // we loop through the particles and update their position
     for (const auto& cell : currentCells) {
-        for (const auto& p : cell.second->getParticles()) {
+        for (auto& p : cell.second->getParticles()) {
             // update the position of the particle
             Vecteur<N> newPosition = p->getPosition() + p->getVelocity() * dt + (p->getForce() / p->getMass()) * (dt * dt) / 2;
             // update the cells configuration (of the original cells)

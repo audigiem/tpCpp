@@ -41,7 +41,7 @@ public:
     [[nodiscard]] const std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>>& getCells() const;
     [[nodiscard]] std::array<int, N> getCellLength() const;
     [[nodiscard]] int getNbParticles() const;
-    [[nodiscard]] std::list<std::shared_ptr<Particle<N>>> getParticles() const;
+    [[nodiscard]] std::list<Particle<N>*> getParticles() const;
 
     void setCaracteristicLength(std::array<double, N> caracteristicLength);
     void setCutOffRadius(double cutOffRadius);
@@ -49,14 +49,14 @@ public:
     // Methods
     std::shared_ptr<Cell<N>> getCell(const std::array<int, N>& cellIndex) const;
     std::vector<std::shared_ptr<Cell<N>>> getCoordNeighbourCells(const std::array<int, N>& cellIndex) const;
-    void addParticle(const std::shared_ptr<Particle<N>>& particle);
+    void addParticle(Particle<N>*& particle);
     void removeEmptyCells();
-    void updateParticlePositionInCell(const std::shared_ptr<Particle<N>>& particle, const Vecteur<N>& newPosition);
+    void updateParticlePositionInCell(Particle<N>*& particle, const Vecteur<N>& newPosition);
     void fillUnivers(int nbParticles);
     void showUnivers() const;
 
 
-    std::list<std::shared_ptr<Particle<N>>> getParticlesInNeighbourhood(const std::shared_ptr<Particle<N>>& particle) const;
+    std::list<Particle<N>*> getParticlesInNeighbourhood(Particle<N>*& particle) const;
     void computeAllForcesOnParticle(float epsilon, float sigma);
     std::unordered_map<std::array<int, N>, std::shared_ptr<Cell<N>>> cloneCells() const;
 
