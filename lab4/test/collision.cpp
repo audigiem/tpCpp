@@ -27,7 +27,7 @@ int main() {
         int N2 = 160;
         double cutOffRadius = 2.5 * sigma;
         double dt = 0.00005;
-        double tEnd = 19.5;
+        double tEnd = 0.00195;
 
         // To prevent memory leaks i didnt succeed to delete the particles
         // with the destructor of the univers
@@ -69,20 +69,20 @@ int main() {
         std::cout << "Universe creation with " << N1 * N1 + N1 * N2 << " particles took " << duration.count() << " seconds." << std::endl;
 
         // create the VTK converter
-        // VTKconverter<2> vtkConverter("collision", "simulation");
+        VTKconverter<2> vtkConverter("collision", "simulation");
 
         // start the simulation
         auto startSim = std::chrono::high_resolution_clock::now();
         univers.computeAllForcesOnParticle(epsilon, sigma);
-        // vtkConverter.createFile();
-        // vtkConverter.convertToVTK(univers);
-        // vtkConverter.closeFile();
+        vtkConverter.createFile();
+        vtkConverter.convertToVTK(univers);
+        vtkConverter.closeFile();
         // run the simulation
         for (double t = 0; t < tEnd; t += dt) {
             univers.update(dt, epsilon, sigma);
-            // vtkConverter.createFile();
-            // vtkConverter.convertToVTK(univers);
-            // vtkConverter.closeFile();
+            vtkConverter.createFile();
+            vtkConverter.convertToVTK(univers);
+            vtkConverter.closeFile();
         }
 
         auto endSim = std::chrono::high_resolution_clock::now();

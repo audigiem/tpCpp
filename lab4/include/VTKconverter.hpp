@@ -30,7 +30,8 @@ public:
     void closeFile();
 
     void convertToVTK(const Univers<N>& univers);
-    void writeData(const std::vector<Particle<N>*>& particles, const std::string& dataType);
+    void writeDataPosition(const std::vector<Particle<N>*>& particles);
+    void writeDataVelocityMass(const std::vector<Particle<N>*>& particles);
     void writeCells(const Univers<N>& univers);
 };
 
