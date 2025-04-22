@@ -28,12 +28,12 @@ VTKconverter<N>::~VTKconverter() {
         currentFile.close();
     }
     std::cout << "VTK converter destroyed" << std::endl;
-    std::cout << "VTK files created in /user/8/audigiem/2A/S8/cpp/lab4/demo/" << dirName << std::endl;
+    std::cout << "VTK files created in /home/matteo/Bureau/ENSIMAG/2A/S8/cpp/tpCpp/lab4/demo/" << dirName << std::endl;
 }
 
 template <std::size_t N>
 void VTKconverter<N>::createFile() {
-    std::string fullDirPath = "/user/8/audigiem/2A/S8/cpp/lab4/demo/" + dirName;
+    std::string fullDirPath = "/home/matteo/Bureau/ENSIMAG/2A/S8/cpp/tpCpp/lab4/demo/" + dirName;
 
     // Vérifie et crée le répertoire si nécessaire
     if (!std::filesystem::exists(fullDirPath)) {

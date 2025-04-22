@@ -42,6 +42,9 @@ void runSimulation(int numParticles, VTKconverter<3>& vtkConverter) {
     // Run the simulation
     auto startSim = std::chrono::high_resolution_clock::now();
     univers.computeAllForcesOnParticle(epsilon, sigma);
+    vtkConverter.createFile();
+    vtkConverter.convertToVTK(univers);
+    vtkConverter.closeFile();
     //univers.showUnivers();
     for (int i = 0; i < 10; ++i) {
         univers.update(0.01, epsilon, sigma);
@@ -62,7 +65,7 @@ void runSimulation(int numParticles, VTKconverter<3>& vtkConverter) {
 int main() {
     // std::cout << "Simulation parameters: 100 time steps, 0.01 time step size" << std::endl;
 
-    for (int k = 2; k < 8; ++k) {
+    for (int k = 2; k < 12; ++k) {
         int numParticles = std::pow(2, k);
         // create a VTK converter
         VTKconverter<3> vtkConverter("testUnivers2_"+std::to_string(numParticles), "test");

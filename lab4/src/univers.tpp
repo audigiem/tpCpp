@@ -280,8 +280,10 @@ std::vector<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>* p
 template <std::size_t N>
 void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
     for(const auto& particle : particles) {
+        particle->saveForce(particle->getForce());
         for(const auto& neighbourParticle : getParticlesInNeighbourhood(particle)) {
-            particle->applyForce(neighbourParticle->optimizedGetAllForces(neighbourParticle, epsilon, sigma));
+            if (neighbourParticle != particle) {}
+            particle->applyForce(particle->optimizedGetAllForces(neighbourParticle, epsilon, sigma));
         }
     }
 }
