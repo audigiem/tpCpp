@@ -23,7 +23,6 @@ set(OPTIMIZATION_FLAGS
     "-funroll-loops"          # Unroll loops for speed at cost of binary size
     "-fomit-frame-pointer"    # Free up a register by omitting frame pointer
     "-ftree-vectorize"        # Explicitly enable auto-vectorization
-    "-flto"                   # Link-Time Optimization
     "-fno-signed-zeros"       # Ignore sign of zero
     "-fno-trapping-math"      # Assume no IEEE exceptions
     "-freciprocal-math"       # Allow reciprocal instead of division when faster
