@@ -229,7 +229,7 @@ std::vector<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>* p
     std::array<int, N> cellIndex = particle->getCellIndexofParticle(cutOffRadius);
 
     // Vérification que l'indice de la cellule est dans les limites valides
-    for (int i = 0; i < N; ++i) {
+    for (size_t i = 0; i < N; ++i) {
         if (cellIndex[i] < 0 || cellIndex[i] >= numberOfCells[i]) {
             // Si un des indices est hors limites, on gère l'erreur (retourner un tableau vide ou autre)
             return neighbourParticles;

@@ -1,19 +1,21 @@
 #include "../include/cell.hpp"
 #include <cmath>
 #include <iostream>
-
+#include <functional>
 
 template <std::size_t N>
 Cell<N>::Cell(const Cell<N>& other) {
-    particles = other.particles;
-    cellIndex = other.cellIndex;
-    neighbourCellsIndex = other.neighbourCellsIndex;
-
+    this->particles = other.particles;
+    this->neighbourCellsIndex = other.neighbourCellsIndex;
+    this->cellIndex = other.cellIndex;
 }
 
 template <std::size_t N>
-Cell<N>::Cell(const std::array<int, N>& cellIndex, std::array<double, N> gridSize, double length) : cellIndex(cellIndex), gridSize(gridSize), length(length) {
+Cell<N>::Cell(const std::array<int, N>& cellIndex, std::array<double, N> gridSize, double length) {
     neighbourCellsIndex = computeNeighbourCellsIndex();
+    this->cellIndex = cellIndex;
+    this->length = length;
+    this->gridSize = gridSize;
 }
 
 

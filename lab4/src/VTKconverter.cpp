@@ -8,7 +8,7 @@
 
 template <std::size_t N>
 VTKconverter<N>::VTKconverter(std::string dirName, std::string filesName)
-    : dirName(std::move(dirName)), nbFiles(0), fileName(std::move(filesName)) {
+    : fileName(std::move(filesName)), dirName(std::move(dirName)), nbFiles(0) {
 
     std::string fullPath = "../demo/" + dirName;
     std::filesystem::create_directories(fullPath);
@@ -71,7 +71,7 @@ void VTKconverter<N>::convertToVTK(const Univers<N>& univers) {
     currentFile << "<UnstructuredGrid>" << std::endl;
     int numberOfCells = 0;
     std::array<int, N> numberOfCellsArray = univers.getnumberOfCells();
-    for (int i = 0; i < N; ++i) {
+    for (size_t i = 0; i < N; ++i) {
         numberOfCells += numberOfCellsArray[i];
     }
     currentFile << "<Piece NumberOfPoints='" << univers.getNbParticles() << "' NumberOfCells='" << numberOfCells << "'>" << std::endl;
@@ -101,7 +101,7 @@ void VTKconverter<N>::writeDataPosition(const std::vector<Particle<N>*>& particl
     currentFile << "<DataArray name='Position' type='Float32' NumberOfComponents='" << nbComponents << "' format='ascii'>" << std::endl;
     for (const auto& particle : particles) {
         Vecteur<N> position = particle->getPosition();
-        for (int i = 0; i < N; ++i) {
+        for (size_t i = 0; i < N; ++i) {
             currentFile << position.get(i) << " ";
         }
     }
@@ -123,7 +123,7 @@ void VTKconverter<N>::writeDataVelocityMass(const std::vector<Particle<N>*>& par
     currentFile << "<DataArray type='Float32' Name='Velocity' NumberOfComponents='" << nbComponents << "' format='ascii'>" << std::endl;
     for (const auto& particle : particles) {
         Vecteur<N> velocity = particle->getVelocity();
-        for (int i = 0; i < N; ++i) {
+        for (size_t i = 0; i < N; ++i) {
             currentFile << velocity.get(i) << " ";
         }
     }
