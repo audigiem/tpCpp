@@ -23,6 +23,7 @@ Cell<N>::Cell(const std::array<int, N>& cellIndex, std::array<double, N> gridSiz
 template <std::size_t N>
 void Cell<N>::addParticle(Particle<N>*& particle) {
     particles.push_back(particle);
+    ++numberOfParticles;
 }
 
 template <std::size_t N>
@@ -35,6 +36,7 @@ void Cell<N>::removeParticle(Particle<N>*& particle) {
     auto it = std::remove(particles.begin(), particles.end(), particle);
     if (it != particles.end()) {
         particles.erase(it, particles.end());
+        --numberOfParticles;
     }
 
 }

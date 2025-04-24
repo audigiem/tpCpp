@@ -238,9 +238,21 @@ std::vector<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>* p
 
     // Si l'indice est valide, on récupère la cellule
     auto cell = getCell(cellIndex);
+    int numberOfParticles;
 
     // Si la cellule est valide (non nullptr)
     if (cell) {
+        numberOfParticles = cell->getNumberOfParticles();
+        std::vector<std::array<int, N>> neighbourCellsIndex = cell->getNeighbourCellsIndex();
+        for (const auto& index : neighbourCellsIndex) {
+            auto neighbourCell = getCell(index);
+            if (neighbourCell) {
+                numberOfParticles += neighbourCell->getNumberOfParticles();
+            }
+        }
+
+        neighbourParticles.reserve(numberOfParticles);
+
         // On ajoute les particules de la même cellule
         for (const auto& p : cell->getParticles()) {
             if (p != particle) {
@@ -249,7 +261,7 @@ std::vector<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>* p
         }
 
         // On ajoute les particules des cellules voisines
-        std::vector<std::array<int, N>> neighbourCellsIndex = cell->getNeighbourCellsIndex();
+        
         for (const auto& index : neighbourCellsIndex) {
             auto neighbourCell = getCell(index);
             if (neighbourCell) {
@@ -279,11 +291,17 @@ std::vector<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>* p
  */
 template <std::size_t N>
 void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
+    Vecteur<N> currentForce;
+    epsilon *= 24;
     for(const auto& particle : particles) {
         particle->saveForce(particle->getForce());
+        // 
         for(const auto& neighbourParticle : getParticlesInNeighbourhood(particle)) {
-            if (neighbourParticle != particle) {}
-            particle->applyForce(particle->optimizedGetAllForces(neighbourParticle, epsilon, sigma));
+            if (particle->getId() < neighbourParticle->getId()) {
+                currentForce = particle->optimizedGetAllForces(neighbourParticle, epsilon, sigma);
+                particle->applyForce(currentForce);
+                neighbourParticle->applyForce(-currentForce);
+            }
         }
     }
 }
