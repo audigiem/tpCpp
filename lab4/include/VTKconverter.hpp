@@ -32,7 +32,7 @@ public:
     void convertToVTK(const Univers<N>& univers);
     void writeDataPosition(const std::vector<Particle<N>*>& particles);
     void writeDataVelocityMass(const std::vector<Particle<N>*>& particles);
-    void writeCells(const Univers<N>& univers);
+    void writeCells(const Univers<N>& univers, int numberOfCells);
 };
 
 #include "../src/VTKconverter.cpp"

@@ -79,7 +79,7 @@ void VTKconverter<N>::convertToVTK(const Univers<N>& univers) {
     std::vector<Particle<N>*> particles = univers.getParticles();
     writeDataPosition(particles);
     writeDataVelocityMass(particles);
-    writeCells(univers);
+    writeCells(univers, numberOfCells);
 
 
     currentFile << "</Piece>" << std::endl;
@@ -98,10 +98,14 @@ void VTKconverter<N>::writeDataPosition(const std::vector<Particle<N>*>& particl
 
     int nbComponents = N;
     currentFile << "<Points>" << std::endl;
-    currentFile << "<DataArray name='Position' type='Float32' NumberOfComponents='" << nbComponents << "' format='ascii'>" << std::endl;
+    currentFile << "<DataArray name='Position' type='Float32' NumberOfComponents='" << 3 << "' format='ascii'>" << std::endl;
     for (const auto& particle : particles) {
         Vecteur<N> position = particle->getPosition();
-        for (size_t i = 0; i < N; ++i) {
+        for (size_t i = 0; i < 3; ++i) {
+            if (i >= N) {
+                currentFile << 0.0 << " ";
+                continue;
+            }
             currentFile << position.get(i) << " ";
         }
     }
@@ -120,10 +124,14 @@ void VTKconverter<N>::writeDataVelocityMass(const std::vector<Particle<N>*>& par
 
     int nbComponents = N;
     currentFile << "<PointData Vectors='vector'>" << std::endl;
-    currentFile << "<DataArray type='Float32' Name='Velocity' NumberOfComponents='" << nbComponents << "' format='ascii'>" << std::endl;
+    currentFile << "<DataArray type='Float32' Name='Velocity' NumberOfComponents='" << 3 << "' format='ascii'>" << std::endl;
     for (const auto& particle : particles) {
         Vecteur<N> velocity = particle->getVelocity();
-        for (size_t i = 0; i < N; ++i) {
+        for (size_t i = 0; i < 3; ++i) {
+            if (i >= N) {
+                currentFile << 0.0 << " ";
+                continue;
+            }
             currentFile << velocity.get(i) << " ";
         }
     }
@@ -139,7 +147,7 @@ void VTKconverter<N>::writeDataVelocityMass(const std::vector<Particle<N>*>& par
 }
 
 template <std::size_t N>
-void VTKconverter<N>::writeCells(const Univers<N>& univers) {
+void VTKconverter<N>::writeCells(const Univers<N>& univers, int numberOfCells) {
     if (!currentFile.is_open()) {
         std::cerr << "Error: Attempt to write cells to a file that is not open!" << std::endl;
         return;
@@ -180,14 +188,20 @@ void VTKconverter<N>::writeCells(const Univers<N>& univers) {
     for (const auto& id : connectivity) {
         currentFile << id << " ";
     }
+    currentFile << std::endl;
+
     currentFile << "</DataArray>" << std::endl;
     currentFile << "<DataArray type='Int32' Name='offsets' format='ascii'>" << std::endl;
     for (const auto& offset : offsets) {
         currentFile << offset << " ";
     }
+    currentFile << std::endl;
     currentFile << "</DataArray>" << std::endl;
     currentFile << "<DataArray type='UInt8' Name='types' format='ascii'>" << std::endl;
-    currentFile << types << std::endl;
+    for (size_t i = 0; i < numberOfCells; ++i) {
+        currentFile << types << " ";
+    }
+    currentFile << std::endl;
     currentFile << "</DataArray>" << std::endl;
     currentFile << "</Cells>" << std::endl;
 }
