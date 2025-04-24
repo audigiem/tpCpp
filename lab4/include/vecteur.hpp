@@ -97,6 +97,14 @@ public:
         }
         return true;
     }
+
+    friend Vecteur<N> operator-(const Vecteur<N>& v) {
+        Vecteur<N> result;
+        for (std::size_t i = 0; i < N; ++i) {
+            result.data[i] = -v.data[i];
+        }
+        return result;
+    }
 };
 
 #include "../src/vecteur.tpp"
