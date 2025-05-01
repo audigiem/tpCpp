@@ -16,8 +16,7 @@ private:
     double length;
     int numberOfParticles = 0; // number of particles in the cell
 
-    // useful without limit conditions
-    std::array<double, N> gridSize;
+    std::array<int, N> numberOfCells;
 
     std::vector<std::array<int, N>> computeNeighbourCellsIndex() const;
 
@@ -25,7 +24,7 @@ public:
     // constructor by copy
     Cell() = default;
     Cell(const Cell<N>& other);
-    Cell(const std::array<int, N>& cellIndex, std::array<double, N> gridSize, double length);
+    Cell(const std::array<int, N>& cellIndex, const std::array<int, N>& numberOfCells, double length);
 
     // getters
     std::vector<Particle<N>*> getParticles() const;

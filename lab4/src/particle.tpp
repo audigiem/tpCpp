@@ -58,7 +58,7 @@ void Particle<N>::setVelocity(const Vecteur<N>& newVel) {
 
 template <std::size_t N>
 void Particle<N>::applyForce(const Vecteur<N>& newForce) {
-    force = newForce;
+    force += newForce;
 }
 
 template <std::size_t N>
@@ -104,16 +104,16 @@ Vecteur<N> Particle<N>::getAllForces(Particle<N>*& p, float epsilon, float sigma
 
 template <std::size_t N>
 Vecteur<N> Particle<N>::optimizedGetAllForces(Particle<N>* p, float epsilon_times_24, float sigma) const {
-    // Combine all forces
-    Vecteur<N>distance_vect = (p->getPosition() - position);
+    Vecteur<N> distance_vect = (p->getPosition() - position);
     double distance = distance_vect.norm();
     double distance_squared = distance * distance;
-    double tmp = sigma / distance;
-    double pow_6 = tmp * tmp * tmp;
-    pow_6 *= pow_6;
-    double lennard_jones = epsilon_times_24 / (distance_squared) * pow_6 * (1 - 2 * pow_6);
+    // double tmp = sigma / distance;
+    // double pow_6 = tmp * tmp * tmp;
+    // pow_6 *= pow_6;
+    // double lennard_jones = epsilon_times_24 / (distance_squared) * pow_6 * (1 - 2 * pow_6);
     double gravity = mass * p->getMass() / (distance_squared * distance);
-    return (lennard_jones + gravity) * distance_vect;
+    // return (lennard_jones + gravity) * distance_vect;
+    return gravity * distance_vect;
 }
 
 

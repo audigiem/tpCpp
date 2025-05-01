@@ -16,10 +16,10 @@ VTKconverter<N>::VTKconverter(std::string dirName, std::string filesName)
     if (!std::filesystem::exists(fullPath)) {
         std::cerr << "Error: Directory " << fullPath << " was not created!" << std::endl;
     } else {
-        std::cout << "Directory successfully created: " << fullPath << std::endl;
+        // std::cout << "Directory successfully created: " << fullPath << std::endl;
     }
 
-    std::cout << "VTK converter created" << std::endl;
+    // std::cout << "VTK converter created" << std::endl;
 }
 
 template <std::size_t N>
@@ -27,8 +27,8 @@ VTKconverter<N>::~VTKconverter() {
     if (currentFile.is_open()) {
         currentFile.close();
     }
-    std::cout << "VTK converter destroyed" << std::endl;
-    std::cout << "VTK files created in /home/matteo/Bureau/ENSIMAG/2A/S8/cpp/tpCpp/lab4/demo/" << dirName << std::endl;
+    // std::cout << "VTK converter destroyed" << std::endl;
+    // std::cout << "VTK files created in /home/matteo/Bureau/ENSIMAG/2A/S8/cpp/tpCpp/lab4/demo/" << dirName << std::endl;
 }
 
 template <std::size_t N>
@@ -54,7 +54,7 @@ void VTKconverter<N>::createFile() {
     if (!currentFile.is_open()) {
         std::cerr << "Error: Could not create file " << fullPath << std::endl;
     } else {
-        std::cout << "File successfully created: " << fullPath << std::endl;
+        // std::cout << "File successfully created: " << fullPath << std::endl;
     }
 }
 
@@ -65,7 +65,7 @@ void VTKconverter<N>::convertToVTK(const Univers<N>& univers) {
         return;
     }
 
-    std::cout << "Converting universe to VTK..." << std::endl;
+    // // std::cout << "Converting universe to VTK..." << std::endl;
 
     currentFile << "<VTKFile type='UnstructuredGrid' version='0.1' byte_order='LittleEndian'>" << std::endl;
     currentFile << "<UnstructuredGrid>" << std::endl;
@@ -74,7 +74,7 @@ void VTKconverter<N>::convertToVTK(const Univers<N>& univers) {
     for (size_t i = 0; i < N; ++i) {
         numberOfCells += numberOfCellsArray[i];
     }
-    currentFile << "<Piece NumberOfPoints='" << univers.getNbParticles() << "' NumberOfCells='" << numberOfCells << "'>" << std::endl;
+    currentFile << "<Piece NumberOfPoints='" << univers.getNbParticles() << "' NumberOfCells='" << univers.getNbParticles() << "'>" << std::endl;
 
     std::vector<Particle<N>*> particles = univers.getParticles();
     writeDataPosition(particles);
@@ -86,7 +86,7 @@ void VTKconverter<N>::convertToVTK(const Univers<N>& univers) {
     currentFile << "</UnstructuredGrid>" << std::endl;
     currentFile << "</VTKFile>" << std::endl;
 
-    std::cout << "VTK conversion complete." << std::endl;
+    // // std::cout << "VTK conversion complete." << std::endl;
 }
 
 template <std::size_t N>
@@ -153,64 +153,44 @@ void VTKconverter<N>::writeCells(const Univers<N>& univers, int numberOfCells) {
         return;
     }
 
-    std::vector<int> connectivity;
-    std::vector<int> offsets;
-    int types;
-
-    for (const auto& cellPair : univers.getCells()) {
-        const Cell<N>* cell = cellPair.second;
-        const std::vector<Particle<N>*>& particles = cell->getParticles();
-        int cellIndex = 0; // Assuming a single type of cell for simplicity
-
-        for (const auto& particle : particles) {
-            connectivity.push_back(particle->getId());
-        }
-        offsets.push_back(connectivity.size());
-    }
-
-    switch (N) {
-        case 1:
-            types = 3; // VTK_VERTEX
-            break;
-        case 2:
-            types = 9; // VTK_QUAD
-            break;
-        case 3:
-            types = 12; // VTK_TETRA
-            break;
-        default:
-            std::cerr << "Error: Unsupported dimension " << N << std::endl;
-            return;
-    }
+    std::vector<Particle<N>*> particles = univers.getParticles();
+    int nbParticles = particles.size();
 
     currentFile << "<Cells>" << std::endl;
-    currentFile << "<DataArray type='Int32' Name='connectivity' format='ascii'>" << std::endl;
-    for (const auto& id : connectivity) {
-        currentFile << id << " ";
-    }
-    currentFile << std::endl;
 
+    // --- connectivity ---
+    currentFile << "<DataArray type='Int32' Name='connectivity' format='ascii'>" << std::endl;
+    for (int i = 0; i < nbParticles; ++i) {
+        currentFile << i << " "; // Chaque particule est un vertex
+    }
+    currentFile << std::endl;
     currentFile << "</DataArray>" << std::endl;
+
+    // --- offsets ---
     currentFile << "<DataArray type='Int32' Name='offsets' format='ascii'>" << std::endl;
-    for (const auto& offset : offsets) {
-        currentFile << offset << " ";
+    for (int i = 1; i <= nbParticles; ++i) {
+        currentFile << i << " "; // offset = 1, 2, 3, ...
     }
     currentFile << std::endl;
     currentFile << "</DataArray>" << std::endl;
+
+    // --- types ---
     currentFile << "<DataArray type='UInt8' Name='types' format='ascii'>" << std::endl;
-    for (size_t i = 0; i < numberOfCells; ++i) {
-        currentFile << types << " ";
+    for (int i = 0; i < nbParticles; ++i) {
+        currentFile << "1 "; // 1 = VTK_VERTEX
     }
     currentFile << std::endl;
     currentFile << "</DataArray>" << std::endl;
+
     currentFile << "</Cells>" << std::endl;
 }
+
 
 template <std::size_t N>
 void VTKconverter<N>::closeFile() {
     if (currentFile.is_open()) {
         currentFile.close();
-        std::cout << "File closed successfully." << std::endl;
+        // std::cout << "File closed successfully." << std::endl;
     } else {
         std::cerr << "Warning: Attempted to close a file that was not open." << std::endl;
     }

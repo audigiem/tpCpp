@@ -1,5 +1,6 @@
 #include "../include/univers.hpp"
 #include <functional>
+#include <cmath>
 
 template <std::size_t N>
 Univers<N>::Univers(std::array<double, N> caracteristicLength, double cutOffRadius)
@@ -74,7 +75,7 @@ template <std::size_t N>
 void Univers<N>::createCells() {
     std::vector<std::array<int, N>> allCellsIndex = generateAllGridCoordinates(numberOfCells);
     for (const auto& index : allCellsIndex) {
-        auto* cell = new Cell<N>(index, caracteristicLength, cutOffRadius);
+        auto* cell = new Cell<N>(index, numberOfCells, cutOffRadius);
         cells[index] = cell;
     }
 }
@@ -164,6 +165,8 @@ void Univers<N>::updateParticlePositionInCell(Particle<N>* particle, const Vecte
     for (std::size_t i = 0; i < N; ++i) {
         newCellIndex[i] = static_cast<int>(std::floor(newPosition.get(i) / cutOffRadius));
     }
+
+
     if (oldCellIndex != newCellIndex) {
         // remove the particle from the old cell
         auto oldCell = getCell(oldCellIndex);
@@ -176,17 +179,23 @@ void Univers<N>::updateParticlePositionInCell(Particle<N>* particle, const Vecte
             newCell->addParticle(particle);
         }
         else {
-            // std::cout << "No limit conditions, so the particle is out of the universe" << std::endl;
+            std::cout << "Old position: " << particle->getPosition() << std::endl;
+            std::cout << "New position: " << newPosition << std::endl;
+            std::cout << "Old cell index: " << oldCellIndex[0] << ", " << oldCellIndex[1] << std::endl;
+            std::cout << "New cell index: " << newCellIndex[0] << ", " << newCellIndex[1] << std::endl;
+            // throw error, not suppose to happen with reflective limit conditions
+            throw std::runtime_error("Cell not found, this should not happen with reflective limit conditions");
+
             // we remove the particle from the universe
-            auto it = std::remove(particles.begin(), particles.end(), particle);
-            if (it != particles.end()) {
-                particles.erase(it, particles.end());
-                --nbParticles;
-            }
-            // we remove the particle from the cells
-            for (const auto& cell : cells) {
-                cell.second->removeParticle(particle);
-            }
+            // auto it = std::remove(particles.begin(), particles.end(), particle);
+            // if (it != particles.end()) {
+            //     particles.erase(it, particles.end());
+            //     --nbParticles;
+            // }
+            // // we remove the particle from the cells
+            // for (const auto& cell : cells) {
+            //     cell.second->removeParticle(particle);
+            // }
         }
     }
 }
@@ -295,8 +304,10 @@ void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
     epsilon *= 24;
     for(const auto& particle : particles) {
         particle->saveForce(particle->getForce());
-        // 
-        for(const auto& neighbourParticle : getParticlesInNeighbourhood(particle)) {
+        particle->resetForce();
+        //
+        std::vector<Particle<N>*> neighbourParticles = getParticlesInNeighbourhood(particle);
+        for(const auto& neighbourParticle : neighbourParticles) {
             if (particle->getId() < neighbourParticle->getId()) {
                 currentForce = particle->optimizedGetAllForces(neighbourParticle, epsilon, sigma);
                 particle->applyForce(currentForce);
@@ -304,6 +315,42 @@ void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
             }
         }
     }
+}
+
+template <std::size_t N>
+Vecteur<N> Univers<N>::applyReflectiveLimitConditions(Particle<N>* particle, const Vecteur<N>& newPosition) {
+    Vecteur<N> precPosition = particle->getPosition();
+    Vecteur<N> velocity = particle->getVelocity();
+    Vecteur<N> reflectedPosition = newPosition;
+    for (std::size_t i = 0; i < N; ++i) {
+        if (newPosition.get(i) < 0 || newPosition.get(i) > caracteristicLength[i]) {
+            // reflected value is the distance to the wall
+            double reflectedValue = newPosition.get(i) < 0 ? std::fmod(-newPosition.get(i),caracteristicLength[i]) : caracteristicLength[i] - std::fmod(newPosition.get(i) - caracteristicLength[i], caracteristicLength[i]);
+            reflectedPosition.set(i, reflectedValue);
+            velocity.set(i, -velocity.get(i)/2);
+            particle->setVelocity(velocity);
+            // std::cout << "Particle " << particle->getId() << " hit the wall in dimension " << i << std::endl;
+            // std::cout << "Old position: " << precPosition << std::endl;
+            // std::cout << "New position: " << newPosition << std::endl;
+            // std::cout << "Reflected position: " << reflectedPosition << std::endl;
+        }
+    }
+
+    return reflectedPosition;
+}
+
+template <std::size_t N>
+Vecteur<N> Univers<N>::applyPeriodicLimitConditions(const Vecteur<N>& newPosition) {
+    Vecteur<N> periodicPosition = newPosition;
+    for (std::size_t i = 0; i < N; ++i) {
+        if (newPosition.get(i) < 0) {
+            periodicPosition.set(i, caracteristicLength[i] + newPosition.get(i));
+        }
+        else if (newPosition.get(i) > caracteristicLength[i]) {
+            periodicPosition.set(i, newPosition.get(i) - caracteristicLength[i]);
+        }
+    }
+    return periodicPosition;
 }
 
 template <std::size_t N>
@@ -316,13 +363,18 @@ void Univers<N>::update(double dt, float epsilon, float sigma) {
         // update the position of the particle
         Vecteur<N> newPosition = p->getPosition() + p->getVelocity() * dt + (p->getForce() / p->getMass()) * (dt * dt) / 2;
         // update the cells configuration (of the original cells)
-        updateParticlePositionInCell(p, newPosition);
+        newPosition = applyReflectiveLimitConditions(p, newPosition);
+        try {
+            updateParticlePositionInCell(p, newPosition);
+        } catch (const std::runtime_error& e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+            // stop the simulation or handle the error, return exit(1);
+            exit(1);
+        }
         p->setPosition(newPosition);
         // p->showParticle();
         // std::cout << "is supposed to move to " << newPosition << std::endl;
-        // showUnivers();
-
-
+        // showUnivers()
     }
     computeAllForcesOnParticle(epsilon, sigma);
 
@@ -331,13 +383,28 @@ void Univers<N>::update(double dt, float epsilon, float sigma) {
         Vecteur<N> newVelocity = p->getVelocity() + dt * 0.5/p->getMass() * (p->getForce() + p->getOldForce());
         p->setVelocity(newVelocity);
     }
+    }
 
-
-
-    // std::cout << "End of update: " << std::endl;
-    // showUnivers();
-
-
-
+template <std::size_t N>
+void Univers<N>::showAllNeighbourhoods() const {
+    for (const auto& particle : particles) {
+        // get the corresponding cell
+        std::cout << "==========================================" << std::endl;
+        std::array<int, N> cellIndex = particle->getCellIndexofParticle(cutOffRadius);
+        std::cout << "Particle " << particle->getId() << " in cell " << cellIndex[0] << ", " << cellIndex[1] << std::endl;
+        Cell<N>* cell = getCell(cellIndex);
+        if (cell) {
+            // get the particles in the neighbourhood
+            std::vector<Particle<N>*> neighbourParticles = getParticlesInNeighbourhood(particle);
+            std::cout << "Neighbourhood of particle " << particle->getId() << ":" << std::endl;
+            for (const auto& neighbourParticle : neighbourParticles) {
+                std::cout << "Particle " << neighbourParticle->getId() << " in cell " << neighbourParticle->getCellIndexofParticle(cutOffRadius)[0] << ", " << neighbourParticle->getCellIndexofParticle(cutOffRadius)[1] << std::endl;
+            }
+        }
+        else {
+            std::cout << "Cell not found" << std::endl;
+        }
+        std::cout << "==========================================" << std::endl;
+    }
 }
 

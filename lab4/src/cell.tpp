@@ -11,11 +11,10 @@ Cell<N>::Cell(const Cell<N>& other) {
 }
 
 template <std::size_t N>
-Cell<N>::Cell(const std::array<int, N>& cellIndex, std::array<double, N> gridSize, double length) {
+Cell<N>::Cell(const std::array<int, N>& cellIndex, const std::array<int, N>& numberOfCells, double length)
+    : cellIndex(cellIndex), length(length), numberOfCells(numberOfCells)  // ← important
+{
     neighbourCellsIndex = computeNeighbourCellsIndex();
-    this->cellIndex = cellIndex;
-    this->length = length;
-    this->gridSize = gridSize;
 }
 
 
@@ -94,20 +93,14 @@ std::array<int, N> Cell<N>::getCellIndex() const {
 template <std::size_t N>
 std::vector<std::array<int, N>> Cell<N>::computeNeighbourCellsIndex() const {
     std::vector<std::array<int, N>> neighbours;
-    std::array<int, N> offset{};
 
-    std::function<void(std::size_t)> recurse = [&](std::size_t dim) {
+    std::function<void(std::size_t, std::array<int, N>)> recurse = [&](std::size_t dim, std::array<int, N> offset) {
         if (dim == N) {
             std::array<int, N> neighbourIndex;
             for (std::size_t i = 0; i < N; ++i) {
                 neighbourIndex[i] = cellIndex[i] + offset[i];
-
-                // Convertir en coordonnée physique (coin bas-gauche de la cellule voisine)
-                double physicalPos = neighbourIndex[i] * length;
-
-                // Vérification des bornes physiques du domaine [0, L_i]
-                if (physicalPos < 0.0 || physicalPos >= gridSize[i]) {
-                    return; // hors du domaine, on ignore cette cellule
+                if (neighbourIndex[i] < 0 || neighbourIndex[i] >= numberOfCells[i]) {
+                    return; // hors de la grille
                 }
             }
             neighbours.push_back(neighbourIndex);
@@ -116,13 +109,17 @@ std::vector<std::array<int, N>> Cell<N>::computeNeighbourCellsIndex() const {
 
         for (int d = -1; d <= 1; ++d) {
             offset[dim] = d;
-            recurse(dim + 1);
+            recurse(dim + 1, offset);  // offset est une copie
         }
     };
 
-    recurse(0);
+    std::array<int, N> offset{};
+    recurse(0, offset);
     return neighbours;
 }
+
+
+
 
 
 

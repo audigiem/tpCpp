@@ -52,7 +52,13 @@ public:
     void updateParticlePositionInCell(Particle<N>* particle, const Vecteur<N>& newPosition);
     void fillUnivers(int nbParticles);
     void showUnivers() const;
+    void showAllNeighbourhoods() const;
 
+
+    // Methods for different limit conditions
+    Vecteur<N> applyReflectiveLimitConditions(Particle<N>* particle, const Vecteur<N>& newPosition);
+    Vecteur<N> applyPeriodicLimitConditions(const Vecteur<N>& newPosition);
+    Vecteur<N> applyAbsorbingLimitConditions(const Vecteur<N>& newPosition);
 
     std::vector<Particle<N>*> getParticlesInNeighbourhood(Particle<N>* particle) const;
     void computeAllForcesOnParticle(float epsilon, float sigma);
