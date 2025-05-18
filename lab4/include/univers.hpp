@@ -55,6 +55,7 @@ public:
     void fillUnivers(int nbParticles);
     void showUnivers() const;
     void showAllNeighbourhoods() const;
+    void showNeighbourhoodsOfParticle(int idOfParticle) const;
 
 
     // Methods for different limit conditions

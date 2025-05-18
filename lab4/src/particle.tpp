@@ -141,6 +141,7 @@ std::array<int, N> Particle<N>::getCellIndexofParticle(double cellLength) const 
 }
 
 
+
 template <std::size_t N>
 bool Particle<N>::operator==(const Particle<N>& other) const {
     return id == other.id && position == other.position && velocity == other.velocity && mass == other.mass;

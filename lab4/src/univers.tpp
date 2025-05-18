@@ -291,14 +291,6 @@ std::vector<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>* p
     if (cell) {
         numberOfParticles = cell->getNumberOfParticles();
         std::vector<std::array<int, N>> neighbourCellsIndex = cell->getNeighbourCellsIndex();
-        for (const auto& index : neighbourCellsIndex) {
-            auto neighbourCell = getCell(index);
-            if (neighbourCell) {
-                numberOfParticles += neighbourCell->getNumberOfParticles();
-            }
-        }
-
-        neighbourParticles.reserve(numberOfParticles);
 
         // On ajoute les particules de la même cellule
         for (const auto& p : cell->getParticles()) {
@@ -308,8 +300,11 @@ std::vector<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>* p
         }
 
         // On ajoute les particules des cellules voisines
-        
         for (const auto& index : neighbourCellsIndex) {
+            if (index == cellIndex) {
+                continue; // Skip the current cell
+            }
+
             auto neighbourCell = getCell(index);
             if (neighbourCell) {
                 for (const auto& p : neighbourCell->getParticles()) {
@@ -477,5 +472,26 @@ void Univers<N>::showAllNeighbourhoods() const {
         }
         std::cout << "==========================================" << std::endl;
     }
+}
+
+template<std::size_t N>
+void Univers<N>::showNeighbourhoodsOfParticle(int idOfParticle) const {
+    Particle<N>* p = particles[idOfParticle];
+    std::cout << "==========================================" << std::endl;
+    std::array<int, N> cellIndex = p->getCellIndexofParticle(cutOffRadius);
+    std::cout << "Particle " << p->getId() << " in cell " << cellIndex[0] << ", " << cellIndex[1] << std::endl;
+    Cell<N>* cell = getCell(cellIndex);
+    if (cell) {
+        // get the particles in the neighbourhood
+        std::vector<Particle<N>*> neighbourParticles = getParticlesInNeighbourhood(p);
+        std::cout << "Neighbourhood of particle " << p->getId() << ":" << std::endl;
+        for (const auto& neighbourParticle : neighbourParticles) {
+            std::cout << "Particle " << neighbourParticle->getId() << " in cell " << neighbourParticle->getCellIndexofParticle(cutOffRadius)[0] << ", " << neighbourParticle->getCellIndexofParticle(cutOffRadius)[1] << std::endl;
+        }
+    }
+    else {
+        std::cout << "Cell not found" << std::endl;
+    }
+
 }
 
