@@ -24,11 +24,11 @@ int main() {
         // !!! direction of the speed, see subject !!!!
         Vecteur<2> v({0.0, -10.0});
         Vecteur<2> v2({0.0, 0.0});
-        int N1 = 40;
-        int N2 = 160;
+        int N1 = 4;
+        int N2 = 16;
         double cutOffRadius = 2.5 * sigma;
-        double dt = 0.00005;
-        double tEnd = 0.0195;
+        double dt = 0.0005;
+        double tEnd = 19.5;
 
         // To prevent memory leaks i didnt succeed to delete the particles
         // with the destructor of the univers
