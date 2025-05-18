@@ -22,17 +22,51 @@ Univers<N>::Univers(std::array<double, N> caracteristicLength, double cutOffRadi
 }
 
 template <std::size_t N>
+Univers<N>::Univers(const Univers& other)
+    : caracteristicLength(other.caracteristicLength), cutOffRadius(other.cutOffRadius),
+      numberOfCells(other.numberOfCells), nbParticles(other.nbParticles) {
+    // Copy the cells
+    for (const auto& cell : other.cells) {
+        cells[cell.first] = new Cell<N>(*cell.second);
+    }
+}
+
+template <std::size_t N>
 Univers<N>::~Univers() {
-    // // Libérer la mémoire des particules
-    // for (auto& particle : particles) {
-    //     delete particle;
-    // }
-    // // Libérer la mémoire des cellules
-    // for (auto& cell : cells) {
-    //     delete cell.second;
-    // }
-    // cells.clear();
-    // particles.clear();
+    for (const auto& cell : cells) {
+        delete cell.second;
+    }
+    for (const auto& particle : particles) {
+        delete particle;
+    }
+    particles.clear();
+    cells.clear();
+}
+
+template <std::size_t N>
+Univers<N>& Univers<N>::operator=(const Univers& other) {
+    if (this != &other) {
+        caracteristicLength = other.caracteristicLength;
+        cutOffRadius = other.cutOffRadius;
+        numberOfCells = other.numberOfCells;
+        nbParticles = other.nbParticles;
+
+        // Clear the existing cells and particles
+        for (const auto& cell : cells) {
+            delete cell.second;
+        }
+        cells.clear();
+        for (const auto& particle : particles) {
+            delete particle;
+        }
+        particles.clear();
+
+        // Copy the cells
+        for (const auto& cell : other.cells) {
+            cells[cell.first] = new Cell<N>(*cell.second);
+        }
+    }
+    return *this;
 }
 
 
@@ -143,6 +177,9 @@ void Univers<N>::addParticle(Particle<N>*& particle) {
     std::array<int, N> cellIndex;
     cellIndex = particle->getCellIndexofParticle(cutOffRadius);
     auto cell = getCell(cellIndex);
+    if (!cell) {
+        throw std::invalid_argument("trying to add a particle in a cell that doesn't exist, incorrect position !");
+    }
     cell->addParticle(particle);
     // add the particle to the list of particles
     particles.push_back(particle);
@@ -183,6 +220,7 @@ void Univers<N>::updateParticlePositionInCell(Particle<N>* particle, const Vecte
             std::cout << "New position: " << newPosition << std::endl;
             std::cout << "Old cell index: " << oldCellIndex[0] << ", " << oldCellIndex[1] << std::endl;
             std::cout << "New cell index: " << newCellIndex[0] << ", " << newCellIndex[1] << std::endl;
+            std::cout << "Number of cells: " << numberOfCells[0] << ", " << numberOfCells[1] << std::endl;
             // throw error, not suppose to happen with reflective limit conditions
             throw std::runtime_error("Cell not found, this should not happen with reflective limit conditions");
 
@@ -317,27 +355,60 @@ void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
     }
 }
 
+/**
+ * @brief Applies reflective boundary conditions to a particle's position.
+ *
+ * This function ensures that the particle remains strictly within the domain boundaries.
+ * If a new position lies outside or too close to the boundary (within a small epsilon),
+ * it is reflected and clamped inside the domain, and the corresponding velocity component
+ * is reversed and reduced.
+ *
+ * @tparam N The number of spatial dimensions.
+ * @param particle Pointer to the particle to which the boundary conditions are applied.
+ * @param newPosition The new position of the particle before applying the boundary conditions.
+ * @return A corrected position that is strictly inside the domain, not lying on the boundaries.
+ */
 template <std::size_t N>
 Vecteur<N> Univers<N>::applyReflectiveLimitConditions(Particle<N>* particle, const Vecteur<N>& newPosition) {
-    Vecteur<N> precPosition = particle->getPosition();
+    constexpr double epsilon = 1e-10;  // Tolerance for floating point comparisons
+    double margin = cutOffRadius / 10; // Small margin to avoid sticking to boundaries
+
     Vecteur<N> velocity = particle->getVelocity();
     Vecteur<N> reflectedPosition = newPosition;
+
     for (std::size_t i = 0; i < N; ++i) {
-        if (newPosition.get(i) < 0 || newPosition.get(i) > caracteristicLength[i]) {
-            // reflected value is the distance to the wall
-            double reflectedValue = newPosition.get(i) < 0 ? std::fmod(-newPosition.get(i),caracteristicLength[i]) : caracteristicLength[i] - std::fmod(newPosition.get(i) - caracteristicLength[i], caracteristicLength[i]);
+        double pos = newPosition.get(i);
+        double L = caracteristicLength[i];
+
+        if (pos <= 0.0 + epsilon) {
+            // Near or at the lower/left boundary
+            reflectedPosition.set(i, margin);
+            velocity.set(i, -velocity.get(i) / 2);
+        }
+        else if (pos >= L - epsilon) {
+            // Near or at the upper/right boundary
+            reflectedPosition.set(i, L - margin);
+            velocity.set(i, -velocity.get(i) / 2);
+        }
+        else if (pos < 0 || pos > L) {
+            // Position is out of bounds, apply reflection
+            double reflectedValue = pos < 0
+                ? std::fmod(-pos, L)
+                : L - std::fmod(pos - L, L);
+
+            // Clamp reflected value to stay strictly inside the domain
+            if (reflectedValue <= epsilon) reflectedValue = margin;
+            else if (reflectedValue >= L - epsilon) reflectedValue = L - margin;
+
             reflectedPosition.set(i, reflectedValue);
-            velocity.set(i, -velocity.get(i)/2);
-            particle->setVelocity(velocity);
-            // std::cout << "Particle " << particle->getId() << " hit the wall in dimension " << i << std::endl;
-            // std::cout << "Old position: " << precPosition << std::endl;
-            // std::cout << "New position: " << newPosition << std::endl;
-            // std::cout << "Reflected position: " << reflectedPosition << std::endl;
+            velocity.set(i, -velocity.get(i) / 2);
         }
     }
 
+    particle->setVelocity(velocity);
     return reflectedPosition;
 }
+
 
 template <std::size_t N>
 Vecteur<N> Univers<N>::applyPeriodicLimitConditions(const Vecteur<N>& newPosition) {

@@ -60,6 +60,8 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 ## On commence par créer une bibliothèque
 add_subdirectory(src)
 
+add_subdirectory(demo)
+
 ## On créée les tests pour la bibliothèque.
 ## Ces tests sont unitaires ou fonctionnels
 add_subdirectory(test)

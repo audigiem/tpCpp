@@ -21,10 +21,12 @@ private:
     std::vector<std::array<int, N>> computeNeighbourCellsIndex() const;
 
 public:
-    // constructor by copy
+
     Cell() = default;
-    Cell(const Cell<N>& other);
+    Cell(const Cell<N>& other);     // constructor by copy --> 3c rule
     Cell(const std::array<int, N>& cellIndex, const std::array<int, N>& numberOfCells, double length);
+    ~Cell();
+    Cell<N>& operator=(const Cell<N>& other);
 
     // getters
     std::vector<Particle<N>*> getParticles() const;

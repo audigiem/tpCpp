@@ -15,6 +15,7 @@ public:
     Vecteur(const std::array<double, N>& values);
     Vecteur(const Vecteur& other);
     ~Vecteur();
+    Vecteur& operator=(const Vecteur& other);
 
     inline double get(std::size_t index) const {
         return data[index];

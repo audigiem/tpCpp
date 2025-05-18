@@ -10,6 +10,29 @@ Cell<N>::Cell(const Cell<N>& other) {
     this->cellIndex = other.cellIndex;
 }
 
+template<std::size_t N>
+Cell<N>::~Cell() {
+    // implements destructor
+    particles.clear();
+    neighbourCellsIndex.clear();
+}
+
+template <std::size_t N>
+Cell<N>& Cell<N>::operator=(const Cell<N>& other) {
+    if (this != &other) { // self-assignment check
+        this->particles = other.particles;
+        this->neighbourCellsIndex = other.neighbourCellsIndex;
+        this->cellIndex = other.cellIndex;
+        this->length = other.length;
+        this->numberOfParticles = other.numberOfParticles;
+        this->numberOfCells = other.numberOfCells;
+    }
+    return *this;
+}
+
+
+
+
 template <std::size_t N>
 Cell<N>::Cell(const std::array<int, N>& cellIndex, const std::array<int, N>& numberOfCells, double length)
     : cellIndex(cellIndex), length(length), numberOfCells(numberOfCells)  // ← important

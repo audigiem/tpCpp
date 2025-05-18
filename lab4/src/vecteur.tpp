@@ -23,6 +23,14 @@ template <std::size_t N>
 Vecteur<N>::~Vecteur() {}
 
 template <std::size_t N>
+Vecteur<N>& Vecteur<N>::operator=(const Vecteur& other) {
+    if (this != &other) {
+        data = other.data;
+    }
+    return *this;
+}
+
+template <std::size_t N>
 double Vecteur<N>::norm() const {
     double sum = 0.0;
     for (double value : data) {

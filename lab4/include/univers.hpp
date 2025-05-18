@@ -32,7 +32,9 @@ private:
 
 public:
     Univers(std::array<double, N> caracteristicLength, double cutOffRadius);
+    Univers(const Univers&);
     ~Univers();
+    Univers& operator=(const Univers&);
 
     // Getters and setters
     [[nodiscard]] std::array<double, N> getCaracteristicLength() const;

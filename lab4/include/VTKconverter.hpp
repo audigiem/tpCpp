@@ -23,7 +23,9 @@ public:
     std::string dirName;
     int nbFiles;
     VTKconverter(std::string dirName, std::string filesName);
+    VTKconverter(const VTKconverter& other);
     ~VTKconverter();
+    VTKconverter& operator=(const VTKconverter& other);
 
 
     void createFile();

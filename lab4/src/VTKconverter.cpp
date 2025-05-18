@@ -23,12 +23,29 @@ VTKconverter<N>::VTKconverter(std::string dirName, std::string filesName)
 }
 
 template <std::size_t N>
+VTKconverter<N>::VTKconverter(const VTKconverter& other)
+    : fileName(other.fileName), dirName(other.dirName), nbFiles(other.nbFiles) {
+    // std::cout << "VTK converter copied" << std::endl;
+}
+
+
+template <std::size_t N>
 VTKconverter<N>::~VTKconverter() {
     if (currentFile.is_open()) {
         currentFile.close();
     }
     // std::cout << "VTK converter destroyed" << std::endl;
     // std::cout << "VTK files created in /home/matteo/Bureau/ENSIMAG/2A/S8/cpp/tpCpp/lab4/demo/" << dirName << std::endl;
+}
+
+template <std::size_t N>
+VTKconverter<N>& VTKconverter<N>::operator=(const VTKconverter& other) {
+    if (this != &other) {
+        fileName = other.fileName;
+        dirName = other.dirName;
+        nbFiles = other.nbFiles;
+    }
+    return *this;
 }
 
 template <std::size_t N>
