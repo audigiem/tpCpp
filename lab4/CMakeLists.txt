@@ -79,3 +79,23 @@ FetchContent_MakeAvailable(googletest)
 
 ## Enable testing
 enable_testing()
+
+# Add custom demo targets
+add_custom_target(demo_collision
+    COMMAND simulationCollision
+    DEPENDS simulationCollision
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Running collision simulation demo"
+)
+
+add_custom_target(demo_gravity
+    COMMAND simulationGravity
+    DEPENDS simulationGravity
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Running gravity simulation demo"
+)
+
+# Default demo target
+add_custom_target(demo
+    COMMAND ${CMAKE_COMMAND} -E echo "Please specify which demo to run: 'make demo_collision' or 'make demo_gravity'"
+)
