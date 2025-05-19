@@ -14,6 +14,7 @@ void runSimulation(int numParticles, VTKconverter<3>& vtkConverter) {
     double cutOffRadius = 0.1;
     Univers<3> univers(caracteristicLength, cutOffRadius);
 
+    std::cout << "Strating to fill the universe with " << numParticles << " particles..." << std::endl;
     int id = 0;
     int numParticlesPerDimension = std::cbrt(numParticles);
     for (int i = 0; i < numParticlesPerDimension; ++i) {
@@ -28,6 +29,8 @@ void runSimulation(int numParticles, VTKconverter<3>& vtkConverter) {
             }
         }
     }
+
+    std::cout << "Starting simulation with " << numParticles << " particles..." << std::endl;
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
