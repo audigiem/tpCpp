@@ -88,14 +88,14 @@ add_custom_target(demo_collision
     COMMENT "Running collision simulation demo"
 )
 
-add_custom_target(demo_gravity
-    COMMAND simulationGravity
-    DEPENDS simulationGravity
+add_custom_target(demo_planet
+    COMMAND simulationPlanet
+    DEPENDS simulationPlanet
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Running gravity simulation demo"
+    COMMENT "Running palnet simulation demo"
 )
 
 # Default demo target
 add_custom_target(demo
-    COMMAND ${CMAKE_COMMAND} -E echo "Please specify which demo to run: 'make demo_collision' or 'make demo_gravity'"
+    COMMAND ${CMAKE_COMMAND} -E echo "Please specify which demo to run: 'make demo_collision' or 'make demo_planet'"
 )
