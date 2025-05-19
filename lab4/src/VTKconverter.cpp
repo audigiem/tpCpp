@@ -50,7 +50,7 @@ VTKconverter<N>& VTKconverter<N>::operator=(const VTKconverter& other) {
 
 template <std::size_t N>
 void VTKconverter<N>::createFile() {
-    std::string fullDirPath = "/home/matteo/Bureau/ENSIMAG/2A/S8/cpp/tpCpp/lab4/demo/" + dirName;
+    std::string fullDirPath = "../demo/" + dirName;
 
     // Vérifie et crée le répertoire si nécessaire
     if (!std::filesystem::exists(fullDirPath)) {
@@ -113,7 +113,6 @@ void VTKconverter<N>::writeDataPosition(const std::vector<Particle<N>*>& particl
         return;
     }
 
-    int nbComponents = N;
     currentFile << "<Points>" << std::endl;
     currentFile << "<DataArray name='Position' type='Float32' NumberOfComponents='" << 3 << "' format='ascii'>" << std::endl;
     for (const auto& particle : particles) {
@@ -139,7 +138,6 @@ void VTKconverter<N>::writeDataVelocityMass(const std::vector<Particle<N>*>& par
         return;
     }
 
-    int nbComponents = N;
     currentFile << "<PointData Vectors='vector'>" << std::endl;
     currentFile << "<DataArray type='Float32' Name='Velocity' NumberOfComponents='" << 3 << "' format='ascii'>" << std::endl;
     for (const auto& particle : particles) {
