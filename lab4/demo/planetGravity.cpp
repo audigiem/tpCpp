@@ -60,19 +60,5 @@ int main() {
     int nbTimeSteps = static_cast<int>(tEnd / dt);
     std::cout << "Number of time steps: " << nbTimeSteps << std::endl;
 
-    for (auto& particle : particles) {
-        delete particle;
-    }
-    particles.clear();
-    for (auto& cell : univers.getCells()) {
-        delete cell.second;
-    }
-
-
-
-
     return 0;
-
-
-
 }
