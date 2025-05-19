@@ -14,7 +14,7 @@ set(CMAKE_CXX_FLAGS "-Wall")
 # Set optimization flags for Release builds
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
-# Advanced optimization flags
+# Advanced optimization flags (trr disabeling them if you are encountering issues)
 set(OPTIMIZATION_FLAGS
     "-O3"                     # Highest standard optimization
     "-march=native"           # Optimize for local machine architecture
@@ -99,3 +99,45 @@ add_custom_target(demo_planet
 add_custom_target(demo
     COMMAND ${CMAKE_COMMAND} -E echo "Please specify which demo to run: 'make demo_collision' or 'make demo_planet'"
 )
+
+# Add Doxygen documentation support
+find_package(Doxygen)
+
+if(DOXYGEN_FOUND)
+    # Set Doxygen configuration variables
+    set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc)
+    set(DOXYGEN_PROJECT_NAME ${PROJECT_NAME})
+    set(DOXYGEN_PROJECT_BRIEF "N-dimensional particle simulation")
+    set(DOXYGEN_EXTRACT_ALL YES)
+    set(DOXYGEN_EXTRACT_PRIVATE YES)
+    set(DOXYGEN_EXTRACT_STATIC YES)
+    set(DOXYGEN_RECURSIVE YES)
+    set(DOXYGEN_GENERATE_HTML YES)
+    set(DOXYGEN_GENERATE_LATEX NO)
+    set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
+    
+    # Generate Doxyfile
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+        ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+        @ONLY
+    )
+    
+    # Add doc target
+    add_custom_target(doc
+        COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM
+    )
+    
+    message(STATUS "Doxygen found. 'make doc' target available.")
+else()
+    message(STATUS "Doxygen not found. Documentation will not be generated.")
+    
+    # Add a dummy target that prints an error message
+    add_custom_target(doc
+        COMMAND ${CMAKE_COMMAND} -E echo "Doxygen not found! Please install Doxygen to generate documentation."
+        VERBATIM
+    )
+endif()
