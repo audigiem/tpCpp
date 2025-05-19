@@ -24,11 +24,13 @@ int main() {
         // !!! direction of the speed, see subject !!!!
         Vecteur<2> v({0.0, -10.0});
         Vecteur<2> v2({0.0, 0.0});
-        int N1 = 4;
-        int N2 = 16;
+        int N1 = 40;
+        int N2 = 160;
         double cutOffRadius = 2.5 * sigma;
-        double dt = 0.0005;
+        double dt = 0.00005;
         double tEnd = 19.5;
+
+        int freqGenerateVTKFile = 100;
 
         // To prevent memory leaks i didnt succeed to delete the particles
         // with the destructor of the univers
@@ -88,11 +90,16 @@ int main() {
         vtkConverter.convertToVTK(univers);
         vtkConverter.closeFile();
         // run the simulation
+        int step = 0;
         for (double t = 0; t < tEnd; t += dt) {
             univers.update(dt, epsilon, sigma);
-            vtkConverter.createFile();
-            vtkConverter.convertToVTK(univers);
-            vtkConverter.closeFile();
+            // generate VTK file each freqGenerateVTKFile time step
+            if (step % freqGenerateVTKFile == 0) {
+                vtkConverter.createFile();
+                vtkConverter.convertToVTK(univers);
+                vtkConverter.closeFile();
+            }
+            step ++;
         }
 
         auto endSim = std::chrono::high_resolution_clock::now();
@@ -100,13 +107,6 @@ int main() {
         int nbTimeSteps = static_cast<int>(tEnd / dt);
         std::cout << "Simulation with " << N1 * N1 + N1 * N2 << " and " << nbTimeSteps << " time steps particles took " << durationSim.count() << " seconds." << std::endl;
 
-        // for (Particle<2>* particle : particles) {
-        //     delete particle;
-        // }
-        // particles.clear();
-        // for (auto& cell : univers.getCells()) {
-        //     delete cell.second;
-        // }
 
     }
 

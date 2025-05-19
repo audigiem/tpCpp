@@ -44,7 +44,7 @@ int main() {
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = end - start;
         std::cout << "Time taken to add " << N*N*N << " particles: " << elapsed.count() << " seconds" << std::endl;
-        
+
     }
 
     return 0;
