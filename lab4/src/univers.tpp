@@ -285,11 +285,9 @@ std::vector<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>* p
 
     // Si l'indice est valide, on récupère la cellule
     auto cell = getCell(cellIndex);
-    int numberOfParticles;
 
     // Si la cellule est valide (non nullptr)
     if (cell) {
-        numberOfParticles = cell->getNumberOfParticles();
         std::vector<std::array<int, N>> neighbourCellsIndex = cell->getNeighbourCellsIndex();
 
         // On ajoute les particules de la même cellule
@@ -449,7 +447,7 @@ void Univers<N>::update(double dt, float epsilon, float sigma) {
         Vecteur<N> newVelocity = p->getVelocity() + dt * 0.5/p->getMass() * (p->getForce() + p->getOldForce());
         p->setVelocity(newVelocity);
     }
-    }
+}
 
 template <std::size_t N>
 void Univers<N>::showAllNeighbourhoods() const {
