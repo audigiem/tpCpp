@@ -1,0 +1,387 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[french]{babel}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\title{Simulation de Particules en N Dimensions}
+\author{Mattéo Audigier \and Mattéo Gautier}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Ce rapport présente une implémentation C++ d'un système de simulation de particules en N dimensions. Le projet utilise des techniques avancées de programmation C++ et d'optimisation pour simuler efficacement les interactions entre particules dans des espaces multidimensionnels. L'application permet de modéliser des phénomènes physiques tels que les forces de Lennard-Jones et la gravitation, tout en utilisant le partitionnement spatial pour optimiser les calculs.
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+Dans le contexte du développement logiciel, il est important de se munir de bibliothèques capables de gérer efficacement des simulations de particules, tout en restant rapides, modulaires et simples d'utilisation. Ce projet propose une architecture générique en C++ permettant de simuler des systèmes de particules dans un espace à N dimensions, où N est un paramètre de template. L'objectif est de fournir une base flexible et performante, facilement adaptable à divers cas d'usage, et intégrable dans d'autres projets nécessitant des calculs de dynamique de particules.
+
+\subsection{Objectifs du projet}
+
+Les objectifs principaux de ce projet sont:
+\begin{itemize}
+    \item Concevoir une architecture C++ modulaire et extensible pour la simulation de particules
+    \item Disposer d'un projet complet (documentation, tests unitaires, simple à installer), prêt à être repris et étendu par d'autres développeurs
+    \item Implémenter un modèle physique incluant forces de Lennard-Jones et gravitation
+    \item Optimiser les calculs grâce au partitionnement spatial
+    \item Fournir des outils de visualisation via export au format VTK
+\end{itemize}
+
+\section{Installation et utilisation}
+
+\subsection{Prérequis}
+
+Pour compiler et utiliser ce projet, il est nécessaire d'avoir:
+\begin{itemize}
+    \item CMake (version 3.16.3 ou supérieure)
+    \item Un compilateur C++ supportant le standard C++17
+    \item OpenMP pour la parallélisation (optionnel mais recommandé)
+    \item Doxygen pour la génération de documentation (optionnel)
+    \item ParaView pour visualiser les fichiers VTK générés (optionnel)
+\end{itemize}
+
+\subsection{Installation}
+
+Pour installer le projet, suivez ces étapes:
+
+\begin{lstlisting}[language=bash]
+# Cloner le dépôt
+git clone https://github.com/username/particle-simulation.git
+cd particle-simulation
+
+# Créer un répertoire de build
+mkdir build && cd build
+
+# Configurer avec CMake
+cmake ..
+
+# Compiler le projet
+make
+\end{lstlisting}
+
+Par défaut, le projet est compilé en mode \texttt{Release} avec les optimisations maximales. Pour changer le mode de compilation:
+
+\begin{lstlisting}[language=bash]
+cmake -DCMAKE_BUILD_TYPE=Debug ..  # Pour le débogage
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..  # Pour optimisations avec symboles
+\end{lstlisting}
+
+\subsection{Exécution des tests}
+
+Pour s'assurer que le programme fonctionne correctement, exécutez les tests:
+
+\begin{lstlisting}[language=bash]
+make test  # Exécution de tous les tests unitaires
+\end{lstlisting}
+
+\subsection{Exécution des démonstrations}
+
+Deux simulations de démonstration sont disponibles:
+
+\begin{lstlisting}[language=bash]
+# Simulation de collisions moléculaires
+make demo_collision
+
+# Simulation gravitationnelle
+make demo_planet
+
+# Afficher l'aide sur les démos disponibles
+make demo
+\end{lstlisting}
+
+Les fichiers VTK générés peuvent être visualisés avec ParaView:
+
+\begin{lstlisting}[language=bash]
+paraview output_*.vtk
+\end{lstlisting}
+
+\subsection{Génération de la documentation}
+
+La documentation API du projet peut être générée grâce à Doxygen:
+
+\begin{lstlisting}[language=bash]
+make doc
+\end{lstlisting}
+
+La documentation générée est disponible dans le répertoire \texttt{doc/html/index.html}.
+
+\subsection{Optimisations et performance}
+
+Le projet utilise plusieurs niveaux d'optimisations de compilation pour améliorer les performances. Ces options peuvent être modifiées dans le fichier \texttt{CMakeLists.txt} si nécessaire.
+
+\section{Architecture du logiciel}
+
+\subsection{Organisation du projet}
+
+L'arborescence du projet est organisée comme suit:
+
+\begin{verbatim}
+root/
+|---- CMakeLists.txt          # Configuration CMake principale
+|---- Doxyfile.in             # Template pour la documentation Doxygen
+|---- README.md               # Documentation principale
+|---- include/                # Fichiers d'en-tête (.hpp)
+|
+|---- src/                    # Implémentations (.cpp, .tpp)
+|
+|---- demo/                   # Exemples de simulations
+|
+`---- test/                   # Tests unitaires
+\end{verbatim}
+
+Cette organisation permet une séparation des préoccupations et facilite la maintenance du code. Les templates C++ sont implémentés dans des fichiers .tpp inclus à la fin des fichiers d'en-tête correspondants, suivant une pratique standard pour les bibliothèques génériques.
+
+Notre simulation est construite autour de quatre classes principales:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Classe} & \textbf{Responsabilité} \\
+\hline
+Vecteur<N> & Opérations vectorielles en N dimensions \\
+\hline
+Particle<N> & Propriétés et comportements des particules \\
+\hline
+Cell<N> & Partitionnement spatial pour optimisation \\
+\hline
+Univers<N> & Gestion globale de la simulation \\
+\hline
+VTKconverter<N> & Export des données pour visualisation \\
+\hline
+\end{tabular}
+\caption{Classes principales du système}
+\end{table}
+
+\subsection{Diagramme UML simplifié}
+
+Le diagramme de classes ci-dessous illustre les relations entre les différentes classes du système:
+
+\begin{verbatim}
++-------------+      1..n +-------------+     1..n +-----------+
+|  Univers<N> |>----------| Particle<N> |<---------| Cell<N>   |
++-------------+           +-------------+          +-----------+
+       |                        |                       |
+       |                        |                       |
+       v                        v                       |
++----------------+     +----------------+               |
+| VTKconverter<N>|     |  Vecteur<N>    |<--------------+
++----------------+     +----------------+
+\end{verbatim}
+
+\section{Implémentation}
+
+\subsection{Classe Vecteur}
+
+La classe Vecteur représente un vecteur mathématique en N dimensions et implémente toutes les opérations vectorielles nécessaires pour la simulation:
+
+\begin{lstlisting}[language=C++, caption=Extrait de la classe Vecteur]
+template <std::size_t N>
+class Vecteur {
+private:
+    std::array<double, N> data;
+
+public:
+    Vecteur();
+    Vecteur(const std::array<double, N>& values);
+    double norm() const;
+    
+    // Operateurs mathematiques
+    friend Vecteur<N> operator+(const Vecteur<N>& v1, const Vecteur<N>& v2);
+    friend Vecteur<N> operator-(const Vecteur<N>& v1, const Vecteur<N>& v2);
+    friend Vecteur<N> operator*(const Vecteur<N>& v, float f);
+    friend Vecteur<N> operator/(const Vecteur<N>& v, double d);
+};
+\end{lstlisting}
+
+\subsection{Classe Particle}
+
+La classe Particle encapsule toutes les propriétés d'une particule et implémente les méthodes pour calculer les forces entre particules:
+
+\begin{lstlisting}[language=C++, caption=Extrait de la classe Particle]
+template <std::size_t N>
+class Particle {
+private:
+    int id;
+    Vecteur<N> position;
+    Vecteur<N> velocity;
+    double mass;
+    std::string category;
+    Vecteur<N> force;
+    Vecteur<N> old_force;
+
+public:
+    // Getters et setters
+    int getId() const;
+    const Vecteur<N>& getPosition() const;
+    
+    // Methodes de calcul des forces
+    Vecteur<N> optimizedGetAllForces(Particle<N>* p, 
+                                     float epsilon_times_24,
+                                     float sigma) const;
+    
+    // Methodes pour le partitionnement spatial
+    std::array<int, N> getCellIndexofParticle(double cellLength) const;
+};
+\end{lstlisting}
+
+\subsection{Classe Cell}
+
+La classe Cell implémente le concept de partitionnement spatial pour optimiser les calculs de voisinage:
+
+\begin{lstlisting}[language=C++, caption=Extrait de la classe Cell]
+template <std::size_t N>
+class Cell {
+private:
+    std::vector<Particle<N>*> particles;
+    std::vector<std::array<int, N>> neighbourCellsIndex;
+    std::array<int, N> cellIndex;
+    double length;
+    int numberOfParticles = 0;
+
+public:
+    // Construction et gestion des particules
+    void addParticle(Particle<N>*& particle);
+    void removeParticle(Particle<N>*& particle);
+    
+    // Acces aux donnees
+    std::vector<Particle<N>*> getParticles() const;
+    std::vector<std::array<int, N>> getNeighbourCellsIndex() const;
+};
+\end{lstlisting}
+
+\subsection{Classe Univers}
+
+La classe Univers est le cœur du système, gérant l'ensemble de la simulation:
+
+\begin{lstlisting}[language=C++, caption=Extrait de la classe Univers]
+template <std::size_t N>
+class Univers {
+private:
+    std::array<double, N> caracteristicLength;
+    double cutOffRadius;
+    std::array<int, N> numberOfCells;
+    std::unordered_map<std::array<int, N>, Cell<N>*, ArrayHash<N>> cells;
+    std::vector<Particle<N>*> particles;
+    int nbParticles;
+
+public:
+    // Construction et configuration
+    Univers(std::array<double, N> caracteristicLength, double cutOffRadius);
+    
+    // Gestion des particules
+    void addParticle(Particle<N>*& particle);
+    void updateParticlePositionInCell(Particle<N>* particle, 
+                                     const Vecteur<N>& newPosition);
+    
+    // Calcul des forces et mise a jour
+    void computeAllForcesOnParticle(float epsilon, float sigma);
+    void update(double dt, float epsilon, float sigma);
+    
+    // Gestion des conditions limites
+    Vecteur<N> applyReflectiveLimitConditions(Particle<N>* particle, 
+                                            const Vecteur<N>& newPosition);
+};
+\end{lstlisting}
+
+\section{Optimisations}
+
+\subsection{Partitionnement spatial}
+
+Le partitionnement spatial divise l'espace de simulation en cellules, permettant de limiter les calculs de forces aux particules voisines. Cette optimisation réduit la complexité des calculs de $O(n^2)$ à $O(n)$ dans des systèmes avec une distribution uniforme de particules.
+
+\subsection{Flags de compilation}
+
+Le projet utilise des flags de compilation avancés pour maximiser les performances. Voici quelques exemples:
+
+\begin{verbatim}
+-O3                      # Optimisation de niveau le plus élevé
+-march=native            # Optimisations spécifiques à l'architecture
+-ffast-math              # Optimisations mathématiques agressives
+-funroll-loops           # Déroulement des boucles
+-ftree-vectorize         # Vectorisation automatique
+-fopenmp                 # Support OpenMP
+\end{verbatim}
+
+\section{Résultats et visualisation}
+
+Les simulations peuvent être visualisées grâce à l'export au format VTK, permettant l'utilisation d'outils comme ParaView pour analyser les résultats.
+
+\subsection{Exemple de simulation}
+
+Le projet permet de simuler deux types de systèmes principaux:
+
+\begin{itemize}
+    \item \textbf{Collision}: Simulation de particules avec potentiel de Lennard-Jones
+    \item \textbf{Gravité}: Simulation de corps célestes avec forces gravitationnelles
+\end{itemize}
+
+\section{Performance}
+
+Des tests de performance ont montré que:
+
+\begin{itemize}
+    \item Le partitionnement spatial réduit considérablement le temps de calcul pour les grands systèmes
+    \item Les optimisations de compilation améliorent grandement les performances
+\end{itemize}
+
+\section{Conclusion}
+
+Ce projet démontre l'efficacité d'une approche générique basée sur les templates C++ pour la simulation de particules en N dimensions. L'architecture modulaire et les techniques d'optimisation utilisées permettent de simuler efficacement des systèmes complexes avec un grand nombre de particules.
+
+\subsection{Perspectives}
+
+Plusieurs axes d'amélioration sont envisageables:
+
+\begin{itemize}
+    \item Implémentation d'une version GPU avec CUDA ou OpenCL
+    \item Support pour des potentiels d'interaction plus complexes
+    \item Techniques d'intégration numérique plus précises pour les simulations à long terme
+    \item Implémentation d'algorithmes adaptatifs pour le pas de temps
+\end{itemize}
+
+\end{document}

@@ -8,3 +8,7 @@
 *.vtu
 *.doc/
 *.docs/
+*.aux
+*.log
+*.out
+*.toc
