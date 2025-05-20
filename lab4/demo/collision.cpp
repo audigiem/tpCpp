@@ -32,19 +32,13 @@ int main() {
 
         int freqGenerateVTKFile = 100;
 
-        // To prevent memory leaks i didnt succeed to delete the particles
-        // with the destructor of the univers
-        std::vector<Particle<2>*> particles;
-
         Univers<2> univers({L1, L2}, cutOffRadius);
         // particle of the red square:
         // 40x40 particles equidistributed, distance between particles = (2^{1/6}/sigma)
-        // double spacing = std::pow(2.0, 1.0 / 6.0) / sigma;
-        double spacing = 1.122462048309373;
+        double spacing = std::pow(2.0, 1.0 / 6.0) / sigma;
         double squareLength = N1*spacing;
         double rectangleLength = N2*spacing;
         std::array<double, 2> offset = {(L1 - squareLength)/2, (L2 - 1.8*squareLength)};
-        // std::cout << "offset: " << offset[0] << ", " << offset[1] << std::endl;
         int id = 0;
         for (int i = 0; i < N1; ++i) {
             for (int j = 0; j < N1; ++j) {
@@ -53,7 +47,6 @@ int main() {
                 Particle<2>* particle = new Particle<2>(id++, position, v, mass, "red");
                 try {
                     univers.addParticle(particle);
-                    particles.push_back(particle);
                 } catch (const std::runtime_error& e) {
                     std::cerr << "Error: " << e.what() << std::endl;
                     // stop the simulation or handle the error, return exit(1);
@@ -71,8 +64,13 @@ int main() {
             for (int j = 0; j < N1; ++j) {
                 Vecteur<2> position({offset2[0] + i * spacing, offset2[1] + j * spacing});
                 Particle<2>* particle = new Particle<2>(id++, position, v2, mass, "blue");
-                univers.addParticle(particle);
-                particles.push_back(particle);
+                try {
+                    univers.addParticle(particle);
+                } catch (const std::runtime_error& e) {
+                    std::cerr << "Error: " << e.what() << std::endl;
+                    // stop the simulation or handle the error, return exit(1);
+                    exit(1);
+                }
             }
         }
 
@@ -104,8 +102,7 @@ int main() {
 
         auto endSim = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> durationSim = endSim - startSim;
-        int nbTimeSteps = static_cast<int>(tEnd / dt);
-        std::cout << "Simulation with " << N1 * N1 + N1 * N2 << " and " << nbTimeSteps << " time steps particles took " << durationSim.count() << " seconds." << std::endl;
+        std::cout << "Simulation with " << N1 * N1 + N1 * N2 << " and " << step << " time steps particles took " << durationSim.count() << " seconds." << std::endl;
 
 
     }

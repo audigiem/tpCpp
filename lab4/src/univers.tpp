@@ -2,6 +2,10 @@
 #include <functional>
 #include <cmath>
 
+
+/**
+ * Constructor
+ */
 template <std::size_t N>
 Univers<N>::Univers(std::array<double, N> caracteristicLength, double cutOffRadius)
     : caracteristicLength(caracteristicLength), cutOffRadius(cutOffRadius) {
@@ -221,6 +225,7 @@ void Univers<N>::updateParticlePositionInCell(Particle<N>* particle, const Vecte
             std::cout << "Old cell index: " << oldCellIndex[0] << ", " << oldCellIndex[1] << std::endl;
             std::cout << "New cell index: " << newCellIndex[0] << ", " << newCellIndex[1] << std::endl;
             std::cout << "Number of cells: " << numberOfCells[0] << ", " << numberOfCells[1] << std::endl;
+            std::cout << "Force applied to: " << particle->getForce() << std::endl;
             // throw error, not suppose to happen with reflective limit conditions
             throw std::runtime_error("Cell not found, this should not happen with reflective limit conditions");
 
@@ -324,9 +329,9 @@ std::vector<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>* p
 
 
 /**
-* @brief Compute all the forces applied on each particle and store it in each particle
-* !! this function overloads the forces already stored in the particle !!
-* and saves the previous forces in the particle
+ * @brief Compute all the forces applied on each particle and store it in each particle
+ * !! this function overloads the forces already stored in the particle !!
+ * and saves the previous forces in the particle
  * we consider only the particles in the neighbourhood of the particle
  */
 template <std::size_t N>
@@ -334,11 +339,14 @@ void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
     Vecteur<N> currentForce;
     epsilon *= 24;
     for(const auto& particle : particles) {
+        // we save the force at the previous dt
         particle->saveForce(particle->getForce());
         particle->resetForce();
-        //
+
+        // we search for the particle's neighbourhood
         std::vector<Particle<N>*> neighbourParticles = getParticlesInNeighbourhood(particle);
         for(const auto& neighbourParticle : neighbourParticles) {
+            // for each particle in the neighbourhood, we compare ID to do the calculation only once
             if (particle->getId() < neighbourParticle->getId()) {
                 currentForce = particle->optimizedGetAllForces(neighbourParticle, epsilon, sigma);
                 particle->applyForce(currentForce);

@@ -164,7 +164,7 @@ public:
     void addParticle(Particle<N>*& particle);
     
     /**
-     * @brief Update a particle's cell when its position changes
+     * @brief Update the cells configuration when a particle moves
      * @param particle Pointer to the particle
      * @param newPosition The new position vector
      * @throw std::runtime_error If the new position is outside universe bounds
@@ -230,7 +230,7 @@ public:
     void computeAllForcesOnParticle(float epsilon, float sigma);
 
     /**
-     * @brief Update the simulation state for one time step
+     * @brief Update the simulation state for one time step using the Stromer-Verlet method
      * @param dt Time step size
      * @param epsilon Lennard-Jones potential depth parameter
      * @param sigma Lennard-Jones potential distance parameter
