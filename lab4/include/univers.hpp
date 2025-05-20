@@ -11,7 +11,7 @@
 #include "particle.hpp"
 #include "vecteur.hpp"
 #include "cell.hpp"
-#include "limitConditions.h"
+#include "limitConditions.hpp"
 #include <vector>
 #include <unordered_map>
 #include <memory>
