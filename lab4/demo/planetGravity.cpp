@@ -18,8 +18,10 @@ int main() {
     Univers<2> univers({L1, L2}, cutOffRadius);
     double dt = 0.15;
     double tEnd = 468.5;
+    ForceType forceType = ForceType::Gravity;
+    LimitConditions limitConditions = LimitConditions::Reflective;
 
-    int freqGenerateVTKFile = 100;
+    int freqGenerateVTKFile = 1;
 
     std::vector<Particle<2>*> particles;
     // initialize the planets
@@ -44,17 +46,17 @@ int main() {
     std::cout << "Time taken to initialize: " << duration.count() << " milliseconds" << std::endl;
 
     auto start2 = std::chrono::high_resolution_clock::now();
-    univers.computeAllForcesOnParticle(1.0, 1.0);
+    univers.computeAllForcesOnParticle(1.0, 1.0, forceType);
     vtk.createFile();
     vtk.convertToVTK(univers);
     vtk.closeFile();
 
     int step = 0;
     for (double t = 0; t < tEnd; t += dt) {
-        univers.update(dt, 1.0, 1.0);
+        step++;
+        univers.update(dt, 1.0, 1.0, forceType, limitConditions);
         if (step % freqGenerateVTKFile == 0) {
             std::cout << "Time step: " << step << std::endl;
-            univers.computeAllForcesOnParticle(1.0, 1.0);
             vtk.createFile();
             vtk.convertToVTK(univers);
             vtk.closeFile();

@@ -13,7 +13,7 @@ TEST(UniversTest, Update) {
     univers.addParticle(particle1);
     univers.addParticle(particle2);
 
-    univers.update(0.1, 5.0, 1.0);
+    univers.update(0.1, 5.0, 1.0, ForceType::LennardJones, LimitConditions::Reflective);
 
     auto cell1 = univers.getCell({0, 0, 0});
     auto cell2 = univers.getCell({1, 0, 0});

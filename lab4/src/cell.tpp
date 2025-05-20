@@ -65,14 +65,15 @@ void Cell<N>::removeParticle(Particle<N>*& particle) {
 
 template <std::size_t N>
 void Cell<N>::showParticles() const {
-    // Affichage de l'indice de la cellule
     std::cout << "----------------------------------------\n";
+
+    // Affichage de l'indice de la cellule
     std::cout << "Cell at index: [";
     for (std::size_t i = 0; i < N; ++i) {
         std::cout << cellIndex[i];
-        if (i != N - 1) std::cout << ", ";
+        if (i < N - 1) std::cout << ", ";
     }
-    std::cout << "]\n";
+    std::cout << "]" << std::endl;
 
     // Affichage des cellules voisines
     std::cout << "Neighbouring cell indices:\n";
@@ -80,22 +81,25 @@ void Cell<N>::showParticles() const {
         std::cout << "  [";
         for (std::size_t i = 0; i < N; ++i) {
             std::cout << index[i];
-            if (i != N - 1) std::cout << ", ";
+            if (i < N - 1) std::cout << ", ";
         }
-        std::cout << "]\n";
+        std::cout << "]" << std::endl;
     }
 
     // Affichage des particules contenues
     std::cout << "Particles in this cell (" << particles.size() << "):\n";
     for (const auto& particle : particles) {
-        std::cout << "  - Particle ID: " << particle->getId() << "\n";
-        std::cout << "    Position: " << particle->getPosition() << "\n";
-        // std::cout << "    Velocity: " << particle->getVelocity() << "\n";
-        // std::cout << "    Mass: " << particle->getMass() << "\n";
+        std::cout << "  - Particle ID: " << particle->getId() << std::endl;
+        std::cout << "      - Position: " << particle->getPosition() << std::endl;
+        std::cout << "      - Velocity: " << particle->getVelocity() << std::endl;
+        std::cout << "      - Mass: " << particle->getMass() << std::endl;
+        std::cout << "      - Force: " << particle->getForce() << std::endl;
         // std::cout << "    Category: " << particle->getCategory() << "\n";
     }
+
     std::cout << "----------------------------------------\n";
 }
+
 
 
 template <std::size_t N>

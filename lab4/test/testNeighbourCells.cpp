@@ -9,7 +9,7 @@
 
 
 /** test file to check if the method used to determine the neighborhoods
- * of each particle using cells is working and is correctly updated after each paricles movement
+ * of each particle using cells is working and is correctly updated after each particle movement
 **/
 int main() {
     // initialize universe (square 10x10 with 4x4 cells)
@@ -18,7 +18,7 @@ int main() {
     int nbCells = caracteristicLength / cutOffRadius;
     int nbParticlesInCell = 4;
     Univers<2> univ({caracteristicLength, caracteristicLength}, cutOffRadius);
-    VTKconverter<2> converter("testNeighboorCells", "test");
+    VTKconverter<2> converter("testNeighbourCells", "test");
 
     int nbParticles = 0;
     for (int i=0; i<nbCells; i++) {
@@ -45,20 +45,43 @@ int main() {
     converter.convertToVTK(univ);
     converter.closeFile();
 
+    // univ.showUnivers();
+
     Particle<2>* p = univ.getParticles()[0];
 
-    // show the neighbourhood
-    univ.showNeighbourhoodsOfParticle(0);
+    // show cell 0,0
+    std::cout << "Cell 0,0" << std::endl;
+    std::array<int, 2> cellIndex = {0, 0};
+    Cell<2>* cell = univ.getCell(cellIndex);
+    if (cell) {
+        cell->showParticles();
+    } else {
+        std::cout << "Cell not found" << std::endl;
+    }
 
-
+    std::cout << std::endl;
+    std::cout << "We are going to move the particle 0 in cell 0,0 to cell 1,1" << std::endl;
     // now we move the particles 0 in cell 0,0 to cell 1,1
     Vecteur<2> newPos({1.5*cutOffRadius, 1.5*cutOffRadius});
+
+    std::cout << "New position of particle 0: " << newPos << std::endl;
 
     // update the neighbourhoods
     univ.updateParticlePositionInCell(p, newPos);
     p->setPosition(newPos);
 
-    univ.showNeighbourhoodsOfParticle(0);
+    std::cout << "New neighbourhoods of particle 0" << std::endl;
+    // univ.showNeighbourhoodsOfParticle(0);
+
+    // show cell 1,1
+    std::cout << "Cell 1,1" << std::endl;
+    cellIndex = {1, 1};
+    cell = univ.getCell(cellIndex);
+    if (cell) {
+        cell->showParticles();
+    } else {
+        std::cout << "Cell not found" << std::endl;
+    }
 
 
 

@@ -9,8 +9,10 @@
 #define PARTICLE_HPP
 
 #include "vecteur.hpp"
+#include "forceType.h"
 #include <string>
 #include <memory>
+
 
 /**
  * @class Particle
@@ -177,9 +179,23 @@ public:
      * @param p Pointer to the other particle
      * @param epsilon_times_24 Pre-calculated value of 24*epsilon
      * @param sigma Distance at which the potential is zero
+     * @param force Type of force to calculate (gravity, Lennard-Jones, or both)
      * @return Combined force vector using optimized calculations
      */
-    Vecteur<N> optimizedGetAllForces(Particle<N>* p, float epsilon_times_24, float sigma) const;
+    Vecteur<N> optimizedGetAllForces(Particle<N>* p, float epsilon_times_24, float sigma, ForceType force) const;
+
+
+    /**
+     * @brief Calculate the kinetic energy of the particle
+     * @return The kinetic energy value
+     */
+    double getKineticEnergy() const;
+
+    /**
+     * @brief Update the particle's velocity based on the targeted kinetic energy
+     * @param targetedKineticEnergy The desired kinetic energy value
+     */
+    void updateVelocityWithKineticEnergyControl(double targetedKineticEnergy);
 
     /**
      * @brief KD-tree optimized version of force calculation

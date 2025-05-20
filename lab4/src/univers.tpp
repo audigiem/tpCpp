@@ -74,12 +74,8 @@ Univers<N>& Univers<N>::operator=(const Univers& other) {
 }
 
 
-
-/** * @brief Generate all the coordinates of the N-dimensional grid
- * @param gridSizePerDimension The size of the grid in each dimension
- */
 template <std::size_t N>
-std::vector<std::array<int, N>> generateAllGridCoordinates(const std::array<int, N>& gridSizePerDimension) {
+std::vector<std::array<int, N>> Univers<N>::generateAllGridCoordinates(const std::array<int, N>& gridSizePerDimension) {
     std::vector<std::array<int, N>> allCoords;
     std::array<int, N> currentCoord;
 
@@ -100,15 +96,7 @@ std::vector<std::array<int, N>> generateAllGridCoordinates(const std::array<int,
 }
 
 
-/** * @brief Create the cells of the universe
- * This function creates the cells of the universe and initializes them
- * by computing their neighbours.
- * The cells are generated in a N-dimensional grid.
- * The cells are stored in a hash map with their index as key.
- *
- * In dimension 1 with M cells, the cells are generated from 0 to M-1.
- * In dimension 2 with M1 and M2 cells, the cells are generated from (0,0), to (M1-1,0), (0,1), (M1-1,1), ..., (M1-1,M2-1).
- */
+
 template <std::size_t N>
 void Univers<N>::createCells() {
     std::vector<std::array<int, N>> allCellsIndex = generateAllGridCoordinates(numberOfCells);
@@ -172,10 +160,6 @@ Cell<N>* Univers<N>::getCell(const std::array<int, N>& cellIndex) const {
 }
 
 
-/** * @brief Add a particle to the universe and to the corresponding cell
- * This function adds a particle to the universe and updates the cell configuration
- * @param particle The particle to add
- */
 template <std::size_t N>
 void Univers<N>::addParticle(Particle<N>*& particle) {
     std::array<int, N> cellIndex;
@@ -191,11 +175,6 @@ void Univers<N>::addParticle(Particle<N>*& particle) {
 }
 
 
-/** * @brief Update the cells configuration according to the new position of the particle
- * IMPORTANT: This function does not update the particle position in the cell, it only updates the cells configuration
- * @param particle The particle to update
- * @param newPosition The new position of the particle
- */
 template <std::size_t N>
 void Univers<N>::updateParticlePositionInCell(Particle<N>* particle, const Vecteur<N> &newPosition) {
     std::array<int, N> oldCellIndex;
@@ -229,16 +208,6 @@ void Univers<N>::updateParticlePositionInCell(Particle<N>* particle, const Vecte
             // throw error, not suppose to happen with reflective limit conditions
             throw std::runtime_error("Cell not found, this should not happen with reflective limit conditions");
 
-            // we remove the particle from the universe
-            // auto it = std::remove(particles.begin(), particles.end(), particle);
-            // if (it != particles.end()) {
-            //     particles.erase(it, particles.end());
-            //     --nbParticles;
-            // }
-            // // we remove the particle from the cells
-            // for (const auto& cell : cells) {
-            //     cell.second->removeParticle(particle);
-            // }
         }
     }
 }
@@ -268,11 +237,7 @@ void Univers<N>::showUnivers() const {
 }
 
 
-/** * @brief Get the particles in the neighbourhood of a particle
- * this includes the particles in the same cell and the particles in the neighbouring cells
- * @param particle The particle to get the neighbourhood of
- * @return A list of particles in the neighbourhood of the particle
- */
+
 template <std::size_t N>
 std::vector<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>* particle) const {
     std::vector<Particle<N>*> neighbourParticles;
@@ -280,29 +245,28 @@ std::vector<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>* p
     // Get the cell of the particle
     std::array<int, N> cellIndex = particle->getCellIndexofParticle(cutOffRadius);
 
-    // Vérification que l'indice de la cellule est dans les limites valides
+    // check if the cell index is valid
     for (size_t i = 0; i < N; ++i) {
         if (cellIndex[i] < 0 || cellIndex[i] >= numberOfCells[i]) {
-            // Si un des indices est hors limites, on gère l'erreur (retourner un tableau vide ou autre)
+            // if the cell index is invalid, return an empty vector
             return neighbourParticles;
         }
     }
 
-    // Si l'indice est valide, on récupère la cellule
     auto cell = getCell(cellIndex);
 
-    // Si la cellule est valide (non nullptr)
+    // if the cell is not found, return an empty vector
     if (cell) {
         std::vector<std::array<int, N>> neighbourCellsIndex = cell->getNeighbourCellsIndex();
 
-        // On ajoute les particules de la même cellule
+        // add the particles of the current cell
         for (const auto& p : cell->getParticles()) {
             if (p != particle) {
                 neighbourParticles.push_back(p);
             }
         }
 
-        // On ajoute les particules des cellules voisines
+        // add the particles of the neighbour cells
         for (const auto& index : neighbourCellsIndex) {
             if (index == cellIndex) {
                 continue; // Skip the current cell
@@ -325,30 +289,23 @@ std::vector<Particle<N>*> Univers<N>::getParticlesInNeighbourhood(Particle<N>* p
 }
 
 
-
-
-
-/**
- * @brief Compute all the forces applied on each particle and store it in each particle
- * !! this function overloads the forces already stored in the particle !!
- * and saves the previous forces in the particle
- * we consider only the particles in the neighbourhood of the particle
- */
 template <std::size_t N>
-void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
+void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma, ForceType forceType) {
     Vecteur<N> currentForce;
     epsilon *= 24;
-    for(const auto& particle : particles) {
-        // we save the force at the previous dt
+    for (const auto& particle : particles) {
+        // save the previous force for all the particles before the calculation
         particle->saveForce(particle->getForce());
         particle->resetForce();
+    }
 
+    for(const auto& particle : particles) {
         // we search for the particle's neighbourhood
         std::vector<Particle<N>*> neighbourParticles = getParticlesInNeighbourhood(particle);
         for(const auto& neighbourParticle : neighbourParticles) {
             // for each particle in the neighbourhood, we compare ID to do the calculation only once
             if (particle->getId() < neighbourParticle->getId()) {
-                currentForce = particle->optimizedGetAllForces(neighbourParticle, epsilon, sigma);
+                currentForce = particle->optimizedGetAllForces(neighbourParticle, epsilon, sigma, forceType);
                 particle->applyForce(currentForce);
                 neighbourParticle->applyForce(-currentForce);
             }
@@ -356,19 +313,7 @@ void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma) {
     }
 }
 
-/**
- * @brief Applies reflective boundary conditions to a particle's position.
- *
- * This function ensures that the particle remains strictly within the domain boundaries.
- * If a new position lies outside or too close to the boundary (within a small epsilon),
- * it is reflected and clamped inside the domain, and the corresponding velocity component
- * is reversed and reduced.
- *
- * @tparam N The number of spatial dimensions.
- * @param particle Pointer to the particle to which the boundary conditions are applied.
- * @param newPosition The new position of the particle before applying the boundary conditions.
- * @return A corrected position that is strictly inside the domain, not lying on the boundaries.
- */
+
 template <std::size_t N>
 Vecteur<N> Univers<N>::applyReflectiveLimitConditions(Particle<N>* particle, const Vecteur<N>& newPosition) {
     constexpr double epsilon = 1e-10;  // Tolerance for floating point comparisons
@@ -412,7 +357,7 @@ Vecteur<N> Univers<N>::applyReflectiveLimitConditions(Particle<N>* particle, con
 
 
 template <std::size_t N>
-Vecteur<N> Univers<N>::applyPeriodicLimitConditions(const Vecteur<N>& newPosition) {
+Vecteur<N> Univers<N>::applyPeriodicLimitConditions(Particle<N>* particle, const Vecteur<N>& newPosition) {
     Vecteur<N> periodicPosition = newPosition;
     for (std::size_t i = 0; i < N; ++i) {
         if (newPosition.get(i) < 0) {
@@ -425,30 +370,86 @@ Vecteur<N> Univers<N>::applyPeriodicLimitConditions(const Vecteur<N>& newPositio
     return periodicPosition;
 }
 
+template<std::size_t N>
+Vecteur<N> Univers<N>::applyAbsorbingLimitConditions(Particle<N>* particle, const Vecteur<N> &newPosition) {
+    // determine if the new position is out of bounds
+    // if not, throw an error
+    for (std::size_t i = 0; i < N; ++i) {
+        if (newPosition.get(i) < 0 || newPosition.get(i) > caracteristicLength[i]) {
+            // delete the particle from the universe, and from the all the cells
+            std::cout << "Particle " << particle->getId() << " is out of bounds, deleting it." << std::endl;
+            auto cellIndex = particle->getCellIndexofParticle(cutOffRadius);
+            auto cell = getCell(cellIndex);
+            if (cell) {
+                cell->removeParticle(particle);
+            }
+            // remove the particle from the list of particles
+            auto it = std::remove(particles.begin(), particles.end(), particle);
+            if (it != particles.end()) {
+                particles.erase(it);
+                --nbParticles;
+            }
+            // delete the particle
+            delete particle;
+            particle = nullptr; // Set the pointer to nullptr to avoid dangling pointer
+            throw std::runtime_error("Particle is out of bounds and has been removed from the universe.");
+        }
+    }
+    return newPosition;
+
+}
+
+
+
 template <std::size_t N>
-void Univers<N>::update(double dt, float epsilon, float sigma) {
-    // std::cout << "Updating universe..." << std::endl;
-    // showUnivers();
+void Univers<N>::update(double dt, float epsilon, float sigma, ForceType forceType, LimitConditions limitCondition) {
+
+    std::function<Vecteur<N>(Particle<N>*, const Vecteur<N>&)> applyLimitConditions;
+
+    // Initialiser la fonction en fonction de la condition choisie
+    switch (limitCondition) {
+        case LimitConditions::Reflective:
+            applyLimitConditions = [this](Particle<N>* p, const Vecteur<N>& pos) {
+                return applyReflectiveLimitConditions(p, pos);
+        };
+        break;
+        case LimitConditions::Periodic:
+            applyLimitConditions = [this](Particle<N>* p, const Vecteur<N>& pos) {
+                return applyPeriodicLimitConditions(p, pos);
+        };
+        break;
+        case LimitConditions::Absorbing:
+            applyLimitConditions = [this](Particle<N>* p, const Vecteur<N>& pos) {
+                return applyAbsorbingLimitConditions(p, pos);
+        };
+        break;
+    }
 
     // we loop through the particles and update their position
     for (const auto& p : particles) {
         // update the position of the particle
         Vecteur<N> newPosition = p->getPosition() + p->getVelocity() * dt + (p->getForce() / p->getMass()) * (dt * dt) / 2;
         // update the cells configuration (of the original cells)
-        newPosition = applyReflectiveLimitConditions(p, newPosition);
+        try {
+            newPosition = applyLimitConditions(p, newPosition);
+        } catch (const std::runtime_error& e) {
+            // delete the particle from the universe
+            std::cout << e.what() << std::endl;
+            break;
+        }
+
         try {
             updateParticlePositionInCell(p, newPosition);
         } catch (const std::runtime_error& e) {
             std::cerr << "Error: " << e.what() << std::endl;
             // stop the simulation or handle the error, return exit(1);
+            p->showParticle();
             exit(1);
         }
         p->setPosition(newPosition);
-        // p->showParticle();
-        // std::cout << "is supposed to move to " << newPosition << std::endl;
-        // showUnivers()
+
     }
-    computeAllForcesOnParticle(epsilon, sigma);
+    computeAllForcesOnParticle(epsilon, sigma, forceType);
 
     for (const auto& p : particles) {
         // update the velocity of the particle

@@ -11,7 +11,7 @@
 #include "particle.hpp"
 #include "vecteur.hpp"
 #include "cell.hpp"
-
+#include "limitConditions.h"
 #include <vector>
 #include <unordered_map>
 #include <memory>
@@ -145,9 +145,23 @@ public:
     void setCutOffRadius(double cutOffRadius);
 
     /**
-     * @brief Initialize the spatial partitioning cells
+     * @brief Create the cells of the universe
+     * This function creates the cells of the universe and initializes them
+     * by computing their neighbours.
+     * The cells are generated in a N-dimensional grid.
+     * The cells are stored in a hash map with their index as key.
+     *
+     * In dimension 1 with M cells, the cells are generated from 0 to M-1.
+     * In dimension 2 with M1 and M2 cells, the cells are generated from (0,0), to (M1-1,0), (0,1), (M1-1,1), ..., (M1-1,M2-1).
      */
     void createCells();
+
+    /**
+     * @brief Generate all the coordinates of the N-dimensional grid
+     * @param gridSizePerDimension The size of the grid in each dimension
+     * @return Vector of all coordinates in the grid
+     */
+    std::vector<std::array<int, N>> generateAllGridCoordinates(const std::array<int, N>& gridSizePerDimension);
     
     /**
      * @brief Get a specific cell by its index
@@ -164,7 +178,9 @@ public:
     void addParticle(Particle<N>*& particle);
     
     /**
-     * @brief Update the cells configuration when a particle moves
+     * @brief Update the cells configuration when a particle moves,
+     * IMPORTANT: This function does not update the position of the particle, it only
+     * determines the new cell for the particle
      * @param particle Pointer to the particle
      * @param newPosition The new position vector
      * @throw std::runtime_error If the new position is outside universe bounds
@@ -203,39 +219,49 @@ public:
     
     /**
      * @brief Apply periodic boundary conditions to a position
+     * @param particle The particle to check
      * @param newPosition The proposed new position
      * @return Modified position after applying boundary conditions
      */
-    Vecteur<N> applyPeriodicLimitConditions(const Vecteur<N>& newPosition);
+    Vecteur<N> applyPeriodicLimitConditions(Particle<N>* particle, const Vecteur<N>& newPosition);
     
     /**
      * @brief Apply absorbing boundary conditions to a position
+     * @param particle The particle to check
      * @param newPosition The proposed new position
      * @return Modified position after applying boundary conditions
+     * @throws runtime_error if the particle is out of bounds
      */
-    Vecteur<N> applyAbsorbingLimitConditions(const Vecteur<N>& newPosition);
+    Vecteur<N> applyAbsorbingLimitConditions(Particle<N>* particle, const Vecteur<N>& newPosition);
 
     /**
-     * @brief Find all particles in the neighborhood of a given particle
+     * @brief Find all particles in the neighborhood of a given particle, this includes
+     * the particles in the same cell and the particles in the neighbouring cells
      * @param particle The central particle
      * @return Vector of pointers to neighboring particles
      */
     std::vector<Particle<N>*> getParticlesInNeighbourhood(Particle<N>* particle) const;
     
     /**
-     * @brief Compute and apply all forces between particles
+     * @brief Compute all the forces applied on each particle and store it in each particle
+     * !! this function overloads the forces already stored in the particle !!
+     * and saves the previous forces in the particle
+     * we consider only the particles in the neighbourhood of the particle
      * @param epsilon Lennard-Jones potential depth parameter
      * @param sigma Lennard-Jones potential distance parameter
+     * @param forceType Type of force to apply (gravity, Lennard-Jones, or both)
      */
-    void computeAllForcesOnParticle(float epsilon, float sigma);
+    void computeAllForcesOnParticle(float epsilon, float sigma, ForceType forceType);
 
     /**
      * @brief Update the simulation state for one time step using the Stromer-Verlet method
      * @param dt Time step size
      * @param epsilon Lennard-Jones potential depth parameter
      * @param sigma Lennard-Jones potential distance parameter
+     * @param forceType Type of force to apply (gravity, Lennard-Jones, or both)
+     * @param limitCondition Type of limit condition to apply (reflective, periodic, absorbing)
      */
-    void update(double dt, float epsilon, float sigma);
+    void update(double dt, float epsilon, float sigma, ForceType forceType, LimitConditions limitCondition);
 };
 
 #include "../src/univers.tpp"
