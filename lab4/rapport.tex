@@ -38,6 +38,20 @@
 
 \lstset{style=mystyle}
 
+\lstset{
+  literate=%
+  {é}{{\'e}}1
+  {è}{{\`e}}1
+  {à}{{\`a}}1
+  {ô}{{\^o}}1
+  {ç}{{\c{c}}}1
+  {É}{{\'E}}1
+  {ê}{{\^e}}1
+  {î}{{\^i}}1
+  {û}{{\^u}}1
+  {ë}{{\"e}}1
+}
+
 \title{Simulation de Particules en N Dimensions}
 \author{Mattéo Audigier \and Mattéo Gautier}
 \date{\today}
@@ -79,7 +93,6 @@ Pour compiler et utiliser ce projet, il est nécessaire d'avoir:
 \begin{itemize}
     \item CMake (version 3.16.3 ou supérieure)
     \item Un compilateur C++ supportant le standard C++17
-    \item OpenMP pour la parallélisation (optionnel mais recommandé)
     \item Doxygen pour la génération de documentation (optionnel)
     \item ParaView pour visualiser les fichiers VTK générés (optionnel)
 \end{itemize}
@@ -89,10 +102,6 @@ Pour compiler et utiliser ce projet, il est nécessaire d'avoir:
 Pour installer le projet, suivez ces étapes:
 
 \begin{lstlisting}[language=bash]
-# Cloner le dépôt
-git clone https://github.com/username/particle-simulation.git
-cd particle-simulation
-
 # Créer un répertoire de build
 mkdir build && cd build
 
@@ -101,13 +110,6 @@ cmake ..
 
 # Compiler le projet
 make
-\end{lstlisting}
-
-Par défaut, le projet est compilé en mode \texttt{Release} avec les optimisations maximales. Pour changer le mode de compilation:
-
-\begin{lstlisting}[language=bash]
-cmake -DCMAKE_BUILD_TYPE=Debug ..  # Pour le débogage
-cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..  # Pour optimisations avec symboles
 \end{lstlisting}
 
 \subsection{Exécution des tests}
@@ -133,7 +135,7 @@ make demo_planet
 make demo
 \end{lstlisting}
 
-Les fichiers VTK générés peuvent être visualisés avec ParaView:
+Les fichiers VTK générés dans le répertoire \texttt{demo/nomDeLaDemo} peuvent être visualisés avec ParaView:
 
 \begin{lstlisting}[language=bash]
 paraview output_*.vtk
@@ -175,7 +177,7 @@ root/
 
 Cette organisation permet une séparation des préoccupations et facilite la maintenance du code. Les templates C++ sont implémentés dans des fichiers .tpp inclus à la fin des fichiers d'en-tête correspondants, suivant une pratique standard pour les bibliothèques génériques.
 
-Notre simulation est construite autour de quatre classes principales:
+Notre simulation est construite autour de cinq classes principales:
 
 \begin{table}[H]
 \centering
@@ -197,21 +199,27 @@ VTKconverter<N> & Export des données pour visualisation \\
 \caption{Classes principales du système}
 \end{table}
 
-\subsection{Diagramme UML simplifié}
+\subsection{Diagramme UML des classes}
 
 Le diagramme de classes ci-dessous illustre les relations entre les différentes classes du système:
 
+\begin{figure}[H]
+\centering
+\begin{minipage}{\textwidth}
 \begin{verbatim}
-+-------------+      1..n +-------------+     1..n +-----------+
++-------------+           +-------------+          +-----------+
 |  Univers<N> |>----------| Particle<N> |<---------| Cell<N>   |
 +-------------+           +-------------+          +-----------+
-       |                        |                       |
-       |                        |                       |
-       v                        v                       |
+    |                        |                          |
+    |                        |                          |
+    v                        v                          |
 +----------------+     +----------------+               |
 | VTKconverter<N>|     |  Vecteur<N>    |<--------------+
 +----------------+     +----------------+
 \end{verbatim}
+\end{minipage}
+\caption{Diagramme de classes UML du système}
+\end{figure}
 
 \section{Implémentation}
 
@@ -237,6 +245,17 @@ public:
     friend Vecteur<N> operator/(const Vecteur<N>& v, double d);
 };
 \end{lstlisting}
+
+\subsection{Optimisations de la classe Vecteur}
+
+Plusieurs micro-optimisations ont été implémentées dans la classe Vecteur pour maximiser les performances:
+
+\begin{itemize}
+    \item \textbf{Allocation statique}: Utilisation de \texttt{std::array} au lieu de \texttt{std::vector} pour un accès plus rapide et une allocation sur la pile
+    \item \textbf{Élimination des copies}: Tous les paramètres vectoriels sont passés par référence constante (\texttt{const\&})
+    \item \textbf{Optimisations à la compilation}: Utilisation de \texttt{static\_assert} pour vérifier les dimensions à la compilation plutôt qu'à l'exécution
+    \item \textbf{Vérification d'auto-affectation}: Test \texttt{if (this != \&other)} dans l'opérateur d'affectation pour éviter un travail inutile
+\end{itemize}
 
 \subsection{Classe Particle}
 
@@ -269,6 +288,17 @@ public:
 };
 \end{lstlisting}
 
+\subsection{Optimisations de la classe Particle}
+
+La classe Particle implémente plusieurs optimisations pour les calculs de forces:
+
+\begin{itemize}
+    \item \textbf{Protection contre les forces excessives}: Limitation des forces à des valeurs raisonnables pour éviter les instabilités numériques
+    \item \textbf{Précalcul des facteurs constants}: Multiplication préalable d'epsilon par 24 (\texttt{epsilon\_times\_24}) pour éliminer cette multiplication dans chaque calcul
+    \item \textbf{Réutilisation des calculs intermédiaires}: Les puissances et distances au carré sont calculées une seule fois puis réutilisées
+    \item \textbf{Tolérance numérique}: Utilisation de \texttt{constexpr double alpha = 1e-2} pour éviter les divisions par zéro
+\end{itemize}
+
 \subsection{Classe Cell}
 
 La classe Cell implémente le concept de partitionnement spatial pour optimiser les calculs de voisinage:
@@ -293,6 +323,15 @@ public:
     std::vector<std::array<int, N>> getNeighbourCellsIndex() const;
 };
 \end{lstlisting}
+
+\subsection{Optimisations de la classe Cell}
+
+La classe Cell optimise le partitionnement spatial:
+
+\begin{itemize}
+    \item \textbf{Précalcul des voisins}: Les indices des cellules voisines sont calculés une seule fois puis stockés
+    \item \textbf{Test rapide d'appartenance}: Vérification optimisée avec \texttt{isEmpty()} utilisant \texttt{particles.empty()}
+\end{itemize}
 
 \subsection{Classe Univers}
 
@@ -328,6 +367,15 @@ public:
 };
 \end{lstlisting}
 
+\subsection{Optimisations de la classe Univers}
+
+L'Univers, cœur du système, implémente plusieurs optimisations cruciales:
+
+\begin{itemize}
+    \item \textbf{Calcul asymétrique des forces}: Comparaison des IDs (\texttt{particle->getId() < neighbourParticle->getId()}) pour calculer chaque interaction une seule fois, la force étant symétrique
+    \item \textbf{Structures de données adaptées}: Utilisation d'une \texttt{unordered\_map} avec une fonction de hachage personnalisée pour accéder rapidement aux cellules
+\end{itemize}
+
 \section{Optimisations}
 
 \subsection{Partitionnement spatial}
@@ -342,9 +390,8 @@ Le projet utilise des flags de compilation avancés pour maximiser les performan
 -O3                      # Optimisation de niveau le plus élevé
 -march=native            # Optimisations spécifiques à l'architecture
 -ffast-math              # Optimisations mathématiques agressives
--funroll-loops           # Déroulement des boucles
+-funroll-loops           # Optimisation des boucles
 -ftree-vectorize         # Vectorisation automatique
--fopenmp                 # Support OpenMP
 \end{verbatim}
 
 \section{Résultats et visualisation}
@@ -378,10 +425,8 @@ Ce projet démontre l'efficacité d'une approche générique basée sur les temp
 Plusieurs axes d'amélioration sont envisageables:
 
 \begin{itemize}
-    \item Implémentation d'une version GPU avec CUDA ou OpenCL
-    \item Support pour des potentiels d'interaction plus complexes
-    \item Techniques d'intégration numérique plus précises pour les simulations à long terme
-    \item Implémentation d'algorithmes adaptatifs pour le pas de temps
+    \item L'utilisation du parallélisme pour accélérer les calculs
+    \item Ajout de nouveaux modèles physiques (forces électrostatiques, etc.)
 \end{itemize}
 
 \end{document}

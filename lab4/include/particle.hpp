@@ -1,7 +1,7 @@
 /**
  * @file particle.hpp
  * @brief N-dimensional particle class for physics simulations
- * @author Mattéo Gautier
+ * @author Mattéo Audigier - Mattéo Gautier
  * @date 2025-05-19
  */
 

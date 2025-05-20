@@ -110,7 +110,7 @@ public:
         for (std::size_t i = 0; i < N; ++i) {
             result.data[i] = v1.data[i] + v2.data[i];
         }
-        return result; // Rely on RVO
+        return result;
     }
 
     /**
