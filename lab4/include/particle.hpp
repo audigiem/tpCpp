@@ -9,7 +9,7 @@
 #define PARTICLE_HPP
 
 #include "vecteur.hpp"
-#include "forceType.h"
+#include "forceType.hpp"
 #include <string>
 #include <memory>
 

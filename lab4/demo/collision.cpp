@@ -13,7 +13,7 @@ int main() {
     {
         auto start = std::chrono::high_resolution_clock::now();
 
-        ForceType forceType = ForceType::Gravity;
+        ForceType forceType = ForceType::LennardJones;
         LimitConditions limitConditions = LimitConditions::Reflective;
         std::string dirName;
         switch (forceType) {
@@ -36,6 +36,8 @@ int main() {
         int freqGenerateVTKFile = 100;
         int freqUpdateKineticEnergy = 1000;
         double targetedKineticEnergy = 0.005;
+        double dt = 0.0005;
+        double tEnd = 19.5;
 
         // initialize the parameters of the simulation
         double L1 = 250;
@@ -50,9 +52,6 @@ int main() {
         int N1 = 40; //40
         int N2 = 160; //160
         double cutOffRadius = 2.5 * sigma;
-        double dt = 0.0005;
-        double tEnd = 19.5;
-
 
 
         Univers<2> univers({L1, L2}, cutOffRadius);

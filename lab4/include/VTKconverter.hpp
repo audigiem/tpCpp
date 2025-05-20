@@ -26,7 +26,7 @@
  */
 template <std::size_t N>
 class VTKconverter {
-public:
+private:
     /** @brief Current output file stream for VTK data */
     std::ofstream currentFile;
     
@@ -38,7 +38,7 @@ public:
     
     /** @brief Counter for the number of files created */
     int nbFiles;
-    
+public:
     /**
      * @brief Constructor for the VTKconverter
      * @param dirName Directory where VTK files will be stored
