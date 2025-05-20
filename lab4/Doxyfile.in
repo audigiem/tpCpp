@@ -14,3 +14,24 @@ GENERATE_HTML          = @DOXYGEN_GENERATE_HTML@
 GENERATE_LATEX         = @DOXYGEN_GENERATE_LATEX@
 
 USE_MDFILE_AS_MAINPAGE = @DOXYGEN_USE_MDFILE_AS_MAINPAGE@
+
+
+# --- Graphviz & UML Diagram Generation ---
+HAVE_DOT               = YES           # Active l'utilisation de Graphviz
+DOT_NUM_THREADS        = 2             # Optionnel : accélère le rendu
+CLASS_DIAGRAMS         = YES           # Génère les diagrammes de classes
+COLLABORATION_GRAPH    = YES           # Génère les graphes de collaboration
+INCLUDE_GRAPH          = YES           # Graphes d'inclusion de fichiers
+INCLUDED_BY_GRAPH      = YES
+CALL_GRAPH             = YES           # Graphes des appels de fonctions
+CALLER_GRAPH           = YES
+GRAPHICAL_HIERARCHY    = YES           # Arborescence des classes
+DOT_GRAPH_MAX_NODES    = 100           # Limite du nombre de nœuds (augmente si besoin)
+MAX_DOT_GRAPH_DEPTH    = 0             # 0 = profondeur illimitée
+UML_LOOK               = YES           # Style UML dans les diagrammes
+TEMPLATE_RELATIONS     = YES           # Affiche les relations entre classes templates
+INTERACTIVE_SVG        = YES           # Diagrammes SVG cliquables
+DOT_IMAGE_FORMAT       = svg           # Meilleur format pour le HTML
+
+# --- Affichage dans la doc HTML ---
+GENERATE_TREEVIEW      = YES           # Menu latéral cliquable dans la doc
