@@ -6,3 +6,5 @@
 *.demo/
 *.vtk
 *.vtu
+*.doc/
+*.docs/

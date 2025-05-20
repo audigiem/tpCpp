@@ -1,6 +1,6 @@
 PROJECT_NAME           = Particle Simulation
 PROJECT_BRIEF          = This is a particle simulation project.
-OUTPUT_DIRECTORY       = @CMAKE_CURRENT_BINARY_DIR@/docs
+OUTPUT_DIRECTORY       = @DOXYGEN_OUTPUT_DIRECTORY@
 
 INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/src @CMAKE_CURRENT_SOURCE_DIR@/include
 FILE_PATTERNS          = *.cpp *.hpp *.tpp

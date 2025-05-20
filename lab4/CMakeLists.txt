@@ -105,7 +105,7 @@ find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
     # Set Doxygen configuration variables
-    set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc)
+    set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc)
     set(DOXYGEN_PROJECT_NAME ${PROJECT_NAME})
     set(DOXYGEN_PROJECT_BRIEF "N-dimensional particle simulation")
     set(DOXYGEN_EXTRACT_ALL YES)
