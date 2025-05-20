@@ -81,7 +81,7 @@ public:
      * @brief Copy constructor
      * @param other The universe to copy
      */
-    Univers(const Univers&);
+    Univers(const Univers& other);
     
     /**
      * @brief Destructor
@@ -93,7 +93,7 @@ public:
      * @param other The universe to copy
      * @return Reference to this universe after assignment
      */
-    Univers& operator=(const Univers&);
+    Univers& operator=(const Univers& other);
 
     // Getters and setters
     /**

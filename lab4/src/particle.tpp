@@ -80,33 +80,56 @@ double Particle<N>::getDistance(const Particle<N>& other) const {
 }
 
 template <std::size_t N>
-Vecteur<N> Particle<N>::getGravityForce(Particle<N>*& p) const {
-    // Compute the gravity force between two particles
-    Vecteur<N> distance_vect = (p->getPosition() - position);
+Vecteur<N> Particle<N>::getGravityForce(Particle<N>* p) const {
+    Vecteur<N> distance_vect = p->getPosition() - position;
     double distance = distance_vect.norm();
-    double force = mass * p->getMass() / std::pow(distance, 3);
-    return (distance_vect) * force;
+
+    // Évite la division par zéro
+    constexpr double min_dist = 1e-6;
+    if (distance < min_dist) return Vecteur<N>();
+
+    double factor = mass * p->getMass() / (distance * distance * distance); // G est pris à 1
+    return factor * distance_vect;
 }
 
 template <std::size_t N>
-Vecteur<N> Particle<N>::getLennardJonesForce(Particle<N>*& p, float epsilon, float sigma) const {
-    // Compute the Lennard-Jones force between two particles
-    Vecteur<N> distance_vect = (p->getPosition() - position);
+Vecteur<N> Particle<N>::getLennardJonesForce(Particle<N>* p, float epsilon, float sigma) const {
+    Vecteur<N> distance_vect = p->getPosition() - position;
     double distance = distance_vect.norm();
-    double pow_6 = std::pow(sigma / distance, 6);
-    return 24 * epsilon / std::pow(distance, 2) * pow_6 * (1 - 2 * pow_6) * distance_vect;
+
+    constexpr double min_dist = 1e-6;
+    if (distance < min_dist) return Vecteur<N>();
+
+    double inv_r = sigma / distance;
+    double inv_r6 = inv_r * inv_r * inv_r;
+    inv_r6 *= inv_r6; // (sigma / r)^6
+
+    double magnitude = 24 * epsilon / (distance * distance) * inv_r6 * (1 - 2 * inv_r6);
+    return magnitude * distance_vect;
 }
 
 template <std::size_t N>
-Vecteur<N> Particle<N>::getAllForces(Particle<N>*& p, float epsilon, float sigma) const {
-    // Combine all forces
-    Vecteur<N>distance_vect = (p->getPosition() - position);
+Vecteur<N> Particle<N>::getAllForces(Particle<N>* p, float epsilon, float sigma) const {
+    Vecteur<N> distance_vect = p->getPosition() - position;
     double distance = distance_vect.norm();
-    double pow_6 = std::pow(sigma / distance, 6);
-    double lennard_jones = 24 * epsilon / (distance * distance) * pow_6 * (1 - 2 * pow_6);
+
+    constexpr double min_dist = 1e-6;
+    if (distance < min_dist) return Vecteur<N>();
+
+    Vecteur<N> unit = distance_vect / distance;
+
+    // Lennard-Jones
+    double inv_r = sigma / distance;
+    double inv_r6 = inv_r * inv_r * inv_r;
+    inv_r6 *= inv_r6;
+    double lennard_jones = 24 * epsilon * (2 * inv_r6 * inv_r6 - inv_r6) / (distance * distance);
+
+    // Gravitation
     double gravity = mass * p->getMass() / (distance * distance * distance);
-    return (lennard_jones + gravity) * distance_vect;
+
+    return (lennard_jones + gravity) * unit;
 }
+
 
 template <std::size_t N>
 Vecteur<N> Particle<N>::optimizedGetAllForces(Particle<N>* p, float epsilon_times_24, float sigma, ForceType force) const {
@@ -143,7 +166,6 @@ Vecteur<N> Particle<N>::optimizedGetAllForces(Particle<N>* p, float epsilon_time
             pow_6 *= pow_6;
             double lj_force = epsilon_times_24 * (2 * pow_6 * pow_6 - pow_6) / distance_squared;
             return (gravity + lj_force) * unit;
-            ;
         }
         default:
             // Retour par défaut si une valeur inattendue est passée
@@ -152,19 +174,6 @@ Vecteur<N> Particle<N>::optimizedGetAllForces(Particle<N>* p, float epsilon_time
 }
 
 
-template <std::size_t N>
-Vecteur<N> Particle<N>::optimizedGetAllForcesKDtree(Particle<N>* p, float epsilon_times_24, float sigma) const {
-    // Combine all forces
-    Vecteur<N>distance_vect = (p->getPosition() - position);
-    double distance = distance_vect.norm();
-    double distance_squared = distance * distance;
-    double tmp = sigma / distance;
-    double pow_6 = tmp * tmp * tmp;
-    pow_6 *= pow_6;
-    double lennard_jones = epsilon_times_24 / (distance_squared) * pow_6 * (1 - 2 * pow_6);
-    double gravity = mass * p->getMass() / (distance_squared * distance);
-    return (lennard_jones + gravity) * distance_vect;
-}
 
 template <std::size_t N>
 std::array<int, N> Particle<N>::getCellIndexofParticle(double cellLength) const {

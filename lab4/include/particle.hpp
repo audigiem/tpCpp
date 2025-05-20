@@ -154,7 +154,7 @@ public:
      * @param p Pointer to the other particle
      * @return Force vector from gravity
      */
-    Vecteur<N> getGravityForce(Particle<N>*& p) const;
+    Vecteur<N> getGravityForce(Particle<N>* p) const;
     
     /**
      * @brief Calculate Lennard-Jones force between this particle and another
@@ -163,7 +163,7 @@ public:
      * @param sigma Distance at which the potential is zero
      * @return Force vector from Lennard-Jones potential
      */
-    Vecteur<N> getLennardJonesForce(Particle<N>*& p, float epsilon, float sigma) const;
+    Vecteur<N> getLennardJonesForce(Particle<N>* p, float epsilon, float sigma) const;
     
     /**
      * @brief Calculate all forces (gravity and Lennard-Jones) between this particle and another
@@ -172,7 +172,7 @@ public:
      * @param sigma Distance at which the potential is zero for Lennard-Jones
      * @return Combined force vector
      */
-    Vecteur<N> getAllForces(Particle<N>*& p, float epsilon, float sigma) const;
+    Vecteur<N> getAllForces(Particle<N>* p, float epsilon, float sigma) const;
     
     /**
      * @brief Optimized version of getAllForces with pre-calculated parameters
@@ -197,15 +197,6 @@ public:
      */
     void updateVelocityWithKineticEnergyControl(double targetedKineticEnergy);
 
-    /**
-     * @brief KD-tree optimized version of force calculation
-     * @param p Pointer to the other particle
-     * @param epsilon_times_24 Pre-calculated value of 24*epsilon
-     * @param sigma Distance at which the potential is zero
-     * @return Combined force vector using KD-tree optimization
-     */
-    Vecteur<N> optimizedGetAllForcesKDtree(Particle<N>* p, float epsilon_times_24, float sigma) const;
-    
     /**
      * @brief Calculate the cell index for spatial partitioning
      * @param cellLength Length of each cell

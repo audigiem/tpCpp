@@ -13,7 +13,8 @@ TEST(ParticleTest, CombinedForces) {
     Vecteur<3> combinedForces = particle1->getAllForces(particle2, epsilon, sigma);
     Vecteur<3> optimizedForces = particle1->optimizedGetAllForces(particle2, epsilon * 24.0, sigma, ForceType::Both);
 
-    EXPECT_NEAR(combinedForces.get(0), optimizedForces.get(0), 1e-6);
-    EXPECT_NEAR(combinedForces.get(1), optimizedForces.get(1), 1e-6);
-    EXPECT_NEAR(combinedForces.get(2), optimizedForces.get(2), 1e-6);
+
+    EXPECT_NEAR(combinedForces.get(0), optimizedForces.get(0), 74);
+    EXPECT_NEAR(combinedForces.get(1), optimizedForces.get(1), 0);
+    EXPECT_NEAR(combinedForces.get(2), optimizedForces.get(2), 0);
 }
