@@ -88,6 +88,13 @@ add_custom_target(demo_collision
     COMMENT "Running collision simulation demo"
 )
 
+add_custom_target(demo_collision2
+    COMMAND simulationCollision2
+    DEPENDS simulationCollision2
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Running collision simulation demo 2"
+)
+
 add_custom_target(demo_planet
     COMMAND simulationPlanet
     DEPENDS simulationPlanet
@@ -97,7 +104,7 @@ add_custom_target(demo_planet
 
 # Default demo target
 add_custom_target(demo
-    COMMAND ${CMAKE_COMMAND} -E echo "Please specify which demo to run: 'make demo_collision' or 'make demo_planet'"
+    COMMAND ${CMAKE_COMMAND} -E echo "Please specify which demo to run: 'make demo_collision', 'make demo_planet', or 'make demo_collision2'."
 )
 
 # Add Doxygen documentation support

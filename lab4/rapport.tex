@@ -64,6 +64,13 @@
 Ce rapport présente une implémentation C++ d'un système de simulation de particules en N dimensions. Le projet utilise de nombreuses optimisations pour simuler efficacement les interactions entre particules. Cette bibliothèques ce calcul scientifique permet de modéliser des phénomènes physiques tels que les forces de Lennard-Jones et la gravitation.
 \end{abstract}
 
+\vspace{5cm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{assets/ensimag.png}
+\end{figure}
+
 \newpage
 
 \tableofcontents
@@ -453,16 +460,16 @@ Le partitionnement spatial permet de réduire le nombre de calculs nécessaires 
 \begin{minipage}{\textwidth}
 \begin{verbatim}
 Performance Summary:
-Frequency  Total Time      Setup Time      Simulation Time
+Cutoff     Total Time      Setup Time      Simulation Time
 -------------------------------------------------------
-1          43.15           0.00            43.15          
-2          30.59           0.00            30.58          
-5          18.59           0.00            18.58          
-10         15.37           0.00            15.37          
-20         15.57           0.00            15.56          
-50         14.17           0.00            14.17          
-100        12.69           0.00            12.69          
-200        13.66           0.00            13.66     
+1.00       4.95            0.02            4.92           
+2.00       10.47           0.00            10.46          
+3.00       13.97           0.00            13.97          
+4.00       15.97           0.00            15.96          
+5.00       19.68           0.00            19.68          
+10.00      35.44           0.00            35.44          
+20.00      100.51          0.00            100.51         
+50.00      456.42          0.00            456.41    
 \end{verbatim}
 \end{minipage}
 \caption{Tableau de performance du partitionnement spatial}
@@ -482,16 +489,16 @@ L'exportation des données au format VTK a un impact sur les performances dû au
 \begin{minipage}{\textwidth}
 \begin{verbatim}
 Performance Summary:
-Cutoff     Total Time      Setup Time      Simulation Time
+Frequency  Total Time      Setup Time      Simulation Time
 -------------------------------------------------------
-1.00       4.95            0.02            4.92           
-2.00       10.47           0.00            10.46          
-3.00       13.97           0.00            13.97          
-4.00       15.97           0.00            15.96          
-5.00       19.68           0.00            19.68          
-10.00      35.44           0.00            35.44          
-20.00      100.51          0.00            100.51         
-50.00      456.42          0.00            456.41    
+1          43.15           0.00            43.15          
+2          30.59           0.00            30.58          
+5          18.59           0.00            18.58          
+10         15.37           0.00            15.37          
+20         15.57           0.00            15.56          
+50         14.17           0.00            14.17          
+100        12.69           0.00            12.69          
+200        13.66           0.00            13.66    
 \end{verbatim}
 \end{minipage}
 \caption{Tableau de performance de l'exportation VTK}
