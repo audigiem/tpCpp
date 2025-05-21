@@ -44,7 +44,7 @@ int main() {
         Vecteur<2> v({0.0, -10.0});
         Vecteur<2> v2({0.0, 0.0});
         int N1 = 395;
-        int N2 = 160; //160
+        int N2 = 17227;
         double cutOffRadius = 2.5 * sigma;
 
         bool kineticEnergyControl = true;
@@ -52,52 +52,23 @@ int main() {
         int freqUpdateKineticEnergy = 1000;
         double targetedKineticEnergy = 0.005;
         double dt = 0.0005;
-        double tEnd = 19.5;
+        double tEnd = 29.5;
 
+        double gravitationalConstant = -12;
 
 
 
         Univers<2> univers({L1, L2}, cutOffRadius);
-        // particle of the red square:
-        // 40x40 particles equidistributed, distance between particles = (2^{1/6}/sigma)
+        // particle of the circle
+        // N1 particle in a circle equidistributed, distance between particles = (2^{1/6}/sigma)
         double spacing = std::pow(2.0, 1.0 / 6.0) / sigma;
-        double squareLength = N1*spacing;
-        double rectangleLength = N2*spacing;
-        std::array<double, 2> offset = {(L1 - squareLength)/2, (L2 - 1.1*squareLength)};
-        int id = 0;
-        for (int i = 0; i < N1; ++i) {
-            for (int j = 0; j < N1; ++j) {
-                Vecteur<2> position({offset[0] + i * spacing, offset[1] + j * spacing});
-                // std::cout << "position: " << position << std::endl;
-                Particle<2>* particle = new Particle<2>(id++, position, v, mass, "red");
-                try {
-                    univers.addParticle(particle);
-                } catch (const std::runtime_error& e) {
-                    std::cerr << "Error: " << e.what() << std::endl;
-                    // stop the simulation or handle the error, return exit(1);
-                    exit(1);
-                }
-
-            }
+        Vecteur<2> circleCenter({L1/2, 0.7*L2});
+        for (int i = 0; i < N1; i++) {
+            
         }
 
-        // particle of the blue rectangle:
-        // 160x40 particles equidistributed, distance between particles = (2^{1/6}/sigma)
-        std::array<double, 2> offset2 = {(L1 - rectangleLength)/2, L2 - 2.2*squareLength};
 
-        for (int i = 0; i < N2; ++i) {
-            for (int j = 0; j < N1; ++j) {
-                Vecteur<2> position({offset2[0] + i * spacing, offset2[1] + j * spacing});
-                Particle<2>* particle = new Particle<2>(id++, position, v2, mass, "blue");
-                try {
-                    univers.addParticle(particle);
-                } catch (const std::runtime_error& e) {
-                    std::cerr << "Error: " << e.what() << std::endl;
-                    // stop the simulation or handle the error, return exit(1);
-                    exit(1);
-                }
-            }
-        }
+
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> duration = end - start;

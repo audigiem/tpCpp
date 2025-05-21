@@ -254,6 +254,19 @@ public:
      */
     void computeAllForcesOnParticle(float epsilon, float sigma, ForceType forceType);
 
+
+    /**
+     * @brief Compute all the forces applied on each particle and store it in each particle
+     * !! this function overloads the forces already stored in the particle !!
+     * and saves the previous forces in the particle
+     * we consider only the particles in the neighbourhood of the particle
+     * @param epsilon Lennard-Jones potential depth parameter
+     * @param sigma Lennard-Jones potential distance parameter
+     * @param forceType Type of force to apply (gravity, Lennard-Jones, or both)
+     * @param gravitationalConstant gravitational constant, external force to apply to each particle
+     */
+    void computeAllForcesOnParticleANDGravitationalPotential(float epsilon, float sigma, ForceType forceType, double gravitationalConstant);
+
     /**
      * @brief Update the simulation state for one time step using the Stromer-Verlet method
      * @param dt Time step size

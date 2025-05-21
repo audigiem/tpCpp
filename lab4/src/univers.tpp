@@ -314,6 +314,32 @@ void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma, ForceTyp
 }
 
 
+template<std::size_t N>
+void Univers<N>::computeAllForcesOnParticleANDGravitationalPotential(float epsilon, float sigma, ForceType forceType, double gravitationalConstant) {
+    Vecteur<N> currentForce;
+    epsilon *= 24;
+    for (const auto& particle : particles) {
+        // save the previous force for all the particles before the calculation
+        particle->saveForce(particle->getForce());
+        particle->resetForce();
+    }
+
+    for(const auto& particle : particles) {
+        // we search for the particle's neighbourhood
+        std::vector<Particle<N>*> neighbourParticles = getParticlesInNeighbourhood(particle);
+        for(const auto& neighbourParticle : neighbourParticles) {
+            // for each particle in the neighbourhood, we compare ID to do the calculation only once
+            if (particle->getId() < neighbourParticle->getId()) {
+                currentForce = particle->optimizedGetAllForces(neighbourParticle, epsilon, sigma, forceType);
+                particle->applyForce(currentForce);
+                neighbourParticle->applyForce(-currentForce);
+            }
+        }
+    }
+
+}
+
+
 template <std::size_t N>
 Vecteur<N> Univers<N>::applyReflectiveLimitConditions(Particle<N>* particle, const Vecteur<N>& newPosition) {
     constexpr double epsilon = 1e-10;  // Tolerance for floating point comparisons
