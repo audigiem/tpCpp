@@ -61,7 +61,7 @@
 \maketitle
 
 \begin{abstract}
-Ce rapport présente une implémentation C++ d'un système de simulation de particules en N dimensions. Le projet utilise des techniques avancées de programmation C++ et d'optimisation pour simuler efficacement les interactions entre particules dans des espaces multidimensionnels. L'application permet de modéliser des phénomènes physiques tels que les forces de Lennard-Jones et la gravitation, tout en utilisant le partitionnement spatial pour optimiser les calculs.
+Ce rapport présente une implémentation C++ d'un système de simulation de particules en N dimensions. Le projet utilise de nombreuses optimisations pour simuler efficacement les interactions entre particules. Cette bibliothèques ce calcul scientifique permet de modéliser des phénomènes physiques tels que les forces de Lennard-Jones et la gravitation.
 \end{abstract}
 
 \newpage
@@ -72,7 +72,7 @@ Ce rapport présente une implémentation C++ d'un système de simulation de part
 
 \section{Introduction}
 
-Dans le contexte du développement logiciel, il est important de se munir de bibliothèques capables de gérer efficacement des simulations de particules, tout en restant rapides, modulaires et simples d'utilisation. Ce projet propose une architecture générique en C++ permettant de simuler des systèmes de particules dans un espace à N dimensions, où N est un paramètre de template. L'objectif est de fournir une base flexible et performante, facilement adaptable à divers cas d'usage, et intégrable dans d'autres projets nécessitant des calculs de dynamique de particules.
+Dans le contexte du développement logiciel, il est important d'avoir des bibliothèques capables de gérer efficacement des simulations, tout en restant rapides, modulaires et simples d'utilisation. Ce projet propose une architecture générique en C++ permettant de simuler des systèmes de particules dans un espace à N dimensions, où N est un paramètre de template. L'objectif est de fournir une base facilement adaptable à divers cas d'usage, et intégrable dans d'autres projets de calcul dynamique de particules.
 
 \subsection{Objectifs du projet}
 
@@ -199,6 +199,27 @@ VTKconverter<N> & Export des données pour visualisation \\
 \caption{Classes principales du système}
 \end{table}
 
+\subsection{Diagrammes}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{assets/diagrammeCasUtilisation.png}
+\caption{Diagramme de cas d'utilisation}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{assets/diagrammeEtatTransition.png}
+\caption{Diagramme d'état de la simulation}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{assets/diagrammeSequence.png}
+\caption{Diagramme de séquence de la simulation}
+\end{figure}
+
+
 \subsection{Diagramme UML des classes}
 
 Le diagramme de classes ci-dessous illustre les relations entre les différentes classes du système:
@@ -207,15 +228,15 @@ Le diagramme de classes ci-dessous illustre les relations entre les différentes
 \centering
 \begin{minipage}{\textwidth}
 \begin{verbatim}
-+-------------+           +-------------+          +-----------+
-|  Univers<N> |>----------| Particle<N> |<---------| Cell<N>   |
-+-------------+           +-------------+          +-----------+
-    |                        |                          |
-    |                        |                          |
-    v                        v                          |
-+----------------+     +----------------+               |
-| VTKconverter<N>|     |  Vecteur<N>    |<--------------+
-+----------------+     +----------------+
++------------+       1..*+-------------+          +--------------+
+|   Cell<N>  |-----------| Particle<N> |----------|  Vecteur<N>  |
++------------+           +-------------+          +--------------+
+      |1..*
+      |
+      |
++---------------+1..1    +-----------------+
+|   Univers<N>  |--------| VTKconverter<N> |
++---------------+        +-----------------+
 \end{verbatim}
 \end{minipage}
 \caption{Diagramme de classes UML du système}
@@ -227,6 +248,7 @@ Le diagramme de classes ci-dessous illustre les relations entre les différentes
 
 La classe Vecteur représente un vecteur mathématique en N dimensions et implémente toutes les opérations vectorielles nécessaires pour la simulation:
 
+\begin{figure}[H]
 \begin{lstlisting}[language=C++, caption=Extrait de la classe Vecteur]
 template <std::size_t N>
 class Vecteur {
@@ -245,6 +267,7 @@ public:
     friend Vecteur<N> operator/(const Vecteur<N>& v, double d);
 };
 \end{lstlisting}
+\end{figure}
 
 \subsection{Optimisations de la classe Vecteur}
 
@@ -261,6 +284,7 @@ Plusieurs micro-optimisations ont été implémentées dans la classe Vecteur po
 
 La classe Particle encapsule toutes les propriétés d'une particule et implémente les méthodes pour calculer les forces entre particules:
 
+\begin{figure}[H]
 \begin{lstlisting}[language=C++, caption=Extrait de la classe Particle]
 template <std::size_t N>
 class Particle {
@@ -287,6 +311,7 @@ public:
     std::array<int, N> getCellIndexofParticle(double cellLength) const;
 };
 \end{lstlisting}
+\end{figure}
 
 \subsection{Optimisations de la classe Particle}
 
@@ -303,6 +328,7 @@ La classe Particle implémente plusieurs optimisations pour les calculs de force
 
 La classe Cell implémente le concept de partitionnement spatial pour optimiser les calculs de voisinage:
 
+\begin{figure}[H]
 \begin{lstlisting}[language=C++, caption=Extrait de la classe Cell]
 template <std::size_t N>
 class Cell {
@@ -323,6 +349,7 @@ public:
     std::vector<std::array<int, N>> getNeighbourCellsIndex() const;
 };
 \end{lstlisting}
+\end{figure}
 
 \subsection{Optimisations de la classe Cell}
 
@@ -337,6 +364,7 @@ La classe Cell optimise le partitionnement spatial:
 
 La classe Univers est le cœur du système, gérant l'ensemble de la simulation:
 
+\begin{figure}[H]
 \begin{lstlisting}[language=C++, caption=Extrait de la classe Univers]
 template <std::size_t N>
 class Univers {
@@ -366,6 +394,7 @@ public:
                                             const Vecteur<N>& newPosition);
 };
 \end{lstlisting}
+\end{figure}
 
 \subsection{Optimisations de la classe Univers}
 
@@ -398,6 +427,8 @@ Le projet utilise des flags de compilation avancés pour maximiser les performan
 
 Les simulations peuvent être visualisées grâce à l'export au format VTK, permettant l'utilisation d'outils comme ParaView pour analyser les résultats.
 
+
+
 \subsection{Exemple de simulation}
 
 Le projet permet de simuler deux types de systèmes principaux:
@@ -409,12 +440,64 @@ Le projet permet de simuler deux types de systèmes principaux:
 
 \section{Performance}
 
-Des tests de performance ont montré que:
+\subsection{Partitionnement spatial}
 
-\begin{itemize}
-    \item Le partitionnement spatial réduit considérablement le temps de calcul pour les grands systèmes
-    \item Les optimisations de compilation améliorent grandement les performances
-\end{itemize}
+Le partitionnement spatial permet de réduire le nombre de calculs nécessaires pour déterminer les forces entre particules. En divisant l'espace en cellules, seules les particules dans des cellules voisines sont considérées pour le calcul des forces, ce qui réduit considérablement le temps de calcul.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{perf/cutoff_radius_performance.png}
+\caption{Temps de simulation en fonction du rayon de coupure}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{\textwidth}
+\begin{verbatim}
+Performance Summary:
+Frequency  Total Time      Setup Time      Simulation Time
+-------------------------------------------------------
+1          43.15           0.00            43.15          
+2          30.59           0.00            30.58          
+5          18.59           0.00            18.58          
+10         15.37           0.00            15.37          
+20         15.57           0.00            15.56          
+50         14.17           0.00            14.17          
+100        12.69           0.00            12.69          
+200        13.66           0.00            13.66     
+\end{verbatim}
+\end{minipage}
+\caption{Tableau de performance du partitionnement spatial}
+\end{figure}
+
+\subsection{Impact de la génération des VTK}
+L'exportation des données au format VTK a un impact sur les performances dû au nombre important d'écriture dans des fichiers nécessaires, mais permet une visualisation efficace des résultats. Le temps d'exportation est proportionnel au nombre de particules et à la complexité de la scène.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{perf/vtk_frequency_performance.png}
+\caption{Temps de simulation en fonction de la fréquence d'exportation VTK}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{\textwidth}
+\begin{verbatim}
+Performance Summary:
+Cutoff     Total Time      Setup Time      Simulation Time
+-------------------------------------------------------
+1.00       4.95            0.02            4.92           
+2.00       10.47           0.00            10.46          
+3.00       13.97           0.00            13.97          
+4.00       15.97           0.00            15.96          
+5.00       19.68           0.00            19.68          
+10.00      35.44           0.00            35.44          
+20.00      100.51          0.00            100.51         
+50.00      456.42          0.00            456.41    
+\end{verbatim}
+\end{minipage}
+\caption{Tableau de performance de l'exportation VTK}
+\end{figure}
 
 \section{Conclusion}
 

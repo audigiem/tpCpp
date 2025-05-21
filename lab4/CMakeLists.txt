@@ -141,3 +141,6 @@ else()
         VERBATIM
     )
 endif()
+
+# Add performance testing
+add_subdirectory(perf)
