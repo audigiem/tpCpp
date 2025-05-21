@@ -277,6 +277,17 @@ public:
      */
     void update(double dt, float epsilon, float sigma, ForceType forceType, LimitConditions limitCondition);
 
+    /**
+     * @brief Update the simulation state for one time step using the Stromer-Verlet method
+     * @param dt Time step size
+     * @param epsilon Lennard-Jones potential depth parameter
+     * @param sigma Lennard-Jones potential distance parameter
+     * @param forceType Type of force to apply (gravity, Lennard-Jones, or both)
+     * @param limitCondition Type of limit condition to apply (reflective, periodic, absorbing)
+     * @param gravitationalConstant gravitational constant, external force to apply to each particle
+     */
+    void updateWithGravitationalPotential(double dt, float epsilon, float sigma, ForceType forceType, LimitConditions limitCondition, double gravitationalConstant);
+
 
     /**
      * @brief Compute the total kinetic energy of the universe

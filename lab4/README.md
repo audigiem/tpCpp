@@ -69,5 +69,6 @@ Ce projet implémente une simulation de particules dans un espace N-dimensionnel
    ```bash
    ./demo/simulationCollision
    ./demo/simulationPlanet
+   ./demo/simulationCollision2
    ```
    
