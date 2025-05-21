@@ -1,6 +1,7 @@
 //
-// Created by matteo on 17/05/25.
+// Created by audigiem on 5/21/25.
 //
+
 
 #include "../include/VTKconverter.hpp"
 #include "../include/univers.hpp"
@@ -32,26 +33,28 @@ int main() {
 
         }
 
-        bool kineticEnergyControl = false;
-        int freqGenerateVTKFile = 100;
-        int freqUpdateKineticEnergy = 1000;
-        double targetedKineticEnergy = 0.005;
-        double dt = 0.0005;
-        double tEnd = 19.5;
-
         // initialize the parameters of the simulation
         double L1 = 250;
-        double L2 = 150;
-        float epsilon = 5.0;
+        double L2 = 180;
+        float epsilon = 1;
         float sigma = 1.0;
         double mass = 1.0;
         // v initial speed of particles in the red square
         // !!! direction of the speed, see subject !!!!
         Vecteur<2> v({0.0, -10.0});
         Vecteur<2> v2({0.0, 0.0});
-        int N1 = 40; //40
+        int N1 = 395;
         int N2 = 160; //160
         double cutOffRadius = 2.5 * sigma;
+
+        bool kineticEnergyControl = true;
+        int freqGenerateVTKFile = 1000;
+        int freqUpdateKineticEnergy = 1000;
+        double targetedKineticEnergy = 0.005;
+        double dt = 0.0005;
+        double tEnd = 19.5;
+
+
 
 
         Univers<2> univers({L1, L2}, cutOffRadius);
@@ -124,7 +127,10 @@ int main() {
             }
             // update the kinetic energy each freqUpdateKineticEnergy time step
             if (step % freqUpdateKineticEnergy == 0 && kineticEnergyControl) {
-                univers.updateKineticEnergy(targetedKineticEnergy);
+                std::cout << "Velocity control by updating the kinetic energy" << std::endl;
+                for (const auto& particle : univers.getParticles()) {
+                    particle->updateVelocityWithKineticEnergyControl(targetedKineticEnergy);
+                }
             }
         }
 

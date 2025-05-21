@@ -69,6 +69,7 @@ private:
     /** @brief Total number of particles in the universe */
     int nbParticles;
 
+
 public:
     /**
      * @brief Constructor for the universe
@@ -262,6 +263,20 @@ public:
      * @param limitCondition Type of limit condition to apply (reflective, periodic, absorbing)
      */
     void update(double dt, float epsilon, float sigma, ForceType forceType, LimitConditions limitCondition);
+
+
+    /**
+     * @brief Compute the total kinetic energy of the universe
+     * @return The total kinetic energy
+     */
+    double computeKineticEnergy() const;
+
+
+    /**
+     * @brief Update the kinetic energy of the universe by scaling the velocities
+     * @param targetedKineticEnergy Targeted kinetic energy for the simulation
+     */
+    void updateKineticEnergy(double targetedKineticEnergy);
 };
 
 #include "../src/univers.tpp"

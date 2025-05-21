@@ -502,3 +502,27 @@ void Univers<N>::showNeighbourhoodsOfParticle(int idOfParticle) const {
 
 }
 
+
+template <std::size_t N>
+double Univers<N>::computeKineticEnergy() const {
+    double totalKineticEnergy = 0.0;
+    for (const auto& particle : particles) {
+        double speed = particle->getVelocity().norm();
+        double kineticEnergy = 0.5 * particle->getMass() * speed * speed;
+        totalKineticEnergy += kineticEnergy;
+    }
+    return totalKineticEnergy;
+}
+
+
+template <std::size_t N>
+void Univers<N>::updateKineticEnergy(double targetedKineticEnergy) {
+    double currentKineticEnergy = computeKineticEnergy();
+    double betaFactor = sqrt(targetedKineticEnergy / currentKineticEnergy);
+    // update the velocity of the particles
+    for (const auto& particle : particles) {
+        Vecteur<N> newVelocity = particle->getVelocity() * betaFactor;
+        particle->setVelocity(newVelocity);
+    }
+}
+
