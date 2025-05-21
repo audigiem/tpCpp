@@ -175,7 +175,6 @@ root/
 `---- test/                   # Tests unitaires
 \end{verbatim}
 
-Cette organisation permet une séparation des préoccupations et facilite la maintenance du code. Les templates C++ sont implémentés dans des fichiers .tpp inclus à la fin des fichiers d'en-tête correspondants, suivant une pratique standard pour les bibliothèques génériques.
 
 Notre simulation est construite autour de cinq classes principales:
 
@@ -427,16 +426,15 @@ Le projet utilise des flags de compilation avancés pour maximiser les performan
 
 Les simulations peuvent être visualisées grâce à l'export au format VTK, permettant l'utilisation d'outils comme ParaView pour analyser les résultats.
 
-
-
 \subsection{Exemple de simulation}
 
-Le projet permet de simuler deux types de systèmes principaux:
-
-\begin{itemize}
-    \item \textbf{Collision}: Simulation de particules avec potentiel de Lennard-Jones
-    \item \textbf{Gravité}: Simulation de corps célestes avec forces gravitationnelles
-\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{assets/visu1.png}
+\includegraphics[width=0.8\textwidth]{assets/visu2.png}
+\includegraphics[width=0.8\textwidth]{assets/visu3.png}
+\caption{Exemples de visualisation de simulation}
+\end{figure}
 
 \section{Performance}
 
