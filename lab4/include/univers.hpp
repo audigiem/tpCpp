@@ -69,6 +69,7 @@ private:
     /** @brief Total number of particles in the universe */
     int nbParticles;
 
+
 public:
     /**
      * @brief Constructor for the universe
@@ -253,6 +254,19 @@ public:
      */
     void computeAllForcesOnParticle(float epsilon, float sigma, ForceType forceType);
 
+
+    /**
+     * @brief Compute all the forces applied on each particle and store it in each particle
+     * !! this function overloads the forces already stored in the particle !!
+     * and saves the previous forces in the particle
+     * we consider only the particles in the neighbourhood of the particle
+     * @param epsilon Lennard-Jones potential depth parameter
+     * @param sigma Lennard-Jones potential distance parameter
+     * @param forceType Type of force to apply (gravity, Lennard-Jones, or both)
+     * @param gravitationalConstant gravitational constant, external force to apply to each particle
+     */
+    void computeAllForcesOnParticleANDGravitationalPotential(float epsilon, float sigma, ForceType forceType, double gravitationalConstant);
+
     /**
      * @brief Update the simulation state for one time step using the Stromer-Verlet method
      * @param dt Time step size
@@ -262,6 +276,31 @@ public:
      * @param limitCondition Type of limit condition to apply (reflective, periodic, absorbing)
      */
     void update(double dt, float epsilon, float sigma, ForceType forceType, LimitConditions limitCondition);
+
+    /**
+     * @brief Update the simulation state for one time step using the Stromer-Verlet method
+     * @param dt Time step size
+     * @param epsilon Lennard-Jones potential depth parameter
+     * @param sigma Lennard-Jones potential distance parameter
+     * @param forceType Type of force to apply (gravity, Lennard-Jones, or both)
+     * @param limitCondition Type of limit condition to apply (reflective, periodic, absorbing)
+     * @param gravitationalConstant gravitational constant, external force to apply to each particle
+     */
+    void updateWithGravitationalPotential(double dt, float epsilon, float sigma, ForceType forceType, LimitConditions limitCondition, double gravitationalConstant);
+
+
+    /**
+     * @brief Compute the total kinetic energy of the universe
+     * @return The total kinetic energy
+     */
+    double computeKineticEnergy() const;
+
+
+    /**
+     * @brief Update the kinetic energy of the universe by scaling the velocities
+     * @param targetedKineticEnergy Targeted kinetic energy for the simulation
+     */
+    void updateKineticEnergy(double targetedKineticEnergy);
 };
 
 #include "../src/univers.tpp"

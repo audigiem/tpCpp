@@ -186,18 +186,6 @@ public:
 
 
     /**
-     * @brief Calculate the kinetic energy of the particle
-     * @return The kinetic energy value
-     */
-    double getKineticEnergy() const;
-
-    /**
-     * @brief Update the particle's velocity based on the targeted kinetic energy
-     * @param targetedKineticEnergy The desired kinetic energy value
-     */
-    void updateVelocityWithKineticEnergyControl(double targetedKineticEnergy);
-
-    /**
      * @brief Calculate the cell index for spatial partitioning
      * @param cellLength Length of each cell
      * @return Array of indices representing the cell containing the particle

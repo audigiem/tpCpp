@@ -124,10 +124,7 @@ int main() {
             }
             // update the kinetic energy each freqUpdateKineticEnergy time step
             if (step % freqUpdateKineticEnergy == 0 && kineticEnergyControl) {
-                std::cout << "Velocity control by updating the kinetic energy" << std::endl;
-                for (const auto& particle : univers.getParticles()) {
-                    particle->updateVelocityWithKineticEnergyControl(targetedKineticEnergy);
-                }
+                univers.updateKineticEnergy(targetedKineticEnergy);
             }
         }
 

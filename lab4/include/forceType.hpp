@@ -12,7 +12,7 @@
 enum class ForceType {
     Gravity,
     LennardJones,
-    Both
+    Both,
 };
 
 #endif //FORCETYPE_H

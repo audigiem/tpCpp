@@ -1,5 +1,7 @@
 add_executable(simulationCollision collision.cpp)
 add_executable(simulationPlanet planetGravity.cpp)
+add_executable(simulationCollision2 collisionBis.cpp)
 
 target_link_libraries(simulationCollision vtkconverter univers cell particle vecteur)
 target_link_libraries(simulationPlanet vtkconverter univers cell particle vecteur)
+target_link_libraries(simulationCollision2 vtkconverter univers cell particle vecteur)

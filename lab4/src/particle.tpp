@@ -196,21 +196,6 @@ bool Particle<N>::operator!=(const Particle<N>& other) const {
     return !(*this == other);
 }
 
-template <std::size_t N>
-double Particle<N>::getKineticEnergy() const {
-    // Calculate the kinetic energy of the particle
-    double norm_velocity = velocity.norm();
-    return 0.5 * mass * norm_velocity * norm_velocity;
-}
-
-template <std::size_t N>
-void Particle<N>::updateVelocityWithKineticEnergyControl(double targetedKineticEnergy) {
-    // Update the particle's velocity based on the targeted kinetic energy
-    double beta = sqrt(targetedKineticEnergy/getKineticEnergy());
-    for (std::size_t i = 0; i < N; ++i) {
-        velocity.set(i, beta * velocity.get(i));
-    }
-}
 
 template<std::size_t N>
 void Particle<N>::showParticle() {

@@ -314,6 +314,36 @@ void Univers<N>::computeAllForcesOnParticle(float epsilon, float sigma, ForceTyp
 }
 
 
+template<>
+void Univers<2>::computeAllForcesOnParticleANDGravitationalPotential(float epsilon, float sigma, ForceType forceType, double gravitationalConstant) {
+    Vecteur<2> currentForce;
+    epsilon *= 24;
+    Vecteur<2> gravityForce({0, gravitationalConstant});
+    for (const auto& particle : particles) {
+        // save the previous force for all the particles before the calculation
+        particle->saveForce(particle->getForce());
+        particle->resetForce();
+
+        // apply the gravitational force
+        particle->applyForce(gravityForce);
+    }
+
+    for(const auto& particle : particles) {
+        // we search for the particle's neighbourhood
+        std::vector<Particle<2>*> neighbourParticles = getParticlesInNeighbourhood(particle);
+        for(const auto& neighbourParticle : neighbourParticles) {
+            // for each particle in the neighbourhood, we compare ID to do the calculation only once
+            if (particle->getId() < neighbourParticle->getId()) {
+                currentForce = particle->optimizedGetAllForces(neighbourParticle, epsilon, sigma, forceType);
+                particle->applyForce(currentForce);
+                neighbourParticle->applyForce(-currentForce);
+            }
+        }
+    }
+
+}
+
+
 template <std::size_t N>
 Vecteur<N> Univers<N>::applyReflectiveLimitConditions(Particle<N>* particle, const Vecteur<N>& newPosition) {
     constexpr double epsilon = 1e-10;  // Tolerance for floating point comparisons
@@ -500,5 +530,87 @@ void Univers<N>::showNeighbourhoodsOfParticle(int idOfParticle) const {
         std::cout << "Cell not found" << std::endl;
     }
 
+}
+
+
+template <std::size_t N>
+double Univers<N>::computeKineticEnergy() const {
+    double totalKineticEnergy = 0.0;
+    for (const auto& particle : particles) {
+        double speed = particle->getVelocity().norm();
+        double kineticEnergy = 0.5 * particle->getMass() * speed * speed;
+        totalKineticEnergy += kineticEnergy;
+    }
+    return totalKineticEnergy;
+}
+
+
+template <std::size_t N>
+void Univers<N>::updateKineticEnergy(double targetedKineticEnergy) {
+    double currentKineticEnergy = computeKineticEnergy();
+    double betaFactor = sqrt(targetedKineticEnergy / currentKineticEnergy);
+    // update the velocity of the particles
+    for (const auto& particle : particles) {
+        Vecteur<N> newVelocity = particle->getVelocity() * betaFactor;
+        particle->setVelocity(newVelocity);
+    }
+}
+
+
+template <>
+void Univers<2>::updateWithGravitationalPotential(double dt, float epsilon, float sigma, ForceType forceType, LimitConditions limitCondition, double gravitationalConstant) {
+
+    std::function<Vecteur<2>(Particle<2>*, const Vecteur<2>&)> applyLimitConditions;
+
+    // Initialiser la fonction en fonction de la condition choisie
+    switch (limitCondition) {
+        case LimitConditions::Reflective:
+            applyLimitConditions = [this](Particle<2>* p, const Vecteur<2>& pos) {
+                return applyReflectiveLimitConditions(p, pos);
+        };
+        break;
+        case LimitConditions::Periodic:
+            applyLimitConditions = [this](Particle<2>* p, const Vecteur<2>& pos) {
+                return applyPeriodicLimitConditions(p, pos);
+        };
+        break;
+        case LimitConditions::Absorbing:
+            applyLimitConditions = [this](Particle<2>* p, const Vecteur<2>& pos) {
+                return applyAbsorbingLimitConditions(p, pos);
+        };
+        break;
+    }
+
+    // we loop through the particles and update their position
+    for (const auto& p : particles) {
+        // update the position of the particle
+        Vecteur<2> newPosition = p->getPosition() + p->getVelocity() * dt + (p->getForce() / p->getMass()) * (dt * dt) / 2;
+        // update the cells configuration (of the original cells)
+        try {
+            newPosition = applyLimitConditions(p, newPosition);
+        } catch (const std::runtime_error& e) {
+            // delete the particle from the universe
+            std::cout << e.what() << std::endl;
+            break;
+        }
+
+        try {
+            updateParticlePositionInCell(p, newPosition);
+        } catch (const std::runtime_error& e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+            // stop the simulation or handle the error, return exit(1);
+            p->showParticle();
+            exit(1);
+        }
+        p->setPosition(newPosition);
+
+    }
+    computeAllForcesOnParticleANDGravitationalPotential(epsilon, sigma, forceType, gravitationalConstant);
+
+    for (const auto& p : particles) {
+        // update the velocity of the particle
+        Vecteur<2> newVelocity = p->getVelocity() + dt * 0.5/p->getMass() * (p->getForce() + p->getOldForce());
+        p->setVelocity(newVelocity);
+    }
 }
 
